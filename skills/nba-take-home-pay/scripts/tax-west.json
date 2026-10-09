@@ -1,0 +1,1161 @@
+{
+  "schema_version": 2,
+  "checked_at": "2026-10-09",
+  "filing_status": "single_is_backward_compatible_default",
+  "scope": "Independent under-65 wages-only Single or MFJ household; no dependents/itemizing/other income. gross includes spouse_wages. Nonresident share is player source wages / household wages; spouse wages occur only in the shared resident state. Payroll takes each employee separately.",
+  "sources": {
+    "CA_INDEX": {
+      "id": "CA_INDEX",
+      "title": "California FTB Tax News October 2026 — 2026 indexing",
+      "url": "https://www.ftb.ca.gov/about-ftb/newsroom/tax-news/",
+      "checked_at": "2026-10-09"
+    },
+    "CA_540": {
+      "id": "CA_540",
+      "title": "2025 Form 540 booklet — exemption credit phaseout and BHS surtax",
+      "url": "https://www.ftb.ca.gov/forms/2025/2025-540-booklet.html",
+      "checked_at": "2026-10-09"
+    },
+    "CA_NR": {
+      "id": "CA_NR",
+      "title": "2025 Form 540NR booklet — effective-rate sourcing and BHS surtax",
+      "url": "https://www.ftb.ca.gov/forms/2025/2025-540nr-booklet.html",
+      "checked_at": "2026-10-09"
+    },
+    "CA_CREDIT": {
+      "id": "CA_CREDIT",
+      "title": "2025 Schedule S instructions",
+      "url": "https://www.ftb.ca.gov/forms/2025/2025-540-s-instructions.html",
+      "checked_at": "2026-10-09"
+    },
+    "CA_SDI": {
+      "id": "CA_SDI",
+      "title": "EDD 2026 contribution rates",
+      "url": "https://edd.ca.gov/en/payroll_taxes/Rates_and_Withholding",
+      "checked_at": "2026-10-09"
+    },
+    "CA_LOCALIZE": {
+      "id": "CA_LOCALIZE",
+      "title": "EDD DE231D multistate employment coverage tests",
+      "url": "https://edd.ca.gov/siteassets/files/pdf_pub_ctr/de231d.pdf",
+      "checked_at": "2026-10-09"
+    },
+    "OR_EST": {
+      "id": "OR_EST",
+      "title": "2026 Publication OR-ESTIMATE — projected 2026 tax parameters",
+      "url": "https://www.oregon.gov/dor/forms/FormsPubs/publication-or-estimate_101-026_2026.pdf",
+      "checked_at": "2026-10-09"
+    },
+    "OR_WHT": {
+      "id": "OR_WHT",
+      "title": "2026 Oregon Withholding Tax Formulas — indexed deductions/exemption",
+      "url": "https://www.oregon.gov/dor/forms/FormsPubs/withholding-tax-formulas_206-436_2026.pdf",
+      "checked_at": "2026-10-09"
+    },
+    "OR_GUIDE": {
+      "id": "OR_GUIDE",
+      "title": "2025 Oregon Individual Income Tax Guide",
+      "url": "https://www.oregon.gov/dor/forms/FormsPubs/publication-or-17_101-431_2025.pdf",
+      "checked_at": "2026-10-09"
+    },
+    "OR_ATHLETE": {
+      "id": "OR_ATHLETE",
+      "title": "OAR 150-316-0175 nonresident professional athletes",
+      "url": "https://secure.sos.state.or.us/oard/view.action?ruleNumber=150-316-0175",
+      "checked_at": "2026-10-09"
+    },
+    "OR_TRANSIT": {
+      "id": "OR_TRANSIT",
+      "title": "Oregon Statewide Transit Tax — Measure 120 failed, current 0.1%",
+      "url": "https://www.oregon.gov/dor/programs/businesses/pages/statewide-transit-tax.aspx",
+      "checked_at": "2026-10-09"
+    },
+    "OR_LEAVE": {
+      "id": "OR_LEAVE",
+      "title": "Paid Leave Oregon employee contributions",
+      "url": "https://paidleave.oregon.gov/employees/overview.html",
+      "checked_at": "2026-10-09"
+    },
+    "OR_CREDITS": {
+      "id": "OR_CREDITS",
+      "title": "Oregon personal exemption income ceiling",
+      "url": "https://www.oregon.gov/dor/programs/individuals/Pages/credits.aspx",
+      "checked_at": "2026-10-09"
+    },
+    "PORTLAND": {
+      "id": "PORTLAND",
+      "title": "Portland SHS/PFA rates, residence/source rules, 2026–27 thresholds",
+      "url": "https://www.portland.gov/revenue/personal-tax",
+      "checked_at": "2026-10-09"
+    },
+    "AZ_STD": {
+      "id": "AZ_STD",
+      "title": "Arizona Revised Statutes 43-1041 standard deduction indexed like federal",
+      "url": "https://www.azleg.gov/ars/43/01041.htm",
+      "checked_at": "2026-10-09"
+    },
+    "AZ_RATE": {
+      "id": "AZ_RATE",
+      "title": "Arizona DOR income tax highlights — 2.5% flat rate",
+      "url": "https://azdor.gov/forms/individual-income-tax-highlights",
+      "checked_at": "2026-10-09"
+    },
+    "AZ_CREDIT": {
+      "id": "AZ_CREDIT",
+      "title": "Arizona Revised Statutes 43-1096 nonresident credit for resident-state taxes",
+      "url": "https://www.azleg.gov/ars/43/01096.htm",
+      "checked_at": "2026-10-09"
+    },
+    "CO_GUIDE": {
+      "id": "CO_GUIDE",
+      "title": "Colorado Individual Income Tax Guide — rates and 2026 deduction cap",
+      "url": "https://tax.colorado.gov/individual-income-tax-guide",
+      "checked_at": "2026-10-09"
+    },
+    "CO_FAMLI": {
+      "id": "CO_FAMLI",
+      "title": "Colorado Department of Labor bulletin — 2027 0.86%, 2026 0.88% FAMLI total rate",
+      "url": "https://content.govdelivery.com/accounts/CODLE/bulletins/42d3518",
+      "checked_at": "2026-10-09"
+    },
+    "CO_FAMLI_NOTICE": {
+      "id": "CO_FAMLI_NOTICE",
+      "title": "Colorado State University FAMLI explanation: 2026 employee 0.44%, employer 0.44%",
+      "url": "https://hr.colostate.edu/colorado-famli-program/",
+      "checked_at": "2026-10-09"
+    },
+    "DENVER_OPT": {
+      "id": "DENVER_OPT",
+      "title": "Denver Tax Guide Topic 61 Occupational Privilege Taxes",
+      "url": "https://www.denvergov.org/content/dam/denvergov/Portals/571/documents/TaxGuide/TaxGuideTopic61_OccupationalPrivilegeTaxes.pdf",
+      "checked_at": "2026-10-09"
+    },
+    "UT_RATE": {
+      "id": "UT_RATE",
+      "title": "Utah Code 59-10-104 effective January 2026 — 4.45%",
+      "url": "https://le.utah.gov/xcode/title59/chapter10/C59-10-S104_2026050620260506.pdf",
+      "checked_at": "2026-10-09"
+    },
+    "UT_CREDIT": {
+      "id": "UT_CREDIT",
+      "title": "Utah Tax Commission January 2026 — taxpayer credit 6% and phaseout",
+      "url": "https://files.tax.utah.gov/tax/train/webinars/2026-01-15-presentation.pdf",
+      "checked_at": "2026-10-09"
+    },
+    "OK_RATE": {
+      "id": "OK_RATE",
+      "title": "Oklahoma 2025 legislation summary — enacted 2026 brackets",
+      "url": "https://oklahoma.gov/content/dam/ok/en/tax/documents/resources/publications/legislation/2025LegislativeUpdate.pdf",
+      "checked_at": "2026-10-09"
+    },
+    "OK_DED": {
+      "id": "OK_DED",
+      "title": "Oklahoma filing rules — fixed standard deduction",
+      "url": "https://oklahoma.gov/tax/individuals/file-taxes.html",
+      "checked_at": "2026-10-09"
+    },
+    "OK_GUIDE": {
+      "id": "OK_GUIDE",
+      "title": "2025 Form511 official packet pp10/25: $12700 joint deduction and $1000 per personal exemption",
+      "url": "https://oklahoma.gov/content/dam/ok/en/tax/documents/forms/individuals/current/511-Pkt.pdf",
+      "checked_at": "2026-10-09"
+    },
+    "TX_CONSTITUTION": {
+      "id": "TX_CONSTITUTION",
+      "title": "Texas Constitution Article VIII section 24-a — individual income tax prohibition",
+      "url": "https://statutes.capitol.texas.gov/Docs/CN/htm/CN.8.htm",
+      "checked_at": "2026-10-09"
+    },
+    "LA_EST": {
+      "id": "LA_EST",
+      "title": "Louisiana 2026 IT-540ES instructions — rate and estimated deduction",
+      "url": "https://dam.ldr.la.gov/taxforms/IT540ESi-2026.pdf",
+      "checked_at": "2026-10-09"
+    },
+    "LA_LAW": {
+      "id": "LA_LAW",
+      "title": "Louisiana R.S.47:294 standard deduction indexed from 2026",
+      "url": "https://www.legis.la.gov/legis/Law.aspx?d=101761",
+      "checked_at": "2026-10-09"
+    },
+    "MN_INDEX": {
+      "id": "MN_INDEX",
+      "title": "Minnesota 2026 inflation adjusted tax parameters",
+      "url": "https://www.revenue.state.mn.us/sites/default/files/2025-12/inflation-adjusted-amounts-2026.pdf",
+      "checked_at": "2026-10-09"
+    },
+    "MN_BRACKETS": {
+      "id": "MN_BRACKETS",
+      "title": "Minnesota 2026 brackets and deductions announcement",
+      "url": "https://www.revenue.state.mn.us/press-release/2025-12-16/minnesota-income-tax-brackets-standard-deduction-and-dependent-exemption",
+      "checked_at": "2026-10-09"
+    },
+    "MN_DED": {
+      "id": "MN_DED",
+      "title": "Minnesota Statutes 290.0123 standard deduction phaseout",
+      "url": "https://www.revisor.mn.gov/statutes/cite/290.0123",
+      "checked_at": "2026-10-09"
+    },
+    "MN_LEAVE": {
+      "id": "MN_LEAVE",
+      "title": "Minnesota Statutes 268B.14 employee share and OASDI wage cap",
+      "url": "https://www.revisor.mn.gov/statutes/cite/268B.14",
+      "checked_at": "2026-10-09"
+    },
+    "MN_LEAVE_RATE": {
+      "id": "MN_LEAVE_RATE",
+      "title": "Minnesota DEED 2027 premium unchanged at 2026 0.88%",
+      "url": "https://content.govdelivery.com/accounts/MNDEED/bulletins/422fdf7?reqfrom=share",
+      "checked_at": "2026-10-09"
+    },
+    "WI_WT4A": {
+      "id": "WI_WT4A",
+      "title": "Wisconsin 2026 WT-4A worksheet — brackets and sliding deduction",
+      "url": "https://www.revenue.wi.gov/TaxForms2017through2019/w-234f.pdf",
+      "checked_at": "2026-10-09"
+    },
+    "WI_EXEMPT": {
+      "id": "WI_EXEMPT",
+      "title": "Wisconsin 2025 Form 1 instructions — personal exemption $700",
+      "url": "https://www.revenue.wi.gov/TaxForms2025/2025-Form1-inst.pdf",
+      "checked_at": "2026-10-09"
+    },
+    "IL_EXEMPT": {
+      "id": "IL_EXEMPT",
+      "title": "Illinois FY2026-15 — 2026 personal exemption $2925",
+      "url": "https://tax.illinois.gov/content/dam/soi/en/web/tax/research/publications/bulletins/documents/2026/fy-2026-15.pdf",
+      "checked_at": "2026-10-09"
+    },
+    "IL_RATE": {
+      "id": "IL_RATE",
+      "title": "Illinois FY2024-02 — 4.95%, no personal exemption above AGI $250k single",
+      "url": "https://tax.illinois.gov/content/dam/soi/en/web/tax/research/publications/bulletins/documents/2024/fy-2024-02.pdf",
+      "checked_at": "2026-10-09"
+    },
+    "IL_NR": {
+      "id": "IL_NR",
+      "title": "Illinois Publication 119 — nonresident athletes and reciprocal wages",
+      "url": "https://tax.illinois.gov/research/publications/pubs/illinois-schedule-nr-for-individuals.html",
+      "checked_at": "2026-10-09"
+    },
+    "IL_WHT": {
+      "id": "IL_WHT",
+      "title": "Illinois Publication 130 — athlete duty days, reciprocal states",
+      "url": "https://tax.illinois.gov/research/publications/pubs/who-is-required-to-withhold-illinois-income-tax/withholding-illinois-income-tax-for-my-employees.html",
+      "checked_at": "2026-10-09"
+    },
+    "FED_INDEX": {
+      "id": "FED_INDEX",
+      "title": "IRS 2026 inflation adjustments",
+      "url": "https://www.irs.gov/newsroom/irs-releases-tax-inflation-adjustments-for-tax-year-2026-including-amendments-from-the-one-big-beautiful-bill",
+      "checked_at": "2026-10-09"
+    },
+    "PORTLAND_CREDIT": {
+      "id": "PORTLAND_CREDIT",
+      "title": "Portland tax administration policy: credit for taxes paid to another state",
+      "url": "https://www.portland.gov/revenue/policy-credit-taxes-paid-another-state",
+      "checked_at": "2026-10-09"
+    },
+    "PORTLAND_CREDIT_FORM": {
+      "id": "PORTLAND_CREDIT_FORM",
+      "title": "2025 MC-40-NP instructions, local credit eligibility",
+      "url": "https://www.portland.gov/revenue/2025mc40np-instructions",
+      "checked_at": "2026-10-09"
+    },
+    "IL_AGGREGATE_CREDIT": {
+      "id": "IL_AGGREGATE_CREDIT",
+      "title": "Illinois Schedule CR 2025 instructions, lines1/43/51-55; aggregate US state and local income tax credit",
+      "url": "https://tax.illinois.gov/forms/incometax/currentyear/individual/il-1040-schedule-cr-instr.html",
+      "checked_at": "2026-10-09"
+    },
+    "IL_CREDIT_FORM": {
+      "id": "IL_CREDIT_FORM",
+      "title": "Illinois Schedule CR form, one combined ceiling and three-decimal ratio",
+      "url": "https://tax.illinois.gov/content/dam/soi/en/web/tax/forms/incometax/documents/currentyear/individual/il-1040-schedule-cr.pdf",
+      "checked_at": "2026-10-09"
+    },
+    "WI_CREDIT_LOCAL": {
+      "id": "WI_CREDIT_LOCAL",
+      "title": "Wisconsin Publication125 January2026 p5: Indiana county net income tax collected by state qualifies",
+      "url": "https://www.revenue.wi.gov/DOR%20Publications/pb125.pdf",
+      "checked_at": "2026-10-09"
+    },
+    "WI_RECIPROCITY": {
+      "id": "WI_RECIPROCITY",
+      "title": "Wisconsin Publication121 January2026: reciprocal employee compensation and residency exceptions",
+      "url": "https://www.revenue.wi.gov/DOR%20Publications/pb121.pdf",
+      "checked_at": "2026-10-09"
+    },
+    "MN_RECIPROCITY": {
+      "id": "MN_RECIPROCITY",
+      "title": "Minnesota reciprocity factsheet4: Michigan/North Dakota, monthly return condition",
+      "url": "https://www.revenue.state.mn.us/reciprocity-income-tax-fact-sheet-4",
+      "checked_at": "2026-10-09"
+    },
+    "MN_CREDIT_SCOPE": {
+      "id": "MN_CREDIT_SCOPE",
+      "title": "Minnesota other-state credit explicitly excludes local government taxes",
+      "url": "https://www.revenue.state.mn.us/taxes-paid-another-state-credit",
+      "checked_at": "2026-10-09"
+    },
+    "IN_REVERSE_CREDIT": {
+      "id": "IN_REVERSE_CREDIT",
+      "title": "Indiana Bulletin28 reverse credit for Arizona, Oregon and DC residents",
+      "url": "https://www.in.gov/dor/files/reference/ib28.pdf",
+      "checked_at": "2026-10-09"
+    },
+    "OR_NR": {
+      "id": "OR_NR",
+      "title": "2025 final OR-40-NP instructions pp21-23: nonresident source-income brackets, prorated deductions/credits; tax allocation only for OR-40-P",
+      "url": "https://www.oregon.gov/dor/forms/FormsPubs/form-or-40-n_or-40-p-inst_101-048-1_2025.pdf",
+      "checked_at": "2026-10-09"
+    },
+    "OR_NR_FORM": {
+      "id": "OR_NR_FORM",
+      "title": "2025 final OR-40-N pp6-7 lines36-46: source income less proportional deductions then rate chart",
+      "url": "https://www.oregon.gov/dor/forms/FormsPubs/form-or-40-n_101-048_2025.pdf",
+      "checked_at": "2026-10-09"
+    },
+    "WI_MARRIED": {
+      "id": "WI_MARRIED",
+      "title": "2025 Form 1 instructions pp20-21: married couple credit earned income definition",
+      "url": "https://www.revenue.wi.gov/TaxForms2025/2025-Form1-inst.pdf",
+      "checked_at": "2026-10-09"
+    },
+    "WI_NR_MARRIED": {
+      "id": "WI_NR_MARRIED",
+      "title": "2025 Form 1NPR Schedule2 p4: 3% of lower spouse Wisconsin earned income capped at $16000",
+      "url": "https://www.revenue.wi.gov/TaxForms2025/2025-Form1NPR.pdf",
+      "checked_at": "2026-10-09"
+    },
+    "MN_MARRIED": {
+      "id": "MN_MARRIED",
+      "title": "Minnesota Statutes 290.0675: marriage credit statutory formula and nonresident allocation",
+      "url": "https://www.revisor.mn.gov/statutes/cite/290.0675",
+      "checked_at": "2026-10-09"
+    }
+  },
+  "states": {
+    "CA": {
+      "tax_year": 2026,
+      "status": "enacted_2026_with_2025_exemption_phaseout_proxy",
+      "brackets": [
+        {
+          "threshold": 0,
+          "rate": 0.01
+        },
+        {
+          "threshold": 11456,
+          "rate": 0.02
+        },
+        {
+          "threshold": 27157,
+          "rate": 0.04
+        },
+        {
+          "threshold": 42861,
+          "rate": 0.06
+        },
+        {
+          "threshold": 59498,
+          "rate": 0.08
+        },
+        {
+          "threshold": 75197,
+          "rate": 0.093
+        },
+        {
+          "threshold": 384109,
+          "rate": 0.103
+        },
+        {
+          "threshold": 460927,
+          "rate": 0.113
+        },
+        {
+          "threshold": 768213,
+          "rate": 0.123
+        }
+      ],
+      "deduction": 5900,
+      "deduction_comment": "2026 single standard deduction; no itemizing.",
+      "exemption": {
+        "kind": "credit",
+        "amount": 158,
+        "phaseout_start": 252203,
+        "phaseout_step": 2500,
+        "reduction_per_step": 6,
+        "status": "2026 credit amount with conservative 2025 phaseout-start proxy; credit is zero at normal NBA salary levels"
+      },
+      "surtaxes": [
+        {
+          "name": "Behavioral Health Services Tax",
+          "threshold": 1000000,
+          "rate": 0.01,
+          "base": "resident taxable income or actual CA-source taxable income for nonresidents; not full-income surtax multiplied by source ratio",
+          "creditable_base": false
+        }
+      ],
+      "source_ids": [
+        "CA_INDEX",
+        "CA_540",
+        "CA_NR",
+        "CA_CREDIT"
+      ],
+      "credit_notes": "Reverse credit with AZ/OR/VA; no reverse credit with IN since 2017. CA Schedule S excludes local-government/foreign income taxes. Nonresident individual-return assumption; composite returns use different rules.",
+      "code": "CA",
+      "payroll_taxes": [
+        "CA_SDI"
+      ],
+      "local_taxes": [],
+      "mfj": {
+        "brackets": [
+          {
+            "threshold": 0,
+            "rate": 0.01
+          },
+          {
+            "threshold": 22912,
+            "rate": 0.02
+          },
+          {
+            "threshold": 54314,
+            "rate": 0.04
+          },
+          {
+            "threshold": 85722,
+            "rate": 0.06
+          },
+          {
+            "threshold": 118996,
+            "rate": 0.08
+          },
+          {
+            "threshold": 150394,
+            "rate": 0.093
+          },
+          {
+            "threshold": 768218,
+            "rate": 0.103
+          },
+          {
+            "threshold": 921854,
+            "rate": 0.113
+          },
+          {
+            "threshold": 1536426,
+            "rate": 0.123
+          }
+        ],
+        "deduction": 11800,
+        "deduction_comment": "2026 FTB actual joint standard deduction and separately published joint bracket thresholds.",
+        "exemption": {
+          "kind": "credit",
+          "amount": 316,
+          "phaseout_start": 504411,
+          "phaseout_step": 2500,
+          "reduction_per_step": 12,
+          "status": "2025 joint AGI threshold proxy with 2026 joint credit; $6 reduction per exemption, per $2500 household AGI excess"
+        },
+        "status": "enacted_2026_with_2025_exemption_phaseout_proxy"
+      }
+    },
+    "OR": {
+      "tax_year": 2026,
+      "status": "official_2026_estimate_with_final_withholding_indexed_deduction",
+      "brackets": [
+        {
+          "threshold": 0,
+          "rate": 0.0475
+        },
+        {
+          "threshold": 4550,
+          "rate": 0.0675
+        },
+        {
+          "threshold": 11400,
+          "rate": 0.0875
+        },
+        {
+          "threshold": 125000,
+          "rate": 0.099
+        }
+      ],
+      "deduction": 2910,
+      "deduction_comment": "2026 OR-ESTIMATE preliminary $2900; later 2026 withholding formula specifies $2910; use latter for wages scenario and disclose.",
+      "exemption": {
+        "kind": "credit",
+        "amount": 263,
+        "agi_limit": 100000
+      },
+      "federal_tax_subtraction": {
+        "max": 8750,
+        "phaseout_start": 125000,
+        "phaseout_step": 5000,
+        "reduction_per_step": 1750,
+        "zero_at": 145000
+      },
+      "source_ids": [
+        "OR_EST",
+        "OR_WHT",
+        "OR_GUIDE",
+        "OR_ATHLETE",
+        "OR_CREDITS",
+        "IN_REVERSE_CREDIT",
+        "OR_NR",
+        "OR_NR_FORM"
+      ],
+      "credit_notes": "Reverse credit with AZ/CA/IN/VA: nonresident work state grants credit for resident tax. OR athlete disabled-list duty-day presumptions require actual rehab/service facts.",
+      "code": "OR",
+      "payroll_taxes": [
+        "OR_PAID_LEAVE",
+        "OR_TRANSIT"
+      ],
+      "local_taxes": [
+        "PORTLAND_METRO_SHS",
+        "MULTNOMAH_PFA"
+      ],
+      "surtaxes": [],
+      "mfj": {
+        "brackets": [
+          {
+            "threshold": 0,
+            "rate": 0.0475
+          },
+          {
+            "threshold": 9100,
+            "rate": 0.0675
+          },
+          {
+            "threshold": 22800,
+            "rate": 0.0875
+          },
+          {
+            "threshold": 250000,
+            "rate": 0.099
+          }
+        ],
+        "deduction": 5820,
+        "deduction_comment": "2026 OR-ESTIMATE joint table plus later withholding indexed joint deduction $5820 and $263 per exemption.",
+        "exemption": {
+          "kind": "credit",
+          "amount": 526,
+          "agi_limit": 200000
+        },
+        "federal_tax_subtraction": {
+          "max": 8750,
+          "phaseout_start": 250000,
+          "phaseout_step": 10000,
+          "reduction_per_step": 1750,
+          "zero_at": 290000
+        }
+      }
+    },
+    "AZ": {
+      "tax_year": 2026,
+      "status": "enacted_rate_2026_statutory_indexed_deduction",
+      "brackets": [
+        {
+          "threshold": 0,
+          "rate": 0.025
+        }
+      ],
+      "deduction": 16100,
+      "deduction_comment": "Derived from current $15750 statutory baseline and index-in-same-manner-as-federal rule, IRS 2026 basic deduction $16100; no 2026 final return located.",
+      "exemption": {
+        "kind": "none",
+        "amount": 0
+      },
+      "source_ids": [
+        "AZ_STD",
+        "AZ_RATE",
+        "FED_INDEX",
+        "AZ_CREDIT",
+        "IN_REVERSE_CREDIT"
+      ],
+      "credit_notes": "Reverse credit with CA/OR/IN/VA; inspect Form309 and claim credit on nonresident return. No charitable-deduction add-on assumed.",
+      "code": "AZ",
+      "payroll_taxes": [],
+      "local_taxes": [],
+      "surtaxes": [],
+      "mfj": {
+        "deduction": 32200,
+        "deduction_comment": "ARS43-1041 $31500 joint baseline indexed in same manner as IRS; 2026 derived $32200 pending final Arizona return."
+      }
+    },
+    "CO": {
+      "tax_year": 2026,
+      "status": "enacted_2026",
+      "brackets": [
+        {
+          "threshold": 0,
+          "rate": 0.044
+        }
+      ],
+      "deduction": 16100,
+      "deduction_comment": "Federal standard deduction except when AGI>$300000: allowed standard/itemized deduction capped at $1000 single from 2026.",
+      "deduction_cap": {
+        "agi_above": 300000,
+        "cap": 1000
+      },
+      "exemption": {
+        "kind": "none",
+        "amount": 0
+      },
+      "source_ids": [
+        "CO_GUIDE",
+        "FED_INDEX"
+      ],
+      "credit_notes": "State-only tax; local Denver OPT and FAMLI are separate. Flat 4.4% statutory rate; do not speculate about future ballot outcomes.",
+      "code": "CO",
+      "payroll_taxes": [
+        "CO_FAMLI"
+      ],
+      "local_taxes": [
+        "DENVER_OPT"
+      ],
+      "surtaxes": [],
+      "mfj": {
+        "deduction": 32200,
+        "deduction_cap": {
+          "agi_above": 300000,
+          "cap": 2000
+        },
+        "deduction_comment": "2026 joint federal standard deduction; at household AGI above $300000 Colorado allows only $2000."
+      }
+    },
+    "UT": {
+      "tax_year": 2026,
+      "status": "enacted_2026_rate_with_2025_credit_phaseout_proxy",
+      "brackets": [
+        {
+          "threshold": 0,
+          "rate": 0.0445
+        }
+      ],
+      "deduction": 0,
+      "deduction_comment": "Utah tax base is modified federal AGI; federal standard deduction feeds nonrefundable taxpayer credit rather than reducing this base.",
+      "exemption": {
+        "kind": "taxpayer_credit",
+        "base_deduction": 16100,
+        "credit_rate": 0.06,
+        "phaseout_start": 18213,
+        "phaseout_rate": 0.013,
+        "status": "2025 phaseout start proxy; no effect at ordinary NBA salaries, because credit fully phases out"
+      },
+      "source_ids": [
+        "UT_RATE",
+        "UT_CREDIT",
+        "FED_INDEX"
+      ],
+      "credit_notes": "Ordinary resident other-state income tax credit applies subject to limits; payroll/withholding is not final liability.",
+      "code": "UT",
+      "payroll_taxes": [],
+      "local_taxes": [],
+      "surtaxes": [],
+      "mfj": {
+        "deduction": 0,
+        "exemption": {
+          "kind": "taxpayer_credit",
+          "base_deduction": 32200,
+          "credit_rate": 0.06,
+          "phaseout_start": 36426,
+          "phaseout_rate": 0.013,
+          "status": "2025 joint credit phaseout-start proxy; 2026 federal standard deduction and enacted UT rate"
+        }
+      }
+    },
+    "OK": {
+      "tax_year": 2026,
+      "status": "enacted_2026",
+      "brackets": [
+        {
+          "threshold": 0,
+          "rate": 0
+        },
+        {
+          "threshold": 3750,
+          "rate": 0.025
+        },
+        {
+          "threshold": 4900,
+          "rate": 0.035
+        },
+        {
+          "threshold": 7200,
+          "rate": 0.045
+        }
+      ],
+      "deduction": 6350,
+      "deduction_comment": "Fixed single standard deduction; assumes federal standard deduction election.",
+      "exemption": {
+        "kind": "deduction",
+        "amount": 1000
+      },
+      "source_ids": [
+        "OK_RATE",
+        "OK_DED",
+        "OK_GUIDE"
+      ],
+      "credit_notes": "Income thresholds are taxable income after standard deduction and personal exemption. Do not use pre-2026 4.75% table.",
+      "code": "OK",
+      "payroll_taxes": [],
+      "local_taxes": [],
+      "surtaxes": [],
+      "mfj": {
+        "brackets": [
+          {
+            "threshold": 0,
+            "rate": 0
+          },
+          {
+            "threshold": 7500,
+            "rate": 0.025
+          },
+          {
+            "threshold": 9800,
+            "rate": 0.035
+          },
+          {
+            "threshold": 14400,
+            "rate": 0.045
+          }
+        ],
+        "deduction": 12700,
+        "exemption": {
+          "kind": "deduction",
+          "amount": 2000
+        },
+        "deduction_comment": "Fixed $12700 joint standard deduction plus two $1000 personal exemptions."
+      }
+    },
+    "TX": {
+      "tax_year": 2026,
+      "status": "no_individual_income_tax",
+      "brackets": [
+        {
+          "threshold": 0,
+          "rate": 0
+        }
+      ],
+      "deduction": 0,
+      "deduction_comment": "No individual income tax.",
+      "exemption": {
+        "kind": "none",
+        "amount": 0
+      },
+      "source_ids": [
+        "TX_CONSTITUTION"
+      ],
+      "credit_notes": "No resident state income tax; visiting other jurisdictions may still impose athlete income tax.",
+      "code": "TX",
+      "payroll_taxes": [],
+      "local_taxes": [],
+      "surtaxes": [],
+      "mfj": {
+        "deduction": 0,
+        "exemption": {
+          "kind": "none",
+          "amount": 0
+        }
+      }
+    },
+    "LA": {
+      "tax_year": 2026,
+      "status": "enacted_rate_official_2026_estimated_deduction",
+      "brackets": [
+        {
+          "threshold": 0,
+          "rate": 0.03
+        }
+      ],
+      "deduction": 12875,
+      "deduction_comment": "Official 2026 IT-540ES estimated standard deduction; final-return indexing can be refreshed.",
+      "exemption": {
+        "kind": "none",
+        "amount": 0
+      },
+      "source_ids": [
+        "LA_EST",
+        "LA_LAW"
+      ],
+      "credit_notes": "Flat3% replaces old graduated rates; employee wages only, no itemized/federal-tax deduction.",
+      "code": "LA",
+      "payroll_taxes": [],
+      "local_taxes": [],
+      "surtaxes": [],
+      "mfj": {
+        "deduction": 25750,
+        "deduction_comment": "2026 IT-540ES official joint estimated deduction."
+      }
+    },
+    "MN": {
+      "tax_year": 2026,
+      "status": "enacted_2026",
+      "brackets": [
+        {
+          "threshold": 0,
+          "rate": 0.0535
+        },
+        {
+          "threshold": 33310,
+          "rate": 0.068
+        },
+        {
+          "threshold": 109430,
+          "rate": 0.0785
+        },
+        {
+          "threshold": 203150,
+          "rate": 0.0985
+        }
+      ],
+      "deduction": 15300,
+      "deduction_comment": "Reduced by min(80% deduction,3% income between244400 and337800 +10% above337800). At NBA salaries deduction generally3060.",
+      "deduction_phaseout": {
+        "threshold1": 244400,
+        "threshold2": 337800,
+        "rate1": 0.03,
+        "rate2": 0.1,
+        "max_reduction_fraction": 0.8,
+        "forced_80_percent_threshold": 1107750
+      },
+      "exemption": {
+        "kind": "none",
+        "amount": 0
+      },
+      "source_ids": [
+        "MN_INDEX",
+        "MN_BRACKETS",
+        "MN_DED",
+        "MN_RECIPROCITY",
+        "MN_CREDIT_SCOPE",
+        "MN_MARRIED"
+      ],
+      "credit_notes": [
+        "No personal exemption; no dependents assumed. Minnesota reciprocity with MI/ND is separate; not with WI.",
+        "MI/ND wage reciprocity assumes returning to resident state at least once each month. Local-government taxes do not qualify for Minnesota resident state credit."
+      ],
+      "code": "MN",
+      "payroll_taxes": [
+        "MN_PAID_LEAVE"
+      ],
+      "local_taxes": [],
+      "surtaxes": [],
+      "mfj": {
+        "brackets": [
+          {
+            "threshold": 0,
+            "rate": 0.0535
+          },
+          {
+            "threshold": 48700,
+            "rate": 0.068
+          },
+          {
+            "threshold": 193480,
+            "rate": 0.0785
+          },
+          {
+            "threshold": 337930,
+            "rate": 0.0985
+          }
+        ],
+        "deduction": 30600,
+        "deduction_comment": "2026 joint deduction. The $244400 and $337800 phaseout thresholds are shared with Single, NOT doubled.",
+        "marriage_credit": {
+          "method": "statutory_difference_of_joint_and_two_single_taxes",
+          "lower_earner_deduction": 15300,
+          "status": "statutory_continuous_formula_not_rounded_M1MA_table",
+          "source_ids": [
+            "MN_MARRIED"
+          ]
+        }
+      }
+    },
+    "WI": {
+      "tax_year": 2026,
+      "status": "enacted_2026",
+      "brackets": [
+        {
+          "threshold": 0,
+          "rate": 0.035
+        },
+        {
+          "threshold": 15110,
+          "rate": 0.044
+        },
+        {
+          "threshold": 51950,
+          "rate": 0.053
+        },
+        {
+          "threshold": 332720,
+          "rate": 0.0765
+        }
+      ],
+      "deduction": 13960,
+      "deduction_comment": "Sliding deduction reduced by12% of Wisconsin/annual adjusted income above20120, reacheszero around136453.",
+      "deduction_phaseout": {
+        "threshold": 20120,
+        "rate": 0.12,
+        "floor": 0,
+        "zero_at": 136453
+      },
+      "exemption": {
+        "kind": "deduction",
+        "amount": 700
+      },
+      "source_ids": [
+        "WI_WT4A",
+        "WI_EXEMPT",
+        "WI_CREDIT_LOCAL",
+        "WI_RECIPROCITY",
+        "WI_MARRIED",
+        "WI_NR_MARRIED"
+      ],
+      "credit_notes": [
+        "Nonresident rate brackets prorated by WI/full income ratio. Resident-reciprocal wage eligibility must be applied before source tax; do not assume athletes are always barred without authority.",
+        "Local net-income tax is eligible only if paid directly to a state; Indiana county tax qualifies, directly paid city taxes do not."
+      ],
+      "code": "WI",
+      "payroll_taxes": [],
+      "local_taxes": [],
+      "surtaxes": [],
+      "mfj": {
+        "brackets": [
+          {
+            "threshold": 0,
+            "rate": 0.035
+          },
+          {
+            "threshold": 20150,
+            "rate": 0.044
+          },
+          {
+            "threshold": 69260,
+            "rate": 0.053
+          },
+          {
+            "threshold": 443630,
+            "rate": 0.0765
+          }
+        ],
+        "deduction": 25840,
+        "deduction_phaseout": {
+          "threshold": 29040,
+          "rate": 0.19778,
+          "floor": 0,
+          "zero_at": 159690
+        },
+        "deduction_comment": "Independent joint sliding deduction, not twice Single: max $25840 minus 19.778% above $29040; zero at $159690.",
+        "exemption": {
+          "kind": "deduction",
+          "amount": 1400
+        },
+        "marriage_credit": {
+          "rate": 0.03,
+          "lower_earner_cap": 16000,
+          "max_credit": 480,
+          "nonresident_base": "Requires both spouses to have Wisconsin-source wages. This API assumes spouse wages only in shared resident state; nonresident Wisconsin marriage credit is zero.",
+          "source_ids": [
+            "WI_MARRIED",
+            "WI_NR_MARRIED"
+          ]
+        }
+      }
+    },
+    "IL": {
+      "tax_year": 2026,
+      "status": "enacted_2026",
+      "brackets": [
+        {
+          "threshold": 0,
+          "rate": 0.0495
+        }
+      ],
+      "deduction": 0,
+      "deduction_comment": "Illinois starts from federal AGI, no standard deduction.",
+      "exemption": {
+        "kind": "deduction",
+        "amount": 2925,
+        "agi_limit": 250000
+      },
+      "source_ids": [
+        "IL_EXEMPT",
+        "IL_RATE",
+        "IL_NR",
+        "IL_WHT",
+        "IL_AGGREGATE_CREDIT",
+        "IL_CREDIT_FORM"
+      ],
+      "credit_notes": [
+        "Wage reciprocity IA/KY/MI/WI. Published athlete duty-day sourcing rule does not itself repeal reciprocity. General 30-day nonresident threshold cannot substitute for athlete duty-day allocation.",
+        "Resident Schedule CR pools qualifying US state/local income taxes under one aggregate non-Illinois income ceiling; reciprocal wages excluded unless taxed locally. Ratio rounds to 3 decimals."
+      ],
+      "code": "IL",
+      "payroll_taxes": [],
+      "local_taxes": [],
+      "surtaxes": [],
+      "mfj": {
+        "deduction": 0,
+        "exemption": {
+          "kind": "deduction",
+          "amount": 5850,
+          "agi_limit": 500000
+        },
+        "deduction_comment": "No standard deduction. Two 2026 $2925 exemptions; both lost once joint AGI exceeds $500000."
+      }
+    }
+  },
+  "reverse_credit_nonresident_allowed_residents": {
+    "CA": [
+      "AZ",
+      "OR",
+      "VA"
+    ],
+    "OR": [
+      "AZ",
+      "CA",
+      "IN",
+      "VA"
+    ],
+    "AZ": [
+      "CA",
+      "OR",
+      "IN",
+      "VA"
+    ],
+    "IN": [
+      "AZ",
+      "OR",
+      "DC"
+    ]
+  },
+  "payroll": {
+    "CA_SDI": {
+      "rate": 0.013,
+      "cap": null,
+      "source_ids": [
+        "CA_SDI",
+        "CA_LOCALIZE"
+      ],
+      "application": "Employment coverage localization/base-of-operations, not per-away-game source ratio; assume CA-based NBA job fully covered, visiting away teams not covered."
+    },
+    "OR_PAID_LEAVE": {
+      "rate": 0.006,
+      "cap": 184500,
+      "source_ids": [
+        "OR_LEAVE"
+      ],
+      "application": "Covered Oregon employment, employer may pay employee portion or equivalent plan."
+    },
+    "OR_TRANSIT": {
+      "rate": 0.001,
+      "cap": null,
+      "source_ids": [
+        "OR_TRANSIT"
+      ],
+      "application": "All wages for Oregon residents; Oregon-source wages for nonresidents; separate from employer-only TriMet tax."
+    },
+    "CO_FAMLI": {
+      "rate": 0.0044,
+      "rate_2027": 0.0043,
+      "cap": 184500,
+      "cap_status_2027": "2026_proxy",
+      "source_ids": [
+        "CO_FAMLI",
+        "CO_FAMLI_NOTICE"
+      ],
+      "application": "Covered Colorado employment; maximum employee share; employer may absorb or use approved equivalent plan."
+    },
+    "MN_PAID_LEAVE": {
+      "rate": 0.0044,
+      "rate_2027": 0.0044,
+      "cap": 184500,
+      "cap_status_2027": "2026_proxy",
+      "source_ids": [
+        "MN_LEAVE",
+        "MN_LEAVE_RATE"
+      ],
+      "application": "Covered Minnesota employment, maximum employee share; employer may absorb or use approved equivalent plan."
+    }
+  },
+  "locals": {
+    "PORTLAND_METRO_SHS": {
+      "rate": 0.01,
+      "threshold": 128000,
+      "threshold_2027": 132000,
+      "base": "Oregon/Metro taxable income",
+      "source_ids": [
+        "PORTLAND",
+        "PORTLAND_CREDIT",
+        "PORTLAND_CREDIT_FORM"
+      ],
+      "nonresident": "Apply threshold to Metro-source taxable income, not full-income liability times source ratio.",
+      "credit_rule": "Residents only: per other state credit=min(local tax, local tax*mutually taxed modified AGI/total modified AGI, actual other-state tax); no credit when other state allows nonresident reverse credit. Do not subtract Oregon state credit from actual other-state tax. Apply independently to SHS/PFA.",
+      "mfj": {
+        "threshold": 205000,
+        "threshold_2027": 211000
+      }
+    },
+    "MULTNOMAH_PFA": {
+      "brackets": [
+        {
+          "threshold": 0,
+          "rate": 0
+        },
+        {
+          "threshold": 125000,
+          "rate": 0.015
+        },
+        {
+          "threshold": 250000,
+          "rate": 0.03
+        }
+      ],
+      "increase_year": 2028,
+      "base": "Oregon/Multnomah taxable income",
+      "source_ids": [
+        "PORTLAND",
+        "PORTLAND_CREDIT",
+        "PORTLAND_CREDIT_FORM"
+      ],
+      "nonresident": "Apply thresholds to county-source taxable income; do not multiply worldwide PFA by away share.",
+      "credit_rule": "Residents only: per other state credit=min(local tax, local tax*mutually taxed modified AGI/total modified AGI, actual other-state tax); no credit when other state allows nonresident reverse credit. Do not subtract Oregon state credit from actual other-state tax. Apply independently to SHS/PFA.",
+      "mfj": {
+        "brackets": [
+          {
+            "threshold": 0,
+            "rate": 0
+          },
+          {
+            "threshold": 200000,
+            "rate": 0.015
+          },
+          {
+            "threshold": 400000,
+            "rate": 0.03
+          }
+        ]
+      }
+    },
+    "DENVER_OPT": {
+      "employee_monthly_tax": 5.75,
+      "monthly_denver_wage_threshold": 500,
+      "source_ids": [
+        "DENVER_OPT"
+      ],
+      "application": "Each month with sufficient Denver service earnings; count actual qualifying months."
+    }
+  },
+  "supported_filing_statuses": [
+    "single",
+    "mfj"
+  ],
+  "low_income_scope": {
+    "status": "proxy_before_unmodeled_refundable_or_fact_dependent_credits",
+    "screening_gross": 80000,
+    "note": "Below $80000, income-tested earned-income/family/renter credits may change net liability. This intentionally broad screening bound is a model warning, not a statutory threshold. Age, children, rent, prior-year facts and earned-income character are not inputs."
+  }
+}

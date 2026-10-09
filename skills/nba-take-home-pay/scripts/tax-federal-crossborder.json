@@ -1,0 +1,405 @@
+{
+  "schema_version": 1,
+  "research_date": "2026-10-09",
+  "purpose": "Explicit annualized wage-only scenario parameters, not actual individual tax returns",
+  "us": {
+    "rules_year": 2026,
+    "2027_proxy": true,
+    "filing_status_default": "single",
+    "standard_deductions": {
+      "single": 16100,
+      "mfj": 32200
+    },
+    "brackets_upper_bounds_and_rates": {
+      "single": [
+        [
+          12400,
+          0.1
+        ],
+        [
+          50400,
+          0.12
+        ],
+        [
+          105700,
+          0.22
+        ],
+        [
+          201775,
+          0.24
+        ],
+        [
+          256225,
+          0.32
+        ],
+        [
+          640600,
+          0.35
+        ],
+        [
+          null,
+          0.37
+        ]
+      ],
+      "mfj": [
+        [
+          24800,
+          0.1
+        ],
+        [
+          100800,
+          0.12
+        ],
+        [
+          211400,
+          0.22
+        ],
+        [
+          403550,
+          0.24
+        ],
+        [
+          512450,
+          0.32
+        ],
+        [
+          768700,
+          0.35
+        ],
+        [
+          null,
+          0.37
+        ]
+      ]
+    },
+    "social_security": {
+      "employee_rate": 0.062,
+      "cap": 184500
+    },
+    "medicare": {
+      "employee_rate": 0.0145,
+      "cap": null
+    },
+    "additional_medicare": {
+      "rate": 0.009,
+      "threshold_single": 200000,
+      "threshold_mfj": 250000
+    },
+    "salary_niit": false,
+    "deduction_mode": "standard_only",
+    "salt_reference_not_applied": {
+      "cap_2026": 40400,
+      "MAGI_phaseout_threshold": 505000,
+      "phaseout_rate": 0.3,
+      "floor": 10000,
+      "formula": "min(eligible_tax_paid,max(10000,40400-0.30*max(0,MAGI-505000)))",
+      "note": "Do not combine itemized SALT with standard deduction; top-income limit2026 IRC68 also relevant if later adding itemization"
+    },
+    "foreign_credit": "min(qualifying final general-category foreign income taxes, federalincomeTax * foreignNetTaxable/worldwideTaxable); proportional deduction wage-only proxy ratio foreignGross/worldGross; currentyear only"
+  },
+  "canada": {
+    "rules_year": 2026,
+    "2027_proxy": true,
+    "resident_scenario": "Ontario resident, single, Canada employment coverage; foreign US federal treaty exemption analyzed separately",
+    "federal_brackets_upper_bounds_and_rates": [
+      [
+        58523,
+        0.14
+      ],
+      [
+        117045,
+        0.205
+      ],
+      [
+        181440,
+        0.26
+      ],
+      [
+        258482,
+        0.29
+      ],
+      [
+        null,
+        0.33
+      ]
+    ],
+    "federal_BPA": {
+      "maximum": 16452,
+      "minimum": 14829,
+      "phaseout_start": 181440,
+      "phaseout_end": 258482,
+      "credit_rate": 0.14
+    },
+    "employment_credit_amount": 1501,
+    "ontario_brackets_upper_bounds_and_rates": [
+      [
+        53891,
+        0.0505
+      ],
+      [
+        107785,
+        0.0915
+      ],
+      [
+        150000,
+        0.1116
+      ],
+      [
+        220000,
+        0.1216
+      ],
+      [
+        null,
+        0.1316
+      ]
+    ],
+    "ontario_BPA": 12989,
+    "ontario_credit_rate": 0.0505,
+    "ontario_surtax": [
+      {
+        "threshold_of_basic_tax": 5818,
+        "rate": 0.2
+      },
+      {
+        "threshold_of_basic_tax": 7446,
+        "rate": 0.36
+      }
+    ],
+    "ontario_health_premium": {
+      "max": 900,
+      "method": "piecewise; see module"
+    },
+    "cpp": {
+      "YMPE": 74600,
+      "exemption": 3500,
+      "base_rate": 0.0495,
+      "base_max": 3519.45,
+      "first_additional_rate": 0.01,
+      "first_additional_max": 711,
+      "YAMPE": 85000,
+      "second_additional_rate": 0.04,
+      "second_additional_max": 416
+    },
+    "EI": {
+      "rate": 0.0163,
+      "cap": 68900,
+      "max": 1123.07
+    },
+    "credit_vs_deduction": "Base CPP and EI generate federal14% and Ontario5.05% nonrefundablecredits; first/second enhancedCPP deductedfromincome",
+    "foreign_credit": "Per country; federalfirst, provincialresidual. Ontario base excludeslater HealthPremium. Only final eligibleincome tax; USstate/localincome taxes canqualify evenUSfederal treatyexempt underCRAfolio1.68.",
+    "pending_2027_CPP": "2026 c22 sections41-43 providebase4.75% for2027; section44 needsorder-in-council and latestJusticepage listsnotinforce. Exposedpendingissue;2026proxyretained,not silentlytreatedknownfull2027law"
+  },
+  "fx": {
+    "date": "2026-10-08",
+    "source": "Bank of Canada daily",
+    "CAD_per_USD": 1.424,
+    "CAD_per_GBP": 1.8822,
+    "CAD_per_EUR": 1.595,
+    "CAD_per_MXN": 0.07867,
+    "method": "Fixed snapshot for estimation, not future or annualaverage"
+  },
+  "crossborder_treaty": {
+    "US_Canada_XVI3": "Exceptionfromathletearticle for employeesofleague withregularlyscheduledgames inbothstates",
+    "US_Canada_XV2b": "≤183daysinany12monthcommencing/endingfiscalyear,remunerationnotpaidby/onbehalfofhostresident,nothostPEborne",
+    "US_citizens": "SavingclausepreservesUSworldwidetaxation; specialcreditresourcingrequired. Do not infercitizenship/residencyfromteamorname",
+    "US_states": "Federalincometreatynotautomaticstateexemption",
+    "default_US_team_Toronto_visit": "ConditionalCanadianfinalincomeTax0; payrollwithholdingcanstilloccurbeforewaiver/refund",
+    "default_Toronto": "ExplicitOntarioresidenttreatyeligible non-UScitizenscenario; USsourcedstate/localtax+CanadianFTC; dualcitizenactualscenario maydiffer"
+  },
+  "overseas": {
+    "CA": {
+      "method": "conditional treaty exemption",
+      "tax_rate": 0
+    },
+    "GB": {
+      "rules_year": "2026-27",
+      "US_treaty_threshold_usd": 20000,
+      "bands_GBP": [
+        [
+          37700,
+          0.2
+        ],
+        [
+          125140,
+          0.4
+        ],
+        [
+          null,
+          0.45
+        ]
+      ],
+      "personal_allowance_default": 0,
+      "allowance_if_eligible": {
+        "amount": 12570,
+        "phaseout_start": 100000,
+        "phaseout_slope": 0.5
+      },
+      "threshold_includes_reimbursements": true,
+      "withholding_is_not_final_tax": true,
+      "sources": [
+        "https://www.bankofcanada.ca/rates/exchange/daily-exchange-rates/",
+        "https://www.gov.uk/government/publications/usa-tax-treaties/2001-uk-usa-double-taxation-convention-as-amended-by-the-2002-protocol-in-force",
+        "https://www.gov.uk/government/publications/rates-and-allowances-income-tax/income-tax-rates-and-allowances-current-and-past",
+        "https://www.gov.uk/tax-uk-income-live-abroad/personal-allowance",
+        "https://www.gov.uk/guidance/pay-tax-in-the-uk-as-a-foreign-performer"
+      ]
+    },
+    "FR": {
+      "rules_year": "2025income2026assessmentproxy",
+      "US_treaty_threshold_usd": 10000,
+      "bands_EUR": [
+        [
+          11600,
+          0
+        ],
+        [
+          29579,
+          0.11
+        ],
+        [
+          84577,
+          0.3
+        ],
+        [
+          181917,
+          0.41
+        ],
+        [
+          null,
+          0.45
+        ]
+      ],
+      "salary_expense_deduction": {
+        "rate": 0.1,
+        "minimum": 509,
+        "max": 14555
+      },
+      "nonresident_minimum": [
+        [
+          29579,
+          0.2
+        ],
+        [
+          null,
+          0.3
+        ]
+      ],
+      "CEHR_single": [
+        [
+          250000,
+          0
+        ],
+        [
+          500000,
+          0.03
+        ],
+        [
+          null,
+          0.04
+        ]
+      ],
+      "resident_only_CDHR_not_applied": true,
+      "withholding_15_percent_is_not_final_tax": true,
+      "sources": [
+        "https://www.bankofcanada.ca/rates/exchange/daily-exchange-rates/",
+        "https://www.irs.gov/pub/irs-trty/francetech.pdf",
+        "https://www.impots.gouv.fr/particulier/le-calcul-de-votre-impot",
+        "https://bofip.impots.gouv.fr/bofip/2491-PGP.html/identifiant=BOI-IR-LIQ-20-10-20260407",
+        "https://bofip.impots.gouv.fr/bofip/10855-PGP.html/identifiant=BOI-BAREME-000035-20260217",
+        "https://bofip.impots.gouv.fr/bofip/7804-PGP.html/identifiant=BOI-IR-CHR-20170711"
+      ]
+    },
+    "MX": {
+      "US_treaty_threshold_usd": 3000,
+      "gross_option_rate": 0.25,
+      "statute": "LISR170",
+      "net_election_notmodeled": true,
+      "sources": [
+        "https://www.bankofcanada.ca/rates/exchange/daily-exchange-rates/",
+        "https://www.irs.gov/pub/irs-trty/mexico.pdf",
+        "https://www.diputados.gob.mx/LeyesBiblio/pdf/LISR.pdf#page=209"
+      ]
+    }
+  },
+  "sources": [
+    {
+      "id": "us_brackets",
+      "url": "https://www.irs.gov/newsroom/irs-releases-tax-inflation-adjustments-for-tax-year-2026-including-amendments-from-the-one-big-beautiful-bill",
+      "checked_at": "2026-10-09"
+    },
+    {
+      "id": "us_payroll",
+      "url": "https://www.ssa.gov/cola/factsheets/2026.html",
+      "checked_at": "2026-10-09"
+    },
+    {
+      "id": "ca_rates",
+      "url": "https://www.canada.ca/en/revenue-agency/services/forms-publications/payroll/t4127-payroll-deductions-formulas/t4127-jan/t4127-jan-payroll-deductions-formulas-computer-programs.html",
+      "checked_at": "2026-10-09"
+    },
+    {
+      "id": "ca_foreign_credit",
+      "url": "https://www.canada.ca/en/revenue-agency/services/tax/technical-information/income-tax/income-tax-folios-index/series-5-international-residency/folio-2-foreign-tax-credits-deductions/income-tax-folio-s5-f2-c1-foreign-tax-credit.html",
+      "checked_at": "2026-10-09"
+    },
+    {
+      "id": "ca_provincial_credit",
+      "url": "https://www.canada.ca/en/revenue-agency/services/forms-publications/forms/t2036.html",
+      "checked_at": "2026-10-09"
+    },
+    {
+      "id": "us_ca_treaty",
+      "url": "https://www.canada.ca/en/department-finance/programs/tax-policy/tax-treaties/country/united-states-america-convention-consolidated-1980-1983-1984-1995-1997-2007.html",
+      "checked_at": "2026-10-09"
+    },
+    {
+      "id": "fx",
+      "url": "https://www.bankofcanada.ca/rates/exchange/daily-exchange-rates/",
+      "checked_at": "2026-10-09"
+    },
+    {
+      "id": "us_foreign_credit",
+      "url": "https://www.irs.gov/publications/p514",
+      "checked_at": "2026-10-09"
+    },
+    {
+      "id": "us_salt_statute",
+      "url": "https://usc-cdn.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section164&num=0&edition=prelim",
+      "checked_at": "2026-10-09"
+    },
+    {
+      "id": "us_ca_social_security",
+      "url": "https://www.ssa.gov/international/Agreement_Pamphlets/canada.html",
+      "checked_at": "2026-10-09"
+    },
+    {
+      "id": "ca_on428_credit_order",
+      "url": "https://www.canada.ca/content/dam/cra-arc/formspubs/pbg/5006-c/5006-c-25e.pdf",
+      "checked_at": "2026-10-09"
+    },
+    {
+      "id": "ca_cpp_pending_2027",
+      "url": "https://laws-lois.justice.gc.ca/eng/AnnualStatutes/2026_22/page-3.html",
+      "checked_at": "2026-10-09"
+    },
+    {
+      "id": "ca_cpp_pending_status",
+      "url": "https://lois.justice.gc.ca/eng/acts/C-8/nifnev.html",
+      "checked_at": "2026-10-09"
+    }
+  ],
+  "validation": {
+    "us_1m_single": {
+      "federal": 320000.25,
+      "payroll": 33139.0,
+      "tax": 353139.25
+    },
+    "canada_1m_usd": {
+      "federal": 309401.67640449444,
+      "provincial": 193243.25101292136,
+      "payroll": 4051.6292134831465,
+      "tax": 506696.55663089897
+    },
+    "tested": "progressive boundary arithmetic, FICA ceilings andMedicarethresholds,CPP/EIcaps/credits/deductions,foreignthresholds,creditcaps,0<=tax<=salary"
+  }
+}

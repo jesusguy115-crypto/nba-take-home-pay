@@ -1,0 +1,4 @@
+interface:
+  display_name: "2026–27赛季NBA球员税后薪水查询"
+  short_description: "先给税后估算金额，再解释工作日分摊、逐项税额和不确定因素"
+  default_prompt: "使用 $nba-take-home-pay 查询库里2026–27赛季税后薪水，先给估算数字，再列出主要不确定因素。"

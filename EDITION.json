@@ -1,0 +1,10 @@
+{
+  "name": "nba-take-home-pay",
+  "version": "0.3.1",
+  "edition": "full",
+  "dataset_included": true,
+  "publication_status": "release-ready",
+  "model_version": "2026-27.2.0",
+  "snapshot_date": "2026-10-09",
+  "repository": "https://github.com/jesusguy115-crypto/nba-take-home-pay"
+}

@@ -1,0 +1,33 @@
+{
+  "season": "2026-27",
+  "captured_date": "2026-10-09",
+  "salary_counts": {
+    "teams": 30,
+    "players": 520,
+    "payment_rows": 533,
+    "league_ranking_rows": 504,
+    "excluded_cap_hold_rows": 0
+  },
+  "payment_section_counts": {
+    "Active Roster": 504,
+    "Dead Money": 27,
+    "Retained": 2
+  },
+  "salary_total_usd": 5992938360,
+  "cash_team_checks": 48,
+  "cash_team_checks_passed": 48,
+  "league_ranking_rows_reconciled": 504,
+  "component_difference_record_count": 2,
+  "known_schedule_game_count": 1200,
+  "published_cup_placeholders": 6,
+  "additional_games_not_listed": 24,
+  "all_30_teams_have_80_assigned_games": true,
+  "date_range_et": [
+    "2026-10-20",
+    "2027-04-11"
+  ],
+  "sha256": {
+    "salaries-2026-27.json": "ddfb9a585300916bfdf85e5c459ac5378fbf489b679757d345af7bc07cc1012d",
+    "schedule-2026-27.json": "1b3cbdeb2cbd9f999ff1bbfc0d5e5483d5c864fa9e6e3bc38a1c408160145c36"
+  }
+}

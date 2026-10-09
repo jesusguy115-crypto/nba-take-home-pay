@@ -1,0 +1,1803 @@
+{
+  "schema_version": 2,
+  "checked_date": "2026-10-09",
+  "scope": "single_and_mfj,wages_only,no_dependents,nonitemizer,household_gross,not_an_actual_return",
+  "jurisdictions": {
+    "NY": {
+      "code": "NY",
+      "tax_year": 2026,
+      "status": "2026_verified",
+      "filing_status": "single_and_mfj",
+      "brackets": [
+        {
+          "threshold": 0,
+          "rate": 0.039
+        },
+        {
+          "threshold": 8500,
+          "rate": 0.044
+        },
+        {
+          "threshold": 11700,
+          "rate": 0.0515
+        },
+        {
+          "threshold": 13900,
+          "rate": 0.054
+        },
+        {
+          "threshold": 80650,
+          "rate": 0.059
+        },
+        {
+          "threshold": 215400,
+          "rate": 0.0685
+        },
+        {
+          "threshold": 1077550,
+          "rate": 0.0965
+        },
+        {
+          "threshold": 5000000,
+          "rate": 0.103
+        },
+        {
+          "threshold": 25000000,
+          "rate": 0.109
+        }
+      ],
+      "deduction": 8000,
+      "exemption": {
+        "amount": 0
+      },
+      "surtaxes": [],
+      "local": [
+        "NYC"
+      ],
+      "payroll": [
+        {
+          "name": "NY PFL",
+          "rate": 0.00432,
+          "tax_cap": 411.91,
+          "wage_cap": null,
+          "source_ids": [
+            "ny-pfl"
+          ]
+        },
+        {
+          "name": "NY disability coverage employee maximum scenario",
+          "rate": 0.005,
+          "tax_cap": 31.2,
+          "wage_cap": null,
+          "source_ids": [
+            "ny-dbl"
+          ]
+        }
+      ],
+      "source_ids": [
+        "ny2026",
+        "ny-athletes",
+        "ny-credit",
+        "ny2027-law"
+      ],
+      "credit_notes": [
+        "Resident state credit includes qualifying other-state local taxes; combine same-state state+local on oneIT112R and cap to NYstate tax on overlappingincome.",
+        "NYC resident tax does not share this general resident credit.",
+        "Canadianprovincetax separateIT112C; otherforeigncountrycredits do not automaticallyfollow federal rules."
+      ],
+      "recapture": {
+        "agi_start": 107650,
+        "phase_window": 50000,
+        "taxable_bands": [
+          {
+            "upper": 215400,
+            "formula": "ordinarytax+(taxable*.059-ordinarytax)*clamp((AGI-107650)/50000,0,1)"
+          },
+          {
+            "upper": 1077550,
+            "base": 567,
+            "increment": 2047,
+            "agi_threshold": 215400
+          },
+          {
+            "upper": 5000000,
+            "base": 2614,
+            "increment": 30172,
+            "agi_threshold": 1077550
+          },
+          {
+            "upper": 25000000,
+            "base": 32786,
+            "increment": 32500,
+            "agi_threshold": 5000000
+          }
+        ],
+        "agi_above_25000000": "taxable*.109",
+        "round_phase_fraction_decimals": 4
+      },
+      "sources": [
+        {
+          "title": "NY 2026 IT-2105-I estimated-tax instructions, worksheets7–11 and rates",
+          "url": "https://www.tax.ny.gov/pdf/current_forms/it/it2105i.pdf",
+          "checked_date": "2026-10-09"
+        },
+        {
+          "title": "NY IT-203-TM current athlete duty-day instructions",
+          "url": "https://www.tax.ny.gov/forms/current-forms/it/it203tmi.htm",
+          "checked_date": "2026-10-09"
+        },
+        {
+          "title": "NY IT-112-R resident credit instructions",
+          "url": "https://www.tax.ny.gov/pdf/current_forms/it/it112ri.pdf",
+          "checked_date": "2026-10-09"
+        },
+        {
+          "title": "NY Tax Law 601(a),(c),(d-6): enacted 2027 rates and benefit recapture",
+          "url": "https://www.nysenate.gov/legislation/laws/TAX/601",
+          "checked_date": "2026-10-09"
+        }
+      ],
+      "filing_statuses": [
+        "single",
+        "mfj"
+      ],
+      "filing_status_parameters": {
+        "single": {
+          "deduction": 8000,
+          "exemption_amount": 0,
+          "brackets": [
+            {
+              "threshold": 0,
+              "rate": 0.039
+            },
+            {
+              "threshold": 8500,
+              "rate": 0.044
+            },
+            {
+              "threshold": 11700,
+              "rate": 0.0515
+            },
+            {
+              "threshold": 13900,
+              "rate": 0.054
+            },
+            {
+              "threshold": 80650,
+              "rate": 0.059
+            },
+            {
+              "threshold": 215400,
+              "rate": 0.0685
+            },
+            {
+              "threshold": 1077550,
+              "rate": 0.0965
+            },
+            {
+              "threshold": 5000000,
+              "rate": 0.103
+            },
+            {
+              "threshold": 25000000,
+              "rate": 0.109
+            }
+          ]
+        },
+        "mfj": {
+          "deduction": 16050,
+          "exemption_amount": 0,
+          "brackets": [
+            {
+              "threshold": 0,
+              "rate": 0.039
+            },
+            {
+              "threshold": 17150,
+              "rate": 0.044
+            },
+            {
+              "threshold": 23600,
+              "rate": 0.0515
+            },
+            {
+              "threshold": 27900,
+              "rate": 0.054
+            },
+            {
+              "threshold": 161550,
+              "rate": 0.059
+            },
+            {
+              "threshold": 323200,
+              "rate": 0.0685
+            },
+            {
+              "threshold": 2155350,
+              "rate": 0.0965
+            },
+            {
+              "threshold": 5000000,
+              "rate": 0.103
+            },
+            {
+              "threshold": 25000000,
+              "rate": 0.109
+            }
+          ]
+        }
+      },
+      "enacted_2027_first_five_rates": [
+        0.038,
+        0.043,
+        0.0505,
+        0.053,
+        0.058
+      ],
+      "recapture_by_filing_status": {
+        "single": {
+          "2026": {
+            "first_band_upper": 215400,
+            "first_band_target_rate": 0.059,
+            "bands": [
+              [
+                1077550,
+                567,
+                2047,
+                215400
+              ],
+              [
+                5000000,
+                2614,
+                30172,
+                1077550
+              ],
+              [
+                25000000,
+                32786,
+                32500,
+                5000000
+              ]
+            ]
+          },
+          "2027": {
+            "first_band_upper": 215400,
+            "first_band_increment": 568,
+            "bands": [
+              [
+                1077550,
+                568,
+                2261,
+                215400
+              ],
+              [
+                5000000,
+                2829,
+                30172,
+                1077550
+              ],
+              [
+                25000000,
+                33001,
+                32500,
+                5000000
+              ]
+            ]
+          }
+        },
+        "mfj": {
+          "2026": {
+            "first_band_upper": 161550,
+            "first_band_target_rate": 0.054,
+            "bands": [
+              [
+                323200,
+                333,
+                807,
+                161550
+              ],
+              [
+                2155350,
+                1140,
+                3071,
+                323200
+              ],
+              [
+                5000000,
+                4211,
+                60350,
+                2155350
+              ],
+              [
+                25000000,
+                64561,
+                32500,
+                5000000
+              ]
+            ]
+          },
+          "2027": {
+            "first_band_upper": 161550,
+            "first_band_increment": 333,
+            "bands": [
+              [
+                323200,
+                333,
+                808,
+                161550
+              ],
+              [
+                2155350,
+                1141,
+                3393,
+                323200
+              ],
+              [
+                5000000,
+                4534,
+                60350,
+                2155350
+              ],
+              [
+                25000000,
+                64884,
+                32500,
+                5000000
+              ]
+            ]
+          }
+        }
+      }
+    },
+    "MA": {
+      "code": "MA",
+      "tax_year": 2026,
+      "status": "2026_verified",
+      "filing_status": "single_and_mfj",
+      "brackets": [
+        {
+          "threshold": 0,
+          "rate": 0.05
+        }
+      ],
+      "deduction": 0,
+      "exemption": {
+        "amount": 4400
+      },
+      "surtaxes": [
+        {
+          "threshold": 1107750,
+          "rate": 0.04,
+          "nonresident_threshold_basis": "MA_source_taxable_income_only"
+        }
+      ],
+      "local": [],
+      "payroll": [
+        {
+          "name": "MA PFML employee maximum share",
+          "rate": 0.0046,
+          "wage_cap": 184500,
+          "tax_cap": null,
+          "source_ids": [
+            "ma-pfml"
+          ],
+          "enacted_2027_rate": 0.0046
+        }
+      ],
+      "source_ids": [
+        "ma-rates",
+        "ma-surtax",
+        "ma-exemptions",
+        "ma-fica",
+        "ma-joint-surtax"
+      ],
+      "credit_notes": [
+        "Other Jurisdiction Credit is min(eligibleforeignjurisdictiontax,MA tax on overlappingincome); surtaxportion usesofficialworksheet,notblanket4% ofeachforeignslice.",
+        "Nonresident surtax is never fullsalary9%tax timesawayratio."
+      ],
+      "deduction_rule": "sum(min(own_FICA_and_Medicare,2000) for each spouse); cannot transfer unused spouse cap",
+      "sources": [
+        {
+          "title": "Massachusetts wage and surtax rates",
+          "url": "https://www.mass.gov/info-details/tax-rates",
+          "checked_date": "2026-10-09"
+        },
+        {
+          "title": "Massachusetts2026 surtax threshold and OJC rules",
+          "url": "https://www.mass.gov/info-details/massachusetts-4-surtax-on-taxable-income",
+          "checked_date": "2026-10-09"
+        },
+        {
+          "title": "MA personal exemption and nonresident proration",
+          "url": "https://www.mass.gov/info-details/personal-income-tax-exemptions",
+          "checked_date": "2026-10-09"
+        },
+        {
+          "title": "MA FICA and Medicare deduction up to$2000",
+          "url": "https://www.mass.gov/info-details/social-security-fica-and-medicare-deduction",
+          "checked_date": "2026-10-09"
+        },
+        {
+          "title": "Massachusetts joint filing and combined income surtax rules",
+          "url": "https://www.mass.gov/info-details/e-file-and-pay-your-ma-personal-income-taxes",
+          "checked_date": "2026-10-09"
+        }
+      ],
+      "filing_statuses": [
+        "single",
+        "mfj"
+      ],
+      "filing_status_parameters": {
+        "single": {
+          "deduction": 0,
+          "exemption_amount": 4400,
+          "brackets": [
+            {
+              "threshold": 0,
+              "rate": 0.05
+            }
+          ]
+        },
+        "mfj": {
+          "deduction": 0,
+          "exemption_amount": 8800,
+          "brackets": [
+            {
+              "threshold": 0,
+              "rate": 0.05
+            }
+          ]
+        }
+      },
+      "fica_deduction_cap_per_spouse": 2000
+    },
+    "PA": {
+      "code": "PA",
+      "tax_year": 2026,
+      "status": "continuing_statutory_rate",
+      "filing_status": "single_and_mfj",
+      "brackets": [
+        {
+          "threshold": 0,
+          "rate": 0.0307
+        }
+      ],
+      "deduction": 0,
+      "exemption": {
+        "amount": 0
+      },
+      "surtaxes": [],
+      "local": [
+        "PHI"
+      ],
+      "payroll": [
+        {
+          "name": "PA employee unemployment contribution",
+          "rate": 0.0007,
+          "wage_cap": null,
+          "tax_cap": null,
+          "source_ids": [
+            "pa-uc"
+          ]
+        }
+      ],
+      "source_ids": [
+        "pa-rate",
+        "pa-deductions",
+        "pa-reciprocity"
+      ],
+      "credit_notes": [
+        "Statecredit for otherstateincome tax onnonPAsourceincome; doesnot simplycreditallforeignlocaltaxes.",
+        "Reciprocity affects state wages only; Philadelphiavisitorwagetax persists."
+      ],
+      "sources": [
+        {
+          "title": "PA DOR current employee wage-tax rate",
+          "url": "https://revenue-pa.custhelp.com/app/answers/detail/a_id/2585/~/what-is-the-employer-withholding-tax-rate",
+          "checked_date": "2026-10-09"
+        },
+        {
+          "title": "PA deductions and resident credit restrictions",
+          "url": "https://www.pa.gov/agencies/revenue/forms-and-publications/pa-personal-income-tax-guide/deductions-and-credits",
+          "checked_date": "2026-10-09"
+        },
+        {
+          "title": "PA residency and reciprocal wage agreements",
+          "url": "https://www.pa.gov/agencies/revenue/resources/tax-types-and-information/personal-income-tax/determining-residency",
+          "checked_date": "2026-10-09"
+        }
+      ],
+      "filing_statuses": [
+        "single",
+        "mfj"
+      ],
+      "filing_status_parameters": {
+        "single": {
+          "deduction": 0,
+          "exemption_amount": 0,
+          "brackets": [
+            {
+              "threshold": 0,
+              "rate": 0.0307
+            }
+          ]
+        },
+        "mfj": {
+          "deduction": 0,
+          "exemption_amount": 0,
+          "brackets": [
+            {
+              "threshold": 0,
+              "rate": 0.0307
+            }
+          ]
+        }
+      }
+    },
+    "OH": {
+      "code": "OH",
+      "tax_year": 2026,
+      "status": "2026_statutory_rate;2025_lowincome_exemption_proxy",
+      "filing_status": "single_and_mfj",
+      "brackets": [
+        {
+          "threshold": 0,
+          "rate": 0
+        },
+        {
+          "threshold": 26050,
+          "rate": 0.0275
+        }
+      ],
+      "deduction": 0,
+      "exemption": {
+        "amount": 0,
+        "algorithm": "ifMAGI>=500000:0;elseMAGI<=40000:2400;elseMAGI<=80000:2150;else1900",
+        "amount_status": "2025indexedproxybelow500k;2026ceilingverified"
+      },
+      "surtaxes": [],
+      "local": [
+        "CLE"
+      ],
+      "payroll": [],
+      "source_ids": [
+        "oh2026",
+        "oh-exemption-law",
+        "oh-exemption-proxy",
+        "oh-reciprocity",
+        "oh-joint-credit",
+        "oh-credit-order"
+      ],
+      "credit_notes": [
+        "Reciprocalwages excludedfromsource tax; municipalcredits handled separately."
+      ],
+      "tax_adjustment": {
+        "if_taxable_above": 26050,
+        "add": 332
+      },
+      "sources": [
+        {
+          "title": "OhioRC5747.02 enacted2026 income tax formula",
+          "url": "https://codes.ohio.gov/ohio-revised-code/section-5747.02",
+          "checked_date": "2026-10-09"
+        },
+        {
+          "title": "OhioRC5747.0252026 MAGI$500000 exemption ceiling",
+          "url": "https://codes.ohio.gov/ohio-revised-code/section-5747.025",
+          "checked_date": "2026-10-09"
+        },
+        {
+          "title": "Ohio2025 IT1040 instructionsp17 indexed exemption amounts proxy",
+          "url": "https://dam.assets.ohio.gov/image/upload/tax.ohio.gov/forms/ohio_individual/individual/2025/it1040-booklet.pdf",
+          "checked_date": "2026-10-09"
+        },
+        {
+          "title": "Ohio legislature enactedHB110 analysis,5 reciprocal bordering states",
+          "url": "https://www.lsc.ohio.gov/assets/legislation/134/hb110/en/files/hb110-tax-bill-analysis-as-enrolled-134th-general-assembly.pdf",
+          "checked_date": "2026-10-09"
+        },
+        {
+          "title": "Ohio RC5747.05(E): joint credit, both earn at least $500, 2026 MAGI below $500000",
+          "url": "https://codes.ohio.gov/ohio-revised-code/section-5747.05",
+          "checked_date": "2026-10-09"
+        },
+        {
+          "title": "Ohio RC5747.98: joint credit precedes nonresident and other-state credits",
+          "url": "https://codes.ohio.gov/ohio-revised-code/section-5747.98",
+          "checked_date": "2026-10-09"
+        }
+      ],
+      "filing_statuses": [
+        "single",
+        "mfj"
+      ],
+      "filing_status_parameters": {
+        "single": {
+          "deduction": 0,
+          "exemption_amount": 0,
+          "brackets": [
+            {
+              "threshold": 0,
+              "rate": 0
+            },
+            {
+              "threshold": 26050,
+              "rate": 0.0275
+            }
+          ]
+        },
+        "mfj": {
+          "deduction": 0,
+          "exemption_amount": 0,
+          "brackets": [
+            {
+              "threshold": 0,
+              "rate": 0
+            },
+            {
+              "threshold": 26050,
+              "rate": 0.0275
+            }
+          ]
+        }
+      },
+      "joint_credit": {
+        "minimum_wages_each_spouse": 500,
+        "magi_must_be_less_than": 500000,
+        "cap": 650,
+        "rates": [
+          {
+            "upper": 25000,
+            "rate": 0.2
+          },
+          {
+            "upper": 50000,
+            "rate": 0.15
+          },
+          {
+            "upper": 75000,
+            "rate": 0.1
+          },
+          {
+            "upper": null,
+            "rate": 0.05
+          }
+        ]
+      }
+    },
+    "MI": {
+      "code": "MI",
+      "tax_year": 2026,
+      "status": "2026_verified",
+      "filing_status": "single_and_mfj",
+      "brackets": [
+        {
+          "threshold": 0,
+          "rate": 0.0425
+        }
+      ],
+      "deduction": 0,
+      "exemption": {
+        "amount": 5900
+      },
+      "surtaxes": [],
+      "local": [
+        "DET"
+      ],
+      "payroll": [],
+      "source_ids": [
+        "mi2026",
+        "mi-exemption",
+        "mi-athletes",
+        "mi-reciprocity",
+        "mi-local-credit",
+        "mi-spouse-exemption"
+      ],
+      "credit_notes": [
+        "RAB2018-27 expresslyhonors professionalathlete reciprocity.",
+        "Per-contract dutydays; separatecontractincome cannotbe blindly pooled.",
+        "Resident state credit also includes qualifying outside-Michigan city/county income taxes, including in reciprocal states."
+      ],
+      "sources": [
+        {
+          "title": "Michigan2026 confirmed4.25% stateincome rate",
+          "url": "https://www.michigan.gov/treasury/news/2026/04/15/state-individual-income-tax-rate-for-2026-tax-year-determined",
+          "checked_date": "2026-10-09"
+        },
+        {
+          "title": "Michigan2026 withholding guide personalexemption$5900",
+          "url": "https://www.michigan.gov/taxes/business-taxes/withholding/calendar-year-tax-information",
+          "checked_date": "2026-10-09"
+        },
+        {
+          "title": "MichiganRAB2018-27 dutyday methodology and athlete reciprocity",
+          "url": "https://www.michigan.gov/taxes/rep-legal/rab/2018-revenue-administrative-bulletins/revenue-administrative-bulletin-2018-27",
+          "checked_date": "2026-10-09"
+        },
+        {
+          "title": "Michigan wage reporting and reciprocalstates",
+          "url": "https://www.michigan.gov/taxes/business-taxes/withholding/withholding-tax-faqs",
+          "checked_date": "2026-10-09"
+        },
+        {
+          "title": "Michigan resident credit includes outside-Michigan local government tax, including reciprocal-state cities",
+          "url": "https://www.michigan.gov/en/taxes/questions/iit/accordion/residency/are-my-wages-earned-in-another-state-taxable-in-michigan-if-i-am-a-michigan-resident-1",
+          "checked_date": "2026-10-09"
+        },
+        {
+          "title": "Michigan MCL206.30: personal exemption for taxpayer and spouse; nonresident proration",
+          "url": "https://www.legislature.mi.gov/mileg.aspx?objectName=mcl-206-30&page=getObject",
+          "checked_date": "2026-10-09"
+        }
+      ],
+      "filing_statuses": [
+        "single",
+        "mfj"
+      ],
+      "filing_status_parameters": {
+        "single": {
+          "deduction": 0,
+          "exemption_amount": 5900,
+          "brackets": [
+            {
+              "threshold": 0,
+              "rate": 0.0425
+            }
+          ]
+        },
+        "mfj": {
+          "deduction": 0,
+          "exemption_amount": 11800,
+          "brackets": [
+            {
+              "threshold": 0,
+              "rate": 0.0425
+            }
+          ]
+        }
+      }
+    },
+    "IN": {
+      "code": "IN",
+      "tax_year": 2026,
+      "status": "2026_verified",
+      "filing_status": "single_and_mfj",
+      "brackets": [
+        {
+          "threshold": 0,
+          "rate": 0.0295
+        }
+      ],
+      "deduction": 0,
+      "exemption": {
+        "amount": 1000
+      },
+      "surtaxes": [],
+      "local": [
+        "MARION"
+      ],
+      "payroll": [],
+      "source_ids": [
+        "in-rates",
+        "in-exemption",
+        "in-athletes",
+        "in-reciprocity",
+        "in-credit",
+        "in-joint-exemption"
+      ],
+      "credit_notes": [
+        "Athlete state reciprocity honored; Marioncountytax stillowedforservices.",
+        "Residentstatecredit excludesotherstate locals; countytaxcredit excludesotherstate states.",
+        "Reversecredit: Indiana resident workingOR/AZ generally claimscreditthere; OR/AZresidentwithINsource mayclaimnonresidentINcredit. DCspecial limitedtoapplicabletax. Genericminstateoverlap total approximatescombinedtax butnotfilingdirection."
+      ],
+      "enacted_2027_rate": 0.029,
+      "sources": [
+        {
+          "title": "Indiana DOR2026/2027 enactedstateincome rates",
+          "url": "https://www.in.gov/dor/resources/tax-rates-and-reports/rates-fees-and-penalties/",
+          "checked_date": "2026-10-09"
+        },
+        {
+          "title": "Indiana personalexemption$1000",
+          "url": "https://secure.in.gov/dor/i-am-a/individual/low-income-taxpayers/",
+          "checked_date": "2026-10-09"
+        },
+        {
+          "title": "Indiana athlete Bulletin88 reciprocity andcounty rules",
+          "url": "https://www.in.gov/dor/files/ib88.pdf",
+          "checked_date": "2026-10-09"
+        },
+        {
+          "title": "Indiana Bulletin28 reciprocalstates andcredit method",
+          "url": "https://www.in.gov/dor/files/reference/ib28.pdf",
+          "checked_date": "2026-10-09"
+        },
+        {
+          "title": "Indiana credits includingreversecreditAZ/OR/DC andseparatelocalcredit",
+          "url": "https://secure.in.gov/dor/i-am-a/individual/tax-credits/",
+          "checked_date": "2026-10-09"
+        },
+        {
+          "title": "Indiana Bulletin117: $1000 each for taxpayer and spouse on joint return",
+          "url": "https://www.in.gov/dor/files/ib117.pdf",
+          "checked_date": "2026-10-09"
+        }
+      ],
+      "filing_statuses": [
+        "single",
+        "mfj"
+      ],
+      "filing_status_parameters": {
+        "single": {
+          "deduction": 0,
+          "exemption_amount": 1000,
+          "brackets": [
+            {
+              "threshold": 0,
+              "rate": 0.0295
+            }
+          ]
+        },
+        "mfj": {
+          "deduction": 0,
+          "exemption_amount": 2000,
+          "brackets": [
+            {
+              "threshold": 0,
+              "rate": 0.0295
+            }
+          ]
+        }
+      }
+    },
+    "NC": {
+      "code": "NC",
+      "tax_year": 2026,
+      "status": "2026_verified",
+      "filing_status": "single_and_mfj",
+      "brackets": [
+        {
+          "threshold": 0,
+          "rate": 0.0399
+        }
+      ],
+      "deduction": 12750,
+      "exemption": {
+        "amount": 0
+      },
+      "surtaxes": [],
+      "local": [],
+      "payroll": [],
+      "source_ids": [
+        "nc-rate",
+        "nc2027",
+        "nc-deduction"
+      ],
+      "credit_notes": [
+        "2027enactedrate verifiedactualsessionlaw44.1; genericDOR ratepagehadnotyetupdated."
+      ],
+      "enacted_2027_rate": 0.0349,
+      "sources": [
+        {
+          "title": "NC DOR statutory2026 rate3.99%",
+          "url": "https://www.ncdor.gov/taxes-forms/individual-income-tax/tax-rate-schedules",
+          "checked_date": "2026-10-09"
+        },
+        {
+          "title": "NC SL2026-41 Sec44.1 enacted2027rate3.49%",
+          "url": "https://www.ncleg.gov/EnactedLegislation/SessionLaws/HTML/2025-2026/SL2026-41.html",
+          "checked_date": "2026-10-09"
+        },
+        {
+          "title": "NC standarddeduction single$12750",
+          "url": "https://www.ncdor.gov/taxes-forms/individual-income-tax/filing-topics/north-carolina-standard-deduction-or-north-carolina-itemized-deductions",
+          "checked_date": "2026-10-09"
+        }
+      ],
+      "filing_statuses": [
+        "single",
+        "mfj"
+      ],
+      "filing_status_parameters": {
+        "single": {
+          "deduction": 12750,
+          "exemption_amount": 0,
+          "brackets": [
+            {
+              "threshold": 0,
+              "rate": 0.0399
+            }
+          ]
+        },
+        "mfj": {
+          "deduction": 25500,
+          "exemption_amount": 0,
+          "brackets": [
+            {
+              "threshold": 0,
+              "rate": 0.0399
+            }
+          ]
+        }
+      }
+    },
+    "GA": {
+      "code": "GA",
+      "tax_year": 2026,
+      "status": "2026_verified",
+      "filing_status": "single_and_mfj",
+      "brackets": [
+        {
+          "threshold": 0,
+          "rate": 0.0499
+        }
+      ],
+      "deduction": 15000,
+      "exemption": {
+        "amount": 0
+      },
+      "surtaxes": [],
+      "local": [],
+      "payroll": [],
+      "source_ids": [
+        "ga2026",
+        "ga-law",
+        "ga-credit-aggregate",
+        "ga-credit-local",
+        "ga-joint-deduction"
+      ],
+      "credit_notes": [
+        "2026rateanddeduction retroactiveJan1 despiteMay11withholdingchange; no separatepersonalexemption.",
+        "2027decreasehasstatutoryconditions; use2026proxyunlessconfirmed.",
+        "Combine all mutually taxed US state/local income and final taxes in one aggregate credit limit; do not sum independently capped state credits."
+      ],
+      "sources": [
+        {
+          "title": "Georgia2026 updatedJune employer guide4.99% andsingle$15000",
+          "url": "https://dor.georgia.gov/document/document-document/2026-employers-tax-guide-updated-june-2026/download",
+          "checked_date": "2026-10-09"
+        },
+        {
+          "title": "Georgia2026 signedHB463",
+          "url": "https://gov.georgia.gov/document/2026-signed-legislation/hb-463/download",
+          "checked_date": "2026-10-09"
+        },
+        {
+          "title": "Georgia Rule560-7-7-.01(1) combines taxable income and tax from all other states",
+          "url": "https://rules.sos.ga.gov/gac/560-7-7",
+          "checked_date": "2026-10-09"
+        },
+        {
+          "title": "Georgia 2025 IT-511 p34: other-state credit includes US local net-income taxes",
+          "url": "https://dor.georgia.gov/document/document/2025-it-511-individual-income-tax-booklet/download",
+          "checked_date": "2026-10-09"
+        },
+        {
+          "title": "Georgia 2026 withholding changes: $30000 MFJ standard deduction",
+          "url": "https://www.ers.ga.gov/post/retirees-georgia-income-tax-rate-changes",
+          "checked_date": "2026-10-09"
+        }
+      ],
+      "filing_statuses": [
+        "single",
+        "mfj"
+      ],
+      "filing_status_parameters": {
+        "single": {
+          "deduction": 15000,
+          "exemption_amount": 0,
+          "brackets": [
+            {
+              "threshold": 0,
+              "rate": 0.0499
+            }
+          ]
+        },
+        "mfj": {
+          "deduction": 30000,
+          "exemption_amount": 0,
+          "brackets": [
+            {
+              "threshold": 0,
+              "rate": 0.0499
+            }
+          ]
+        }
+      }
+    },
+    "FL": {
+      "code": "FL",
+      "tax_year": 2026,
+      "status": "no_individual_wage_income_tax",
+      "filing_status": "single_and_mfj",
+      "brackets": [
+        {
+          "threshold": 0,
+          "rate": 0
+        }
+      ],
+      "deduction": 0,
+      "exemption": {
+        "amount": 0
+      },
+      "surtaxes": [],
+      "local": [],
+      "payroll": [],
+      "source_ids": [
+        "fl-zero"
+      ],
+      "credit_notes": [],
+      "sources": [
+        {
+          "title": "Florida DOR no personalincome tax",
+          "url": "https://floridarevenue.com/faq/Pages/FAQDetails.aspx?FAQID=1466",
+          "checked_date": "2026-10-09"
+        }
+      ],
+      "filing_statuses": [
+        "single",
+        "mfj"
+      ],
+      "filing_status_parameters": {
+        "single": {
+          "deduction": 0,
+          "exemption_amount": 0,
+          "brackets": [
+            {
+              "threshold": 0,
+              "rate": 0
+            }
+          ]
+        },
+        "mfj": {
+          "deduction": 0,
+          "exemption_amount": 0,
+          "brackets": [
+            {
+              "threshold": 0,
+              "rate": 0
+            }
+          ]
+        }
+      }
+    },
+    "TN": {
+      "code": "TN",
+      "tax_year": 2026,
+      "status": "no_individual_wage_income_tax",
+      "filing_status": "single_and_mfj",
+      "brackets": [
+        {
+          "threshold": 0,
+          "rate": 0
+        }
+      ],
+      "deduction": 0,
+      "exemption": {
+        "amount": 0
+      },
+      "surtaxes": [],
+      "local": [],
+      "payroll": [],
+      "source_ids": [
+        "tn-athlete-zero"
+      ],
+      "credit_notes": [],
+      "sources": [
+        {
+          "title": "Tennessee NBA athleteprivilegetax abolished2016",
+          "url": "https://www.tn.gov/revenue/taxes/professional-privilege-tax/professional-privilege-tax-for-athletes.html",
+          "checked_date": "2026-10-09"
+        }
+      ],
+      "filing_statuses": [
+        "single",
+        "mfj"
+      ],
+      "filing_status_parameters": {
+        "single": {
+          "deduction": 0,
+          "exemption_amount": 0,
+          "brackets": [
+            {
+              "threshold": 0,
+              "rate": 0
+            }
+          ]
+        },
+        "mfj": {
+          "deduction": 0,
+          "exemption_amount": 0,
+          "brackets": [
+            {
+              "threshold": 0,
+              "rate": 0
+            }
+          ]
+        }
+      }
+    },
+    "DC": {
+      "code": "DC",
+      "tax_year": 2026,
+      "status": "2026_verified",
+      "filing_status": "single_and_mfj",
+      "brackets": [
+        {
+          "threshold": 0,
+          "rate": 0.04
+        },
+        {
+          "threshold": 10000,
+          "rate": 0.06
+        },
+        {
+          "threshold": 40000,
+          "rate": 0.065
+        },
+        {
+          "threshold": 60000,
+          "rate": 0.085
+        },
+        {
+          "threshold": 250000,
+          "rate": 0.0925
+        },
+        {
+          "threshold": 500000,
+          "rate": 0.0975
+        },
+        {
+          "threshold": 1000000,
+          "rate": 0.1075
+        }
+      ],
+      "deduction": 16100,
+      "exemption": {
+        "amount": 0
+      },
+      "surtaxes": [],
+      "local": [],
+      "payroll": [],
+      "source_ids": [
+        "dc-rates",
+        "dc-nonresident",
+        "dc2026-deduction"
+      ],
+      "credit_notes": [
+        "DCresidentdefaultisascenarioonly; manyWashingtonplayersmayactuallyresideMDorVA andneedtheirresidenttax.",
+        "NoDCnonresidentwagetax evenifgameinDC; paidfamilyleaveisemployerfundednotplayerdeduction."
+      ],
+      "nonresident_wage_tax": 0,
+      "sources": [
+        {
+          "title": "DC resident personalincome tax rates",
+          "url": "https://otr.cfo.dc.gov/page/dc-individual-and-fiduciary-income-tax-rates",
+          "checked_date": "2026-10-09"
+        },
+        {
+          "title": "DC OTR nonresident wagewithholding refund",
+          "url": "https://otr.cfo.dc.gov/page/individual-filings-faqs",
+          "checked_date": "2026-10-09"
+        },
+        {
+          "title": "DC2026 D40ES officialestimate standarddeduction$16100",
+          "url": "https://otr.cfo.dc.gov/sites/default/files/dc/sites/otr/publication/attachments/2026_D40ES_Book_wLinks04012026.pdf",
+          "checked_date": "2026-10-09"
+        }
+      ],
+      "filing_statuses": [
+        "single",
+        "mfj"
+      ],
+      "filing_status_parameters": {
+        "single": {
+          "deduction": 16100,
+          "exemption_amount": 0,
+          "brackets": [
+            {
+              "threshold": 0,
+              "rate": 0.04
+            },
+            {
+              "threshold": 10000,
+              "rate": 0.06
+            },
+            {
+              "threshold": 40000,
+              "rate": 0.065
+            },
+            {
+              "threshold": 60000,
+              "rate": 0.085
+            },
+            {
+              "threshold": 250000,
+              "rate": 0.0925
+            },
+            {
+              "threshold": 500000,
+              "rate": 0.0975
+            },
+            {
+              "threshold": 1000000,
+              "rate": 0.1075
+            }
+          ]
+        },
+        "mfj": {
+          "deduction": 32200,
+          "exemption_amount": 0,
+          "brackets": [
+            {
+              "threshold": 0,
+              "rate": 0.04
+            },
+            {
+              "threshold": 10000,
+              "rate": 0.06
+            },
+            {
+              "threshold": 40000,
+              "rate": 0.065
+            },
+            {
+              "threshold": 60000,
+              "rate": 0.085
+            },
+            {
+              "threshold": 250000,
+              "rate": 0.0925
+            },
+            {
+              "threshold": 500000,
+              "rate": 0.0975
+            },
+            {
+              "threshold": 1000000,
+              "rate": 0.1075
+            }
+          ]
+        }
+      }
+    }
+  },
+  "locals": {
+    "NYC": {
+      "code": "NYC",
+      "name": "New York City",
+      "state": "NY",
+      "resident_rate": null,
+      "nonresident_rate": 0,
+      "deduction": 8000,
+      "brackets": [
+        {
+          "threshold": 0,
+          "rate": 0.03078
+        },
+        {
+          "threshold": 12000,
+          "rate": 0.03762
+        },
+        {
+          "threshold": 25000,
+          "rate": 0.03819
+        },
+        {
+          "threshold": 50000,
+          "rate": 0.03876
+        }
+      ],
+      "other_local_credit_limit_rate": 0,
+      "source_ids": [
+        "ny2026",
+        "nyc-nonresident"
+      ],
+      "status": "2026verified;no_lowincome_schoolcredits_modeled",
+      "filing_statuses": [
+        "single",
+        "mfj"
+      ],
+      "filing_status_parameters": {
+        "single": {
+          "deduction": 8000,
+          "nonresident_deduction": 0,
+          "brackets": [
+            {
+              "threshold": 0,
+              "rate": 0.03078
+            },
+            {
+              "threshold": 12000,
+              "rate": 0.03762
+            },
+            {
+              "threshold": 25000,
+              "rate": 0.03819
+            },
+            {
+              "threshold": 50000,
+              "rate": 0.03876
+            }
+          ]
+        },
+        "mfj": {
+          "deduction": 16050,
+          "nonresident_deduction": 0,
+          "brackets": [
+            {
+              "threshold": 0,
+              "rate": 0.03078
+            },
+            {
+              "threshold": 21600,
+              "rate": 0.03762
+            },
+            {
+              "threshold": 45000,
+              "rate": 0.03819
+            },
+            {
+              "threshold": 90000,
+              "rate": 0.03876
+            }
+          ]
+        }
+      }
+    },
+    "PHI": {
+      "code": "PHI",
+      "name": "Philadelphia",
+      "state": "PA",
+      "resident_rate": 0.03735,
+      "nonresident_rate": 0.03425,
+      "deduction": 0,
+      "other_local_credit_limit_rate": 0.03735,
+      "source_ids": [
+        "phi-rates",
+        "phi-credit",
+        "phi-credit-court"
+      ],
+      "status": "2026-07-01_through_2027-06-30",
+      "credit_scope": "Otheroutofstatecityincome tax only;notstateincome tax.",
+      "filing_statuses": [
+        "single",
+        "mfj"
+      ],
+      "filing_status_parameters": {
+        "single": {
+          "deduction": 0,
+          "nonresident_deduction": 0
+        },
+        "mfj": {
+          "deduction": 0,
+          "nonresident_deduction": 0
+        }
+      }
+    },
+    "CLE": {
+      "code": "CLE",
+      "name": "Cleveland",
+      "state": "OH",
+      "resident_rate": 0.025,
+      "nonresident_rate": 0.025,
+      "deduction": 0,
+      "other_local_credit_limit_rate": 0.025,
+      "source_ids": [
+        "cle-rates",
+        "cle-credit"
+      ],
+      "status": "2026verified",
+      "filing_statuses": [
+        "single",
+        "mfj"
+      ],
+      "filing_status_parameters": {
+        "single": {
+          "deduction": 0,
+          "nonresident_deduction": 0
+        },
+        "mfj": {
+          "deduction": 0,
+          "nonresident_deduction": 0
+        }
+      }
+    },
+    "DET": {
+      "code": "DET",
+      "name": "Detroit",
+      "state": "MI",
+      "resident_rate": 0.024,
+      "nonresident_rate": 0.012,
+      "deduction": 600,
+      "nonresident_deduction": 600,
+      "other_local_credit_limit_rate": 0.012,
+      "source_ids": [
+        "det2026",
+        "det-credit"
+      ],
+      "status": "2026rates;2025exemptioncreditinstructions",
+      "credit_scope": "Cap1.2%overlapincome,not2.4%residentrate.",
+      "filing_statuses": [
+        "single",
+        "mfj"
+      ],
+      "filing_status_parameters": {
+        "single": {
+          "deduction": 600,
+          "nonresident_deduction": 600
+        },
+        "mfj": {
+          "deduction": 1200,
+          "nonresident_deduction": 1200
+        }
+      }
+    },
+    "MARION": {
+      "code": "MARION",
+      "name": "Marion County (Indianapolis)",
+      "state": "IN",
+      "resident_rate": 0.0202,
+      "nonresident_rate": 0.0202,
+      "deduction": 1000,
+      "nonresident_deduction": 0,
+      "other_local_credit_limit_rate": 0.0202,
+      "source_ids": [
+        "in-county",
+        "in-athletes",
+        "in-credit",
+        "in-joint-exemption"
+      ],
+      "status": "Oct2026verified;2027rateproxy",
+      "credit_scope": "OthernonIndiana localincome tax;notstateincome tax.",
+      "filing_statuses": [
+        "single",
+        "mfj"
+      ],
+      "filing_status_parameters": {
+        "single": {
+          "deduction": 1000,
+          "nonresident_deduction": 0
+        },
+        "mfj": {
+          "deduction": 2000,
+          "nonresident_deduction": 0
+        }
+      }
+    }
+  },
+  "reciprocity": {
+    "IN": [
+      "KY",
+      "MI",
+      "OH",
+      "PA",
+      "WI"
+    ],
+    "MI": [
+      "IL",
+      "IN",
+      "KY",
+      "MN",
+      "OH",
+      "WI"
+    ],
+    "OH": [
+      "IN",
+      "KY",
+      "MI",
+      "PA",
+      "WV"
+    ],
+    "PA": [
+      "IN",
+      "MD",
+      "NJ",
+      "OH",
+      "VA",
+      "WV"
+    ]
+  },
+  "sources": {
+    "ny2026": {
+      "title": "NY 2026 IT-2105-I estimated-tax instructions, worksheets7–11 and rates",
+      "url": "https://www.tax.ny.gov/pdf/current_forms/it/it2105i.pdf",
+      "checked_date": "2026-10-09"
+    },
+    "ny-athletes": {
+      "title": "NY IT-203-TM current athlete duty-day instructions",
+      "url": "https://www.tax.ny.gov/forms/current-forms/it/it203tmi.htm",
+      "checked_date": "2026-10-09"
+    },
+    "ny-credit": {
+      "title": "NY IT-112-R resident credit instructions",
+      "url": "https://www.tax.ny.gov/pdf/current_forms/it/it112ri.pdf",
+      "checked_date": "2026-10-09"
+    },
+    "nyc-nonresident": {
+      "title": "NY filing/residency FAQ: NYC resident tax only",
+      "url": "https://www.tax.ny.gov/pit/file/nonresident-faqs.htm",
+      "checked_date": "2026-10-09"
+    },
+    "ny-pfl": {
+      "title": "2026 NY paid-family-leave employee contribution",
+      "url": "https://www.wcb.ny.gov/content/main/PressRe/paid-family-leave-2026.jsp",
+      "checked_date": "2026-10-09"
+    },
+    "ny-dbl": {
+      "title": "NY disability benefits employee contribution rules",
+      "url": "https://apps.wcb.ny.gov/content/main/DisabilityBenefits/employee-disability-benefits.jsp",
+      "checked_date": "2026-10-09"
+    },
+    "ma-rates": {
+      "title": "Massachusetts wage and surtax rates",
+      "url": "https://www.mass.gov/info-details/tax-rates",
+      "checked_date": "2026-10-09"
+    },
+    "ma-surtax": {
+      "title": "Massachusetts2026 surtax threshold and OJC rules",
+      "url": "https://www.mass.gov/info-details/massachusetts-4-surtax-on-taxable-income",
+      "checked_date": "2026-10-09"
+    },
+    "ma-surtax-law": {
+      "title": "TIR23-12 nonresident MA-source-only surtax",
+      "url": "https://www.mass.gov/technical-information-release/tir-23-12-provisions-in-the-fiscal-year-2024-budget-pertaining-to-the-4-surtax-and-the-extension-of-the-brownfields-tax-credit",
+      "checked_date": "2026-10-09"
+    },
+    "ma-nonresident": {
+      "title": "MA nonresident gross/taxable income scope",
+      "url": "https://www.mass.gov/info-details/ma-gross-adjusted-gross-and-taxable-income-for-nonresidents",
+      "checked_date": "2026-10-09"
+    },
+    "ma-exemptions": {
+      "title": "MA personal exemption and nonresident proration",
+      "url": "https://www.mass.gov/info-details/personal-income-tax-exemptions",
+      "checked_date": "2026-10-09"
+    },
+    "ma-fica": {
+      "title": "MA FICA and Medicare deduction up to$2000",
+      "url": "https://www.mass.gov/info-details/social-security-fica-and-medicare-deduction",
+      "checked_date": "2026-10-09"
+    },
+    "ma-pfml": {
+      "title": "MA2026 and2027 employer/employee PFML split",
+      "url": "https://www.mass.gov/info-details/paid-family-and-medical-leave-employer-contribution-rates-and-calculator",
+      "checked_date": "2026-10-09"
+    },
+    "pa-rate": {
+      "title": "PA DOR current employee wage-tax rate",
+      "url": "https://revenue-pa.custhelp.com/app/answers/detail/a_id/2585/~/what-is-the-employer-withholding-tax-rate",
+      "checked_date": "2026-10-09"
+    },
+    "pa-deductions": {
+      "title": "PA deductions and resident credit restrictions",
+      "url": "https://www.pa.gov/agencies/revenue/forms-and-publications/pa-personal-income-tax-guide/deductions-and-credits",
+      "checked_date": "2026-10-09"
+    },
+    "pa-reciprocity": {
+      "title": "PA residency and reciprocal wage agreements",
+      "url": "https://www.pa.gov/agencies/revenue/resources/tax-types-and-information/personal-income-tax/determining-residency",
+      "checked_date": "2026-10-09"
+    },
+    "pa-uc": {
+      "title": "PA2026 employee UC0.07% uncapped",
+      "url": "https://www.pa.gov/agencies/dli/resources/for-employers-and-educators/how-to-file/uc-tax/yearly-tax-highlights",
+      "checked_date": "2026-10-09"
+    },
+    "phi-rates": {
+      "title": "Philadelphia wage tax rates effectiveJul2026",
+      "url": "https://www.phila.gov/services/business-self-employment/business-taxes/wage-tax-employers/",
+      "checked_date": "2026-10-09"
+    },
+    "phi-credit": {
+      "title": "Philadelphia LawDept2023 report: local-to-local credit, no state-to-local credit",
+      "url": "https://www.phila.gov/media/20240807143032/Law-Department-2023-YIR-FINAL.pdf",
+      "checked_date": "2026-10-09"
+    },
+    "phi-credit-court": {
+      "title": "Zilka v Philadelphia,2023 Pennsylvania SupremeCourt majority",
+      "url": "https://www.pacourts.us/assets/opinions/SUPREME/out/J-5B-2023mo%20-%20105746608246962463.pdf",
+      "checked_date": "2026-10-09"
+    },
+    "oh2026": {
+      "title": "OhioRC5747.02 enacted2026 income tax formula",
+      "url": "https://codes.ohio.gov/ohio-revised-code/section-5747.02",
+      "checked_date": "2026-10-09"
+    },
+    "oh-exemption-law": {
+      "title": "OhioRC5747.0252026 MAGI$500000 exemption ceiling",
+      "url": "https://codes.ohio.gov/ohio-revised-code/section-5747.025",
+      "checked_date": "2026-10-09"
+    },
+    "oh-exemption-proxy": {
+      "title": "Ohio2025 IT1040 instructionsp17 indexed exemption amounts proxy",
+      "url": "https://dam.assets.ohio.gov/image/upload/tax.ohio.gov/forms/ohio_individual/individual/2025/it1040-booklet.pdf",
+      "checked_date": "2026-10-09"
+    },
+    "oh-reciprocity": {
+      "title": "Ohio legislature enactedHB110 analysis,5 reciprocal bordering states",
+      "url": "https://www.lsc.ohio.gov/assets/legislation/134/hb110/en/files/hb110-tax-bill-analysis-as-enrolled-134th-general-assembly.pdf",
+      "checked_date": "2026-10-09"
+    },
+    "cle-rates": {
+      "title": "CCA2026 municipal withholding tax rates",
+      "url": "https://www.ccaohio.gov/sites/default/files/2025-12/2026%20Withholding%20Form.pdf",
+      "checked_date": "2026-10-09"
+    },
+    "cle-credit": {
+      "title": "Cleveland191.1902 credit fullamount cappedcity tax whenrateatleast2.5%",
+      "url": "https://codelibrary.amlegal.com/codes/cleveland/latest/cleveland_oh/0-0-0-7654",
+      "checked_date": "2026-10-09"
+    },
+    "mi2026": {
+      "title": "Michigan2026 confirmed4.25% stateincome rate",
+      "url": "https://www.michigan.gov/treasury/news/2026/04/15/state-individual-income-tax-rate-for-2026-tax-year-determined",
+      "checked_date": "2026-10-09"
+    },
+    "mi-exemption": {
+      "title": "Michigan2026 withholding guide personalexemption$5900",
+      "url": "https://www.michigan.gov/taxes/business-taxes/withholding/calendar-year-tax-information",
+      "checked_date": "2026-10-09"
+    },
+    "mi-athletes": {
+      "title": "MichiganRAB2018-27 dutyday methodology and athlete reciprocity",
+      "url": "https://www.michigan.gov/taxes/rep-legal/rab/2018-revenue-administrative-bulletins/revenue-administrative-bulletin-2018-27",
+      "checked_date": "2026-10-09"
+    },
+    "mi-reciprocity": {
+      "title": "Michigan wage reporting and reciprocalstates",
+      "url": "https://www.michigan.gov/taxes/business-taxes/withholding/withholding-tax-faqs",
+      "checked_date": "2026-10-09"
+    },
+    "det2026": {
+      "title": "Detroit2026 withholding guide rates",
+      "url": "https://www.michigan.gov/taxes/-/media/Project/Websites/taxes/Forms/City-Withholding/TY2026/5469_ty2026.pdf",
+      "checked_date": "2026-10-09"
+    },
+    "det-credit": {
+      "title": "Detroit2025 instructions: exemption$600 andothercitycreditcap1.2%",
+      "url": "https://www.michigan.gov/taxes/-/media/Project/Websites/taxes/Forms/City-IIT/TY2025/5313_City-Book.pdf",
+      "checked_date": "2026-10-09"
+    },
+    "in-rates": {
+      "title": "Indiana DOR2026/2027 enactedstateincome rates",
+      "url": "https://www.in.gov/dor/resources/tax-rates-and-reports/rates-fees-and-penalties/",
+      "checked_date": "2026-10-09"
+    },
+    "in-exemption": {
+      "title": "Indiana personalexemption$1000",
+      "url": "https://secure.in.gov/dor/i-am-a/individual/low-income-taxpayers/",
+      "checked_date": "2026-10-09"
+    },
+    "in-county": {
+      "title": "Indiana DN1county ratesOct2026 Marion2.02%",
+      "url": "https://www.in.gov/dor/files/dn01.pdf",
+      "checked_date": "2026-10-09"
+    },
+    "in-athletes": {
+      "title": "Indiana athlete Bulletin88 reciprocity andcounty rules",
+      "url": "https://www.in.gov/dor/files/ib88.pdf",
+      "checked_date": "2026-10-09"
+    },
+    "in-credit": {
+      "title": "Indiana credits includingreversecreditAZ/OR/DC andseparatelocalcredit",
+      "url": "https://secure.in.gov/dor/i-am-a/individual/tax-credits/",
+      "checked_date": "2026-10-09"
+    },
+    "in-reciprocity": {
+      "title": "Indiana Bulletin28 reciprocalstates andcredit method",
+      "url": "https://www.in.gov/dor/files/reference/ib28.pdf",
+      "checked_date": "2026-10-09"
+    },
+    "nc-rate": {
+      "title": "NC DOR statutory2026 rate3.99%",
+      "url": "https://www.ncdor.gov/taxes-forms/individual-income-tax/tax-rate-schedules",
+      "checked_date": "2026-10-09"
+    },
+    "nc2027": {
+      "title": "NC SL2026-41 Sec44.1 enacted2027rate3.49%",
+      "url": "https://www.ncleg.gov/EnactedLegislation/SessionLaws/HTML/2025-2026/SL2026-41.html",
+      "checked_date": "2026-10-09"
+    },
+    "nc-deduction": {
+      "title": "NC standarddeduction single$12750",
+      "url": "https://www.ncdor.gov/taxes-forms/individual-income-tax/filing-topics/north-carolina-standard-deduction-or-north-carolina-itemized-deductions",
+      "checked_date": "2026-10-09"
+    },
+    "ga2026": {
+      "title": "Georgia2026 updatedJune employer guide4.99% andsingle$15000",
+      "url": "https://dor.georgia.gov/document/document-document/2026-employers-tax-guide-updated-june-2026/download",
+      "checked_date": "2026-10-09"
+    },
+    "ga-law": {
+      "title": "Georgia2026 signedHB463",
+      "url": "https://gov.georgia.gov/document/2026-signed-legislation/hb-463/download",
+      "checked_date": "2026-10-09"
+    },
+    "fl-zero": {
+      "title": "Florida DOR no personalincome tax",
+      "url": "https://floridarevenue.com/faq/Pages/FAQDetails.aspx?FAQID=1466",
+      "checked_date": "2026-10-09"
+    },
+    "tn-athlete-zero": {
+      "title": "Tennessee NBA athleteprivilegetax abolished2016",
+      "url": "https://www.tn.gov/revenue/taxes/professional-privilege-tax/professional-privilege-tax-for-athletes.html",
+      "checked_date": "2026-10-09"
+    },
+    "dc-rates": {
+      "title": "DC resident personalincome tax rates",
+      "url": "https://otr.cfo.dc.gov/page/dc-individual-and-fiduciary-income-tax-rates",
+      "checked_date": "2026-10-09"
+    },
+    "dc-nonresident": {
+      "title": "DC OTR nonresident wagewithholding refund",
+      "url": "https://otr.cfo.dc.gov/page/individual-filings-faqs",
+      "checked_date": "2026-10-09"
+    },
+    "dc2026-deduction": {
+      "title": "DC2026 D40ES officialestimate standarddeduction$16100",
+      "url": "https://otr.cfo.dc.gov/sites/default/files/dc/sites/otr/publication/attachments/2026_D40ES_Book_wLinks04012026.pdf",
+      "checked_date": "2026-10-09"
+    },
+    "mi-local-credit": {
+      "title": "Michigan resident credit includes outside-Michigan local government tax, including reciprocal-state cities",
+      "url": "https://www.michigan.gov/en/taxes/questions/iit/accordion/residency/are-my-wages-earned-in-another-state-taxable-in-michigan-if-i-am-a-michigan-resident-1",
+      "checked_date": "2026-10-09"
+    },
+    "ga-credit-aggregate": {
+      "title": "Georgia Rule560-7-7-.01(1) combines taxable income and tax from all other states",
+      "url": "https://rules.sos.ga.gov/gac/560-7-7",
+      "checked_date": "2026-10-09"
+    },
+    "ga-credit-local": {
+      "title": "Georgia 2025 IT-511 p34: other-state credit includes US local net-income taxes",
+      "url": "https://dor.georgia.gov/document/document/2025-it-511-individual-income-tax-booklet/download",
+      "checked_date": "2026-10-09"
+    },
+    "ny2027-law": {
+      "title": "NY Tax Law 601(a),(c),(d-6): enacted 2027 rates and benefit recapture",
+      "url": "https://www.nysenate.gov/legislation/laws/TAX/601",
+      "checked_date": "2026-10-09"
+    },
+    "oh-joint-credit": {
+      "title": "Ohio RC5747.05(E): joint credit, both earn at least $500, 2026 MAGI below $500000",
+      "url": "https://codes.ohio.gov/ohio-revised-code/section-5747.05",
+      "checked_date": "2026-10-09"
+    },
+    "oh-credit-order": {
+      "title": "Ohio RC5747.98: joint credit precedes nonresident and other-state credits",
+      "url": "https://codes.ohio.gov/ohio-revised-code/section-5747.98",
+      "checked_date": "2026-10-09"
+    },
+    "mi-spouse-exemption": {
+      "title": "Michigan MCL206.30: personal exemption for taxpayer and spouse; nonresident proration",
+      "url": "https://www.legislature.mi.gov/mileg.aspx?objectName=mcl-206-30&page=getObject",
+      "checked_date": "2026-10-09"
+    },
+    "in-joint-exemption": {
+      "title": "Indiana Bulletin117: $1000 each for taxpayer and spouse on joint return",
+      "url": "https://www.in.gov/dor/files/ib117.pdf",
+      "checked_date": "2026-10-09"
+    },
+    "ma-joint-surtax": {
+      "title": "Massachusetts joint filing and combined income surtax rules",
+      "url": "https://www.mass.gov/info-details/e-file-and-pay-your-ma-personal-income-taxes",
+      "checked_date": "2026-10-09"
+    },
+    "ga-joint-deduction": {
+      "title": "Georgia 2026 withholding changes: $30000 MFJ standard deduction",
+      "url": "https://www.ers.ga.gov/post/retirees-georgia-income-tax-rate-changes",
+      "checked_date": "2026-10-09"
+    }
+  },
+  "filing_statuses": [
+    "single",
+    "mfj"
+  ],
+  "household_assumptions": [
+    "gross is combined taxpayer and spouse wages; spouse_wages is included in gross, not added again.",
+    "spouse_wages=0 is an explicit comparison assumption, not a claim about any player.",
+    "Nonresident source ratio is source wages divided by household wages; the spouse has no away-jurisdiction wages.",
+    "Both spouses share modeled resident state/locality and residency period; mixed residency, separate state returns, dependents and nonwage income are unsupported."
+  ]
+}

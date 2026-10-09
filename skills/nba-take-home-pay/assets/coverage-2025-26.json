@@ -1,0 +1,32 @@
+{
+  "season": "2025-26",
+  "captured_date": "2026-10-09",
+  "salary_counts": {
+    "teams": 30,
+    "players": 609,
+    "payment_rows": 788,
+    "league_ranking_rows": 522,
+    "excluded_cap_hold_rows": 2
+  },
+  "payment_section_counts": {
+    "Active Roster": 522,
+    "Dead Money": 166,
+    "Retained": 99,
+    "Rostered/No Longer Active": 1
+  },
+  "salary_total_usd": 5696540799,
+  "cash_team_checks": 91,
+  "cash_team_checks_passed": 91,
+  "league_ranking_rows_reconciled": 522,
+  "component_difference_record_count": 5,
+  "schedule_game_count": 1230,
+  "all_30_teams_have_82_games": true,
+  "date_range_et": [
+    "2025-10-21",
+    "2026-04-12"
+  ],
+  "sha256": {
+    "salaries-2025-26.json": "8d8489ce5e3780d64f789a2c0e9f02ff076c9d76a620c95816a695b5803a0edf",
+    "schedule-2025-26.json": "eb7c8862e49bb658afee48f647526de5860aadc9280f9872832cc41634c3ac39"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "nba-take-home-pay",
+  "version": "0.3.1",
+  "description": "2026–27 NBA 球员税后合同收入离线情景估算，包含逐项税额、客场工作日分摊及抵免说明。",
+  "keywords": [
+    "nba",
+    "salary",
+    "tax",
+    "agent-skills"
+  ],
+  "license": "MIT",
+  "author": {
+    "name": "jesusguy115-crypto"
+  },
+  "repository": "https://github.com/jesusguy115-crypto/nba-take-home-pay"
+}
