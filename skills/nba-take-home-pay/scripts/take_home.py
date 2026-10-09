@@ -60,6 +60,15 @@ def team_code(value):
     raise argparse.ArgumentTypeError('球队未匹配，请用球队代码（如 MIN）或中文队名（如森林狼）')
 
 
+def add_roster_labels(result):
+    active = result['active_roster']
+    result['roster_status_label'] = '现役' if active else '非现役·保留付款'
+    team = result['team_tax_context']['display_team']
+    result['roster_team_display'] = team if active else '付款球队：' + team
+    result['roster_status_note'] = '按薪资快照的Active Roster分类；非现役不等于已确认退役。'
+    return result
+
+
 def cached_scenario(row, status=None, settlement=None):
     """Select precomputed values and their own metadata without invoking the model."""
     result = deepcopy(row)
@@ -96,7 +105,7 @@ def cached_scenario(row, status=None, settlement=None):
     if status and status != 'individual_canada':
         result['filing_scenario']['selection_reason'] = 'user_requested_counterfactual'
     result['query_path'] = 'precomputed_cache'
-    return add_state_label(result)
+    return add_roster_labels(add_state_label(result))
 
 
 def schedule_note(cache, team=None):
@@ -179,7 +188,8 @@ def brief_result(result):
         for field in ('estimated_net_usd', 'rounded_net_usd', 'estimated_tax_usd', 'gross_usd')}
     output['sources'] = {'salary': result['sources']['salary']}
     for field in ('rank', 'position', 'team_correction', 'cashflow_scenario',
-                  'age', 'birth_date', 'age_as_of', 'age_status', 'age_source', 'birth_date_checked'):
+                  'age', 'birth_date', 'age_as_of', 'age_status', 'age_source', 'birth_date_checked',
+                  'roster_status_label', 'roster_team_display', 'roster_status_note'):
         if field in result:
             output[field] = result[field]
     if 'cashflow_scenario' in output:
@@ -262,7 +272,7 @@ def settlement_label(result):
 
 def print_single(result, cache, brief=False):
     chosen = result['filing_scenario']['status']
-    print(f"{result['player']}（{result['team_tax_context']['display_team']}）2026–27 赛季税后合同收入估计约 {result['rounded_net_usd']/10000:,.0f} 万美元（{settlement_label(result)}；{LABELS[chosen]}）。")
+    print(f"{result['player']}（{result['roster_status_label']}；{result['roster_team_display']}）2026–27 赛季税后合同收入估计约 {result['rounded_net_usd']/10000:,.0f} 万美元（{settlement_label(result)}；{LABELS[chosen]}）。")
     print(f"本季扣减及补发均为零的税后基准：约{result['contract_baseline']['rounded_net_usd']/10000:,.0f}万美元；保留同一上季扣减假设，2026–27实际结算尚未知。")
     print(f"公开资料情景估算，非真实税单或银行到账。Spotrac税前薪资 ${result['spotrac_salary_usd']:,.0f}；估计税负 {result['effective_tax_rate']:.1%}；数据截至 {result['captured_date']}。")
     print(f"年龄：{result['age'] if result.get('age') is not None else '未知'}岁（截至{result['age_as_of']}）。")
@@ -301,11 +311,11 @@ def print_batch(output):
     print('年龄按周岁计算，截至 ' + query['age_as_of'] + '。')
     if query.get('age_filter'):
         print('年龄范围：' + query['age_filter']['description'])
-    print('| 序号 | 球员 | 年龄 | 球队/州 | 合同税前（万美元） | 本情景税后约（万美元） | 未调整基准税后约（万美元） | 申报情景 |')
-    print('|---:|---|---:|---|---:|---:|---:|---|')
+    print('| 序号 | 球员 | 年龄 | 阵容状态 | 球队或付款球队/州 | 合同税前（万美元） | 本情景税后约（万美元） | 未调整基准税后约（万美元） | 申报情景 |')
+    print('|---:|---|---:|---|---|---:|---:|---:|---|')
     for index, row in enumerate(output['results'], 1):
         rank = row.get('rank', index)
-        print(f"| {rank} | {row['player']} | {row['age'] if row.get('age') is not None else '未知'} | {row['team_tax_context']['display_team']} | {row['spotrac_salary_usd']/10000:,.2f} | {row['rounded_net_usd']/10000:,.0f} | {row['contract_baseline']['rounded_net_usd']/10000:,.0f} | {LABELS[row['filing_scenario']['status']]} |")
+        print(f"| {rank} | {row['player']} | {row['age'] if row.get('age') is not None else '未知'} | {row['roster_status_label']} | {row['roster_team_display']} | {row['spotrac_salary_usd']/10000:,.2f} | {row['rounded_net_usd']/10000:,.0f} | {row['contract_baseline']['rounded_net_usd']/10000:,.0f} | {LABELS[row['filing_scenario']['status']]} |")
     print(output['estimate_notice'] + f" 数据截至 {output['salary_captured_date']}。")
     print('未调整基准：' + output['contract_baseline_note'])
     print('查询范围：' + query['scope_note'])
@@ -522,7 +532,7 @@ def main(argv=None):
                 recalculated['filing_scenarios'] = result['filing_scenarios']
             if result.get('team_correction'):
                 recalculated['team_correction'] = result['team_correction']
-            result = add_state_label(recalculated)
+            result = add_roster_labels(add_state_label(recalculated))
             result.update(age_metadata(result['player_id'], birthdays, as_of))
             result['query_path'] = 'recomputed_detail_or_scenario'
         except (ValueError, TypeError, KeyError) as error:

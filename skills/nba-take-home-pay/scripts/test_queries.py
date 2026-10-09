@@ -139,6 +139,21 @@ class FastQueryTests(unittest.TestCase):
         self.assertEqual(output['returned_count'], 5)
         self.assertTrue(all(row['filing_scenario']['status'] == 'mfj' for row in output['results']))
 
+    def test_non_roster_payments_are_labeled_in_each_output_row(self):
+        output = self.json_query('--compare', 'Taj Gibson', 'Stephen Curry', '--brief')
+        inactive, active = output['results']
+        self.assertFalse(inactive['active_roster'])
+        self.assertEqual(inactive['roster_status_label'], '非现役·保留付款')
+        self.assertTrue(inactive['roster_team_display'].startswith('付款球队：'))
+        self.assertEqual(active['roster_status_label'], '现役')
+        self.assertEqual(active['roster_team_display'], active['team_tax_context']['display_team'])
+        _, text, _ = self.query('--compare', 'Taj Gibson', 'Stephen Curry')
+        row = next(line for line in text.splitlines() if line.startswith('|') and 'Taj Gibson' in line)
+        self.assertIn('非现役·保留付款', row)
+        self.assertIn('付款球队：', row)
+        baseline = self.json_query('Taj Gibson', '--settlement', 'baseline', '--brief')
+        self.assertEqual(baseline['roster_status_label'], '非现役·保留付款')
+
     def test_net_ranking_uses_unrounded_amount_and_stable_ties(self):
         rows = [dict(player='A', player_id='1', estimated_net_usd=10.01, rounded_net_usd=0),
                 dict(player='Z', player_id='2', estimated_net_usd=10.04, rounded_net_usd=0),
