@@ -6,7 +6,9 @@
 
 [直接交给 Agent 的安装链接](https://github.com/jesusguy115-crypto/nba-take-home-pay/tree/main/skills/nba-take-home-pay) · [GitHub 仓库](https://github.com/jesusguy115-crypto/nba-take-home-pay) · [下载完整 ZIP](https://github.com/jesusguy115-crypto/nba-take-home-pay/archive/refs/heads/main.zip)
 
-**v0.5.1** 为快照中 520 人补齐中英文姓名，并统一 1,482 条别名及绰号索引；“安东尼・戴维斯”“浓眉”“AD”“杰森・塔图姆”“塔图姆”“獭兔”均可直接查询。中点、空格、大小写及英文重音符统一处理；重名保留候选，不擅自猜人。普通税后查询、多人比较与旧税前入口共用索引。
+**v0.6.0** 加入全员出生日期与年龄筛选，可直接查询“30岁以内税后前十”“未满25岁税后前十”或“25至30岁的森林狼球员”。年龄按查询日计算，生日自动变化，也可指定日期；筛选与排名直接读取本地缓存。
+
+v0.5.1 为快照中 520 人补齐中英文姓名，并统一 1,482 条别名及绰号索引；“安东尼・戴维斯”“浓眉”“AD”“杰森・塔图姆”“塔图姆”“獭兔”均可直接查询。中点、空格、大小写及英文重音符统一处理；重名保留候选，不擅自猜人。普通税后查询、多人比较与旧税前入口共用索引。
 
 v0.5.0 加入联盟结算调整。默认先给“假设最终工资扣减 5.48%”后的税后估值，并显示本季不扣减的合同基准；5.48% 取自上一季报道，仅作历史参照，**不是已知的 2026–27 结算结果**。暂扣 10% 另列税前现金流；税额按结算情景重算，避免重复扣除。批量查询与情景切换继续使用预计算结果。详见 [托管与结算说明](skills/nba-take-home-pay/references/escrow.md) 和 [更新记录](CHANGELOG.md)。
 
@@ -74,6 +76,12 @@ npx skills add jesusguy115-crypto/nba-take-home-pay --skill nba-take-home-pay
 
 > 按税后收入排前十名。
 
+> 30岁以内球员税后收入前十名，标注年龄。
+
+> 00后球员税后薪水前十名。
+
+> 截至2026年10月10日，未满25岁球员的税后薪水前十。
+
 > 森林狼现役名单每个人税后收入是多少？
 
 > 比较库里、杜兰特和杨瀚森的税后收入。
@@ -91,8 +99,12 @@ python3 -X utf8 skills/nba-take-home-pay/scripts/take_home.py --team MIN --brief
 python3 -X utf8 skills/nba-take-home-pay/scripts/take_home.py --compare "库里" "杜兰特" "杨瀚森" --brief --json
 python3 -X utf8 skills/nba-take-home-pay/scripts/take_home.py "库里" --filing-status mfj --brief --json
 python3 -X utf8 skills/nba-take-home-pay/scripts/take_home.py "约基奇" --settlement baseline --brief --json
+python3 -X utf8 skills/nba-take-home-pay/scripts/take_home.py --top 10 --sort net --max-age 30 --brief --json
+python3 -X utf8 skills/nba-take-home-pay/scripts/take_home.py --top 10 --sort net --under-age 25 --age-date 2026-10-10 --brief --json
 python3 -X utf8 skills/nba-take-home-pay/scripts/take_home.py --coverage
 ```
+
+年龄按周岁计算，默认机器当地日期，也可用 `--age-date YYYY-MM-DD` 固定日期。`--max-age 30` 包含30岁，`--under-age 30` 不包含30岁；`--min-age 25 --max-age 30` 为25至30岁（两端包含）。出生年代用 `--birth-year-min 2000 --birth-year-max 2009` 查询00后。先筛年龄或出生年份再排序截取人数。出生日期单独存储并保留来源，变更年龄日期不更新薪资快照，也不触发税额重算。
 
 `--top` 默认按税前 Cash Total 排名，覆盖所有现金薪资接收者；`--sort net` 改按未取整的税后估值排名。`--team` 默认只查该队 Active Roster；`--scope all` 包含该队付款的其他接收者，展示的仍是此人所有付款球队合计收入。多人 `--compare` 默认保留输入顺序，可加 `--sort gross` 或 `--sort net`。不同申报情景和免税州标签会随每行结果保留。
 

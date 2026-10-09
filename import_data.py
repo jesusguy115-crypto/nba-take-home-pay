@@ -20,6 +20,7 @@ REQUIRED = (
 )
 CACHE = "net-estimates-2026-27.json"
 NAME_INDEX = "player-name-index-2026-27.json"
+BIRTHDATES = "player-birthdates-2026-27.json"
 UPDATE_REPORT = "update-report-2026-27.json"
 UPDATE_HISTORY = "update-history-2026-27.json"
 HERE = Path(__file__).resolve().parent
@@ -260,6 +261,23 @@ def import_data(source, skill_path, force=False):
                         "Name aliases must be nonempty strings")
                 require(entry.get("chinese_name") is None or isinstance(entry["chinese_name"], str), "Invalid Chinese name")
             shutil.copyfile(name_source, stage / "assets" / NAME_INDEX)
+        birth_source = source / BIRTHDATES if (source / BIRTHDATES).is_file() else target / BIRTHDATES
+        if birth_source.is_file():
+            data = read_json(birth_source)
+            require(data.get("schema_version") == 1 and data.get("season") == "2026-27", "Invalid birth date index version or season")
+            seen = set()
+            for entry in rows(data.get("players"), "birth date players"):
+                fields(entry, ("player_id", "birth_date"), "birth date player")
+                text_value(entry["player_id"], "birth date player_id")
+                require(entry["player_id"] not in seen, "Duplicate player in birth date index")
+                seen.add(entry["player_id"])
+                if entry["birth_date"] is not None:
+                    require(isinstance(entry["birth_date"], str), "Invalid birth date")
+                    try:
+                        date.fromisoformat(entry["birth_date"])
+                    except ValueError:
+                        raise ImportFailure("Invalid birth date: " + entry["birth_date"])
+            shutil.copyfile(birth_source, stage / "assets" / BIRTHDATES)
         teams = json.loads(run_model(stage, "-c", "import json; from duty_days import TEAMS; print(json.dumps(list(TEAMS)))"))
         salaries = validate_inputs(stage / "assets", set(teams))
         rebuilt = not (stage / "assets" / CACHE).exists()

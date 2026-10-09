@@ -2,6 +2,7 @@
 """Fast offline queries; calculations run only for explicit detail/scenario requests."""
 import argparse
 from copy import deepcopy
+from datetime import date
 import json
 from pathlib import Path
 import sys
@@ -9,6 +10,7 @@ import sys
 from player_names import resolve, mentioned_team, requires_clarification, name_index_coverage, TEAM_NAMES
 from duty_days import TEAMS, make_ledger
 from state_labels import add_state_label
+from player_ages import load_birthdates, age_metadata, filter_by_age, age_coverage
 
 ROOT = Path(__file__).resolve().parents[1]
 CACHE = ROOT / 'assets/net-estimates-2026-27.json'
@@ -33,6 +35,20 @@ def positive_int(value):
     if number < 1:
         raise argparse.ArgumentTypeError('人数必须大于零')
     return number
+
+
+def age_bound(value):
+    number = int(value)
+    if not 0 <= number <= 120:
+        raise argparse.ArgumentTypeError('年龄必须是0至120的整数')
+    return number
+
+
+def age_date(value):
+    try:
+        return date.fromisoformat(value)
+    except ValueError:
+        raise argparse.ArgumentTypeError('年龄基准日须为有效的 YYYY-MM-DD 日期')
 
 
 def team_code(value):
@@ -162,7 +178,8 @@ def brief_result(result):
     output['contract_baseline'] = {field: result['contract_baseline'][field]
         for field in ('estimated_net_usd', 'rounded_net_usd', 'estimated_tax_usd', 'gross_usd')}
     output['sources'] = {'salary': result['sources']['salary']}
-    for field in ('rank', 'position', 'team_correction', 'cashflow_scenario'):
+    for field in ('rank', 'position', 'team_correction', 'cashflow_scenario',
+                  'age', 'birth_date', 'age_as_of', 'age_status', 'age_source', 'birth_date_checked'):
         if field in result:
             output[field] = result[field]
     if 'cashflow_scenario' in output:
@@ -248,6 +265,7 @@ def print_single(result, cache, brief=False):
     print(f"{result['player']}（{result['team_tax_context']['display_team']}）2026–27 赛季税后合同收入估计约 {result['rounded_net_usd']/10000:,.0f} 万美元（{settlement_label(result)}；{LABELS[chosen]}）。")
     print(f"本季扣减及补发均为零的税后基准：约{result['contract_baseline']['rounded_net_usd']/10000:,.0f}万美元；保留同一上季扣减假设，2026–27实际结算尚未知。")
     print(f"公开资料情景估算，非真实税单或银行到账。Spotrac税前薪资 ${result['spotrac_salary_usd']:,.0f}；估计税负 {result['effective_tax_rate']:.1%}；数据截至 {result['captured_date']}。")
+    print(f"年龄：{result['age'] if result.get('age') is not None else '未知'}岁（截至{result['age_as_of']}）。")
     print(filing_note(result))
     if result.get('team_correction'):
         print(result['team_correction'])
@@ -280,11 +298,14 @@ def print_batch(output):
     basis = {'gross': '税前合同现金薪资', 'net': '估计税后合同收入', 'input': '输入顺序'}[query['sort']]
     print(f"2026–27赛季，共{output['returned_count']}人；排序依据：{basis}。")
     print('联盟结算情景：' + query['settlement_note'] + '；2026–27实际结算尚未知。')
-    print('| 序号 | 球员 | 球队/州 | 合同税前（万美元） | 本情景税后约（万美元） | 未调整基准税后约（万美元） | 申报情景 |')
-    print('|---:|---|---|---:|---:|---:|---|')
+    print('年龄按周岁计算，截至 ' + query['age_as_of'] + '。')
+    if query.get('age_filter'):
+        print('年龄范围：' + query['age_filter']['description'])
+    print('| 序号 | 球员 | 年龄 | 球队/州 | 合同税前（万美元） | 本情景税后约（万美元） | 未调整基准税后约（万美元） | 申报情景 |')
+    print('|---:|---|---:|---|---:|---:|---:|---|')
     for index, row in enumerate(output['results'], 1):
         rank = row.get('rank', index)
-        print(f"| {rank} | {row['player']} | {row['team_tax_context']['display_team']} | {row['spotrac_salary_usd']/10000:,.2f} | {row['rounded_net_usd']/10000:,.0f} | {row['contract_baseline']['rounded_net_usd']/10000:,.0f} | {LABELS[row['filing_scenario']['status']]} |")
+        print(f"| {rank} | {row['player']} | {row['age'] if row.get('age') is not None else '未知'} | {row['team_tax_context']['display_team']} | {row['spotrac_salary_usd']/10000:,.2f} | {row['rounded_net_usd']/10000:,.0f} | {row['contract_baseline']['rounded_net_usd']/10000:,.0f} | {LABELS[row['filing_scenario']['status']]} |")
     print(output['estimate_notice'] + f" 数据截至 {output['salary_captured_date']}。")
     print('未调整基准：' + output['contract_baseline_note'])
     print('查询范围：' + query['scope_note'])
@@ -321,8 +342,26 @@ def main(argv=None):
     parser.add_argument('--filing-status', choices=['single', 'mfj', 'individual_canada'], help='从缓存选择身份情景；不声明真实报税身份')
     parser.add_argument('--settlement', choices=['baseline', 'historical'], help='baseline为未作联盟结算调整的基准；historical按5.48%历史扣减比例估算（默认），非2026–27已知结果。与--scenario合用时覆盖扣减率，baseline同时将本季补发设为0')
     parser.add_argument('--coverage', action='store_true', help='查看缓存覆盖情况')
+    parser.add_argument('--min-age', type=age_bound, help='最低周岁，包含边界')
+    upper = parser.add_mutually_exclusive_group()
+    upper.add_argument('--max-age', type=age_bound, help='最高周岁，包含边界；30岁以内用30')
+    upper.add_argument('--under-age', type=age_bound, help='未满指定周岁；未满30岁用30')
+    parser.add_argument('--age-date', type=age_date, help='年龄基准日YYYY-MM-DD，默认运行机器当地日期')
+    parser.add_argument('--birth-year-min', type=int, help='最早出生年份，包含该年')
+    parser.add_argument('--birth-year-max', type=int, help='最晚出生年份，包含该年')
     args = parser.parse_args(argv)
-    batch = args.top is not None or args.team is not None or args.compare is not None
+    age_filtered = any(v is not None for v in (args.min_age, args.max_age, args.under_age, args.birth_year_min, args.birth_year_max))
+    as_of = args.age_date or date.today()
+    if any(year is not None and not 1900 <= year <= 2200 for year in (args.birth_year_min, args.birth_year_max)):
+        parser.error('出生年份必须为1900至2200')
+    if args.birth_year_min is not None and args.birth_year_max is not None and args.birth_year_min > args.birth_year_max:
+        parser.error('出生年份上下界没有交集')
+    if age_filtered and (args.player or args.compare):
+        parser.error('年龄筛选用于联盟或球队名单；单人及指定姓名比较直接展示年龄')
+    if args.min_age is not None and ((args.max_age is not None and args.min_age > args.max_age) or
+                                     (args.under_age is not None and args.min_age >= args.under_age)):
+        parser.error('年龄上下界没有交集')
+    batch = args.top is not None or args.team is not None or args.compare is not None or age_filtered
     if args.coverage and (args.player or batch or args.scenario or args.explain or args.ledger or args.filing_status or args.settlement or args.scope or args.sort):
         parser.error('--coverage 不能与球员查询、排名、身份或计算情景混用')
     if args.explain and args.ledger:
@@ -352,9 +391,14 @@ def main(argv=None):
     from estimate import model_fingerprint
     if model_fingerprint() != cache['model_fingerprint']:
         parser.exit(2, '输入数据或税则已改变，请运行 build_estimates.py 重建缓存后再查询。\n')
+    try:
+        birthdays = load_birthdates()
+    except (ValueError, KeyError, TypeError) as error:
+        parser.exit(2, '出生日期索引不可用：' + str(error) + '\n')
     if args.coverage:
         coverage = {k: v for k, v in cache.items() if k != 'estimates'}
         coverage['name_index'] = name_index_coverage(cache['estimates'])
+        coverage['ages'] = age_coverage(cache['estimates'], birthdays, as_of)
         print(json.dumps(coverage, ensure_ascii=False, indent=2))
         return
     if not args.player and not batch:
@@ -389,6 +433,12 @@ def main(argv=None):
             eligible = [row for row in eligible if
                         (row['team'] == args.team if scope == 'active' else args.team in row['paying_teams'])]
         selected = [(row, None) for row in eligible]
+    if age_filtered:
+        try:
+            selected = filter_by_age(selected, birthdays, as_of, args.min_age, args.max_age, args.under_age,
+                                     args.birth_year_min, args.birth_year_max)
+        except ValueError as error:
+            parser.exit(2, str(error) + '\n')
     selected_count = len(selected)
     basis = args.sort or (None if args.compare else 'gross')
     # Gross rank does not depend on filing status. Select first so an unused
@@ -409,6 +459,7 @@ def main(argv=None):
             mentioned = mentioned_team(query)
             if mentioned and mentioned != result['team']:
                 result['team_correction'] = f"你提到{TEAMS[mentioned][0]}；{result['player']} 在本快照中对应{result['team_zh']}。"
+        result.update(age_metadata(result['player_id'], birthdays, as_of))
         results.append(result)
     if batch:
         basis = args.sort or (None if args.compare else 'gross')
@@ -429,6 +480,16 @@ def main(argv=None):
         output.update(query={'kind': 'comparison' if args.compare else 'team' if args.team else 'ranking',
                              'team': args.team, 'scope': scope, 'scope_note': scope_note,
                              'sort': basis or 'input', 'top': args.top,
+                             'age_as_of': as_of.isoformat(),
+                             'age_filter': {'min_inclusive': args.min_age, 'max_inclusive': args.max_age,
+                                            'max_exclusive': args.under_age, 'birth_year_min': args.birth_year_min,
+                                            'birth_year_max': args.birth_year_max,
+                                            'description': '；'.join(text for text in (
+                                                f'满{args.min_age}岁及以上' if args.min_age is not None else '',
+                                                f'{args.max_age}岁以内（含）' if args.max_age is not None else '',
+                                                f'未满{args.under_age}岁' if args.under_age is not None else '',
+                                                f'{args.birth_year_min}年及以后出生' if args.birth_year_min is not None else '',
+                                                f'{args.birth_year_max}年及以前出生' if args.birth_year_max is not None else '') if text)} if age_filtered else None,
                              'settlement': args.settlement or 'historical',
                              'settlement_note': settlement_label(results[0]) if results else ('本季扣减及补发均为零的税后基准' if args.settlement == 'baseline' else '按5.48%历史扣减比例参照'),
                              'ranking_note': '未取整金额降序；同金额并列名次，再按英文姓名与ID排序；最多返回指定人数。'},
@@ -462,6 +523,7 @@ def main(argv=None):
             if result.get('team_correction'):
                 recalculated['team_correction'] = result['team_correction']
             result = add_state_label(recalculated)
+            result.update(age_metadata(result['player_id'], birthdays, as_of))
             result['query_path'] = 'recomputed_detail_or_scenario'
         except (ValueError, TypeError, KeyError) as error:
             parser.exit(2, '无法计算该情景：' + str(error) + '\n')

@@ -115,6 +115,32 @@ class ImportDataTest(unittest.TestCase):
         self.assertEqual(directory_digest(old), before)
         self.assert_no_staging()
 
+    def test_birthdate_index_import_and_preservation(self):
+        original = self.original / IMPORTER.BIRTHDATES
+        shutil.copyfile(original, self.source / IMPORTER.BIRTHDATES)
+        result = self.run_import()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        target = self.skill / 'assets' / IMPORTER.BIRTHDATES
+        self.assertEqual(target.read_bytes(), original.read_bytes())
+        (self.source / IMPORTER.BIRTHDATES).unlink()
+        result = self.run_import('--force')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(target.read_bytes(), original.read_bytes())
+        self.assert_no_staging()
+
+    def test_invalid_birthdate_does_not_replace_existing_assets(self):
+        old = self.skill / 'assets'
+        shutil.copytree(self.source, old)
+        before = directory_digest(old)
+        bad = {'schema_version': 1, 'season': '2026-27', 'players': [
+            {'player_id': '1', 'birth_date': '1996-02-30'}]}
+        (self.source / IMPORTER.BIRTHDATES).write_text(json.dumps(bad))
+        result = self.run_import('--force')
+        self.assertEqual(result.returncode, 2)
+        self.assertIn('Invalid birth date', result.stderr)
+        self.assertEqual(directory_digest(old), before)
+        self.assert_no_staging()
+
     def test_missing_required_input_preserves_existing_assets(self):
         old = self.skill / "assets"
         shutil.copytree(self.source, old)

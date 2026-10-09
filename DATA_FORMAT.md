@@ -31,10 +31,13 @@ python3 -X utf8 import_data.py --source /absolute/path/to/your/assets --force
 | `player-tax-profiles-2026-27.json` | 球员公开资料及申报情景选择依据 | 必需 |
 | `net-estimates-2026-27.json` | 与当前输入及模型匹配的派生缓存 | 可选 |
 | `player-name-index-2026-27.json` | 按球员 ID 维护中英文全名及别名 | 导入可选；完整安装包必需 |
+| `player-birthdates-2026-27.json` | 按球员 ID 维护出生日期及来源，查询时计算周岁 | 导入可选；完整安装包必需 |
 
 姓名索引与税务缓存分开维护，修改姓名无需重算税额。来源目录有姓名索引时验证并导入；没有时保留目标已有索引，避免更新薪资后中文名丢失。两边都没有索引时仍可用薪资中的英文全名查询，但不能称为完整中文查询安装。
 
 姓名索引顶层为 `schema_version: 1`、`season: "2026-27"` 和 `players` 数组；每项须有唯一字符串 `player_id`、字符串 `english_name`、字符串数组 `aliases`，`chinese_name` 可为字符串或 null。来源、校核状态及未匹配的历史别名作为元数据保存；当前不存在的球员不能通过别名虚构成本季有薪资记录。不同球员共享的别名会保留为多个候选。
+
+出生日期索引也会优先导入来源版本，否则保留目标已有版本；两边都缺失时只能显示年龄未知，年龄筛选会拒绝给出不完整排名。顶层 `schema_version: 1`、`season: "2026-27"`、`players`；每项须有唯一字符串 `player_id`、`birth_date`（有效 `YYYY-MM-DD` 或 null），并建议附 `source`、`checked_date`。年龄资料不进入税务模型指纹，独立更新无需重算税额。
 
 ## 已有 JSON 格式
 
