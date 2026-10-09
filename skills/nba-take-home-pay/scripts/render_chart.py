@@ -8,7 +8,7 @@ import math
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-STYLE_VERSION = 'courtside-ledger-1'
+STYLE_VERSION = 'courtside-ledger-2'
 FILING = {'single': 'Single工资情景', 'mfj': '夫妻合报工资情景', 'individual_canada': '加拿大个人申报'}
 
 
@@ -64,6 +64,13 @@ def chart_data(payload):
         subtitle = f'{initial_label}{"最低" if order == "asc" else "最高"}的{len(records)}人'
     else:
         subtitle = f'{len(records)}名薪资接收者 · 同口径比较'
+    from player_context import context
+    media_path = ROOT / 'assets/player-media-2026-27.json'
+    media = json.loads(media_path.read_text(encoding='utf-8')) if media_path.is_file() else {}
+    for part in ('player-media-portraits-2-2026-27.json', 'player-media-portraits-3-2026-27.json'):
+        path = ROOT / 'assets' / part
+        if path.is_file():
+            media.setdefault('players', {}).update(json.loads(path.read_text(encoding='utf-8')).get('players', {}))
     rows, ids = [], set()
     for index, r in enumerate(records):
         identifier = str(r['player_id'])
@@ -93,6 +100,16 @@ def chart_data(payload):
             'rate': money(esc['final_reduction_rate']), 'initial': index,
             'source': safe_url(r['sources']['salary']), 'notes': r.get('specific_uncertainties', []),
         }
+        row['contract'] = deepcopy(r.get('contract_context') or context(identifier, active))
+        row['contract']['source'] = safe_url(row['contract'].get('source'))
+        portrait = media.get('players', {}).get(identifier, {})
+        logo = media.get('teams', {}).get(r.get('team'), {})
+        row['portrait'] = portrait.get('image_data', '') if portrait.get('status') == 'available' else ''
+        row['logo'] = logo.get('image_data', '') if logo.get('status') == 'available' else ''
+        row['mediaSource'] = safe_url(portrait.get('image_source_page') or portrait.get('player_url'))
+        row['mediaProvider'] = portrait.get('media_provider', 'ESPN')
+        row['mediaNote'] = portrait.get('image_note', '头像可能为早期照片，球衣不用于判断当前球队。')
+        row['portraitStatus'] = portrait.get('status', 'unavailable')
         rows.append(row)
     first = records[0] if records else {}
     esc = first.get('escrow_scenario', {})
@@ -113,14 +130,14 @@ def table_markdown(data):
     lines = [f"# {data['heading']} · {data['subtitle']}", '',
              f"{data['season']}赛季；年龄截至{data['ageDate']}；薪资快照{data['salaryDate']}。单位：万美元。", '',
              '结算口径：' + data['settlement'], '',
-             '| 序号 | 球员 | 年龄 | 状态 | 球队或付款球队 | 合同税前 | 税后估值 | 零调整基准 | 申报情景 |',
-             '|---:|---|---:|---|---|---:|---:|---:|---|']
+             '| 序号 | 球员 | 年龄 | 状态 | 球队或付款球队 | 合同税前 | 税后估值 | 零调整基准 | 申报情景 | 当前合同 | 未来续约 |',
+             '|---:|---|---:|---|---|---:|---:|---:|---|---|---|']
     for i, row in enumerate(data['rows'], 1):
         values = [i, row['name'], row['age'] if row['age'] is not None else '未知', row['status'], row['team'] + (' · 免税州' if row['taxFree'] and '免税州' not in row['team'] else ''),
-                  display(row['gross'], 2), display(row['netLabel']), display(row['baselineLabel']), row['filing']]
+                  display(row['gross'], 2), display(row['netLabel']), display(row['baselineLabel']), row['filing'], row['contract']['current_summary'], row['contract']['extension_summary']]
         lines.append('| ' + ' | '.join(cell(x) for x in values) + ' |')
     lines += ['', data['notice'], '', '范围：' + data['scope'], '',
-              '排序基于未取整金额；零调整基准仅移除本季扣减与补发，其他假设保持一致。', '']
+              '排序基于未取整金额；零调整基准仅移除本季扣减与补发，其他假设保持一致。合同总额、保障及均薪是合同资料，不替代本季工资；未来续约单独列示。合同核对日期：2026-10-10；未核实项明确标记。', '']
     lines += ['- ' + x for x in data['uncertainties']]
     lines += ['', '薪资来源：'] + ['- [' + cell(r['name']) + '](' + r['source'] + ')' for r in data['rows'] if r['source']]
     return '\n'.join(lines) + '\n'
@@ -131,7 +148,7 @@ def static_table(data):
     cells = []
     for i, row in enumerate(data['rows'], 1):
         values = [str(i), row['name'], str(row['age']) if row['age'] is not None else '未知', row['status'], row['team'] + (' · 免税州' if row['taxFree'] and '免税州' not in row['team'] else ''),
-                  display(row['gross'], 2), display(row['netLabel']), display(row['baselineLabel']), row['filing']]
+                  display(row['gross'], 2), display(row['netLabel']), display(row['baselineLabel']), row['filing'], row['contract']['current_summary'], row['contract']['extension_summary']]
         cells.append('<tr>' + ''.join('<td>' + e(v) + '</td>' for v in values) + '</tr>')
     return ''.join(cells)
 

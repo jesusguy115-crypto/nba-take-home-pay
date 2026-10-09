@@ -24,7 +24,7 @@ AGENT_DIRECTORIES = {
     "github-copilot": (".github/skills", ".copilot/skills"),
 }
 REQUIRED_SCRIPTS = (
-    "take_home.py", "build_estimates.py", "estimate.py", "duty_days.py",
+    "take_home.py", "player_context.py", "build_estimates.py", "estimate.py", "duty_days.py",
     "state_labels.py", "player_names.py", "player_ages.py", "data_status.py", "escrow.py", "tax_east.py", "tax_west.py",
     "tax_federal.py", "query_cache.py", "lookup_2026_27.py", "render_chart.py",
     "tax-east.json", "tax-west.json", "tax-federal-crossborder.json", "escrow-rules.json",
@@ -35,6 +35,7 @@ REQUIRED_ASSETS = (
     "coverage-2025-26.json", "coverage-2026-27.json",
     "player-tax-profiles-2026-27.json", "net-estimates-2026-27.json",
     "player-name-index-2026-27.json", "player-birthdates-2026-27.json",
+    "player-contracts-2026-27.json", "player-media-2026-27.json", "player-media-portraits-2-2026-27.json", "player-media-portraits-3-2026-27.json",
 )
 
 CHART_RESOURCES = ("chart-template.html", "fonts/NotoSansSC-subset.woff2",

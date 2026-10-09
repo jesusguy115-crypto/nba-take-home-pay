@@ -189,7 +189,7 @@ def brief_result(result):
     output['sources'] = {'salary': result['sources']['salary']}
     for field in ('rank', 'position', 'team_correction', 'cashflow_scenario',
                   'age', 'birth_date', 'age_as_of', 'age_status', 'age_source', 'birth_date_checked',
-                  'roster_status_label', 'roster_team_display', 'roster_status_note'):
+                  'roster_status_label', 'roster_team_display', 'roster_status_note', 'contract_context'):
         if field in result:
             output[field] = result[field]
     if 'cashflow_scenario' in output:
@@ -287,6 +287,10 @@ def print_single(result, cache, brief=False):
         single = variants['single']['rounded_net_usd'] / 10000
         joint = variants['mfj']['rounded_net_usd'] / 10000
         print(f'身份对照：Single约{single:,.0f}万美元；MFJ约{joint:,.0f}万美元。此为身份情景比较，非误差区间。')
+    from player_context import context
+    contract = result.get('contract_context') or context(result['player_id'], result.get('active_roster', True))
+    print('当前合同：' + contract['current_summary'])
+    print('另列未来续约：' + contract['extension_summary'])
     print('主要不确定因素：')
     for line in common_uncertainties(cache, result['team'], result['residence_scenario'], result['escrow_scenario']) + result['specific_uncertainties']:
         print('- ' + line)
@@ -313,11 +317,11 @@ def print_batch(output):
     print('年龄按周岁计算，截至 ' + query['age_as_of'] + '。')
     if query.get('age_filter'):
         print('年龄范围：' + query['age_filter']['description'])
-    print('| 序号 | 球员 | 年龄 | 阵容状态 | 球队或付款球队/州 | 合同税前（万美元） | 本情景税后约（万美元） | 未调整基准税后约（万美元） | 申报情景 |')
-    print('|---:|---|---:|---|---|---:|---:|---:|---|')
+    print('| 序号 | 球员 | 年龄 | 阵容状态 | 球队或付款球队/州 | 合同税前（万美元） | 本情景税后约（万美元） | 未调整基准税后约（万美元） | 申报情景 | 当前合同 | 未来续约 |')
+    print('|---:|---|---:|---|---|---:|---:|---:|---:|---|---|')
     for index, row in enumerate(output['results'], 1):
         rank = row.get('rank', index)
-        print(f"| {rank} | {row['player']} | {row['age'] if row.get('age') is not None else '未知'} | {row['roster_status_label']} | {row['roster_team_display']} | {row['spotrac_salary_usd']/10000:,.2f} | {row['rounded_net_usd']/10000:,.0f} | {row['contract_baseline']['rounded_net_usd']/10000:,.0f} | {LABELS[row['filing_scenario']['status']]} |")
+        print(f"| {rank} | {row['player']} | {row['age'] if row.get('age') is not None else '未知'} | {row['roster_status_label']} | {row['roster_team_display']} | {row['spotrac_salary_usd']/10000:,.2f} | {row['rounded_net_usd']/10000:,.0f} | {row['contract_baseline']['rounded_net_usd']/10000:,.0f} | {LABELS[row['filing_scenario']['status']]} | {row['contract_context']['current_summary']} | {row['contract_context']['extension_summary']} |")
     print(output['estimate_notice'] + f" 数据截至 {output['salary_captured_date']}。")
     print('未调整基准：' + output['contract_baseline_note'])
     print('查询范围：' + query['scope_note'])
@@ -480,6 +484,8 @@ def main(argv=None):
             mentioned = mentioned_team(query)
             if mentioned and mentioned != result['team']:
                 result['team_correction'] = f"你提到{TEAMS[mentioned][0]}；{result['player']} 在本快照中对应{result['team_zh']}。"
+        from player_context import enrich
+        enrich(result)
         result.update(age_metadata(result['player_id'], birthdays, as_of))
         results.append(result)
     if batch:
@@ -553,6 +559,8 @@ def main(argv=None):
             if result.get('team_correction'):
                 recalculated['team_correction'] = result['team_correction']
             result = add_roster_labels(add_state_label(recalculated))
+            from player_context import enrich
+            enrich(result)
             result.update(age_metadata(result['player_id'], birthdays, as_of))
             result['query_path'] = 'recomputed_detail_or_scenario'
         except (ValueError, TypeError, KeyError) as error:
@@ -561,6 +569,8 @@ def main(argv=None):
             print(json.dumps(make_ledger(result['team'], load('schedule-2026-27.json')['games'],
                                          scenario.get('duty_day_overrides')), ensure_ascii=False, indent=2))
             return
+    from player_context import enrich
+    enrich(result)
     if args.json or args.explain or args.chart:
         if args.brief:
             output = brief_result(result)

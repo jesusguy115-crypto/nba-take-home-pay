@@ -68,6 +68,16 @@ class ImportDataTest(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(before, {name: (self.skill / 'assets' / name).read_bytes() for name in IMPORTER.CHART_RESOURCES})
 
+    def test_salary_update_preserves_contract_and_media(self):
+        names = ('player-contracts-2026-27.json', 'player-media-2026-27.json', 'player-media-portraits-2-2026-27.json', 'player-media-portraits-3-2026-27.json')
+        (self.skill / 'assets').mkdir()
+        for name in names:
+            shutil.copyfile(self.original / name, self.skill / 'assets' / name)
+        before = {name: (self.skill / 'assets' / name).read_bytes() for name in names}
+        result = self.run_import('--force')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(before, {name: (self.skill / 'assets' / name).read_bytes() for name in names})
+
     def test_import_existing_cache_and_query(self):
         (self.source / "extra-private-file.txt").write_text("must not be imported")
         result = self.run_import()

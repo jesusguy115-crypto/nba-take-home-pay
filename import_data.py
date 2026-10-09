@@ -255,6 +255,14 @@ def import_data(source, skill_path, force=False):
                 destination = stage / "assets" / name
                 destination.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copyfile(resource, destination)
+        # Preserve presentation facts during salary-only imports; new supplied facts win.
+        for name in ("player-contracts-2026-27.json", "player-media-2026-27.json", "player-media-portraits-2-2026-27.json", "player-media-portraits-3-2026-27.json"):
+            resource = source / name if (source / name).is_file() else target / name
+            if resource.is_file():
+                require(not resource.is_symlink(), "Presentation data cannot be a symlink")
+                document = read_json(resource)
+                require(document.get("schema_version") == 1 and isinstance(document.get("players"), dict), "Invalid presentation data: " + name)
+                shutil.copyfile(resource, stage / "assets" / name)
         # Name aliases are package lookup data, independent of tax input fingerprints.
         # A salary-only update must not erase the installed Chinese name index.
         name_source = source / NAME_INDEX if (source / NAME_INDEX).is_file() else target / NAME_INDEX

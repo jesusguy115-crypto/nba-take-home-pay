@@ -142,3 +142,11 @@ The table mirrors the chart ordering and highlights the current monetary column.
 - Do not imply that a metric switch selects a new league-wide roster.
 - Do not equate retained payments with confirmed retirement.
 - Do not replace explicit status labels with color alone.
+
+### Save Image Action
+
+A gold download button sits beside ordering and replay; on phones it occupies a full row with a 44px minimum height. The PNG keeps the ledger palette, embedded fonts, current metric/order and complete roster with dates and assumptions. Generation uses final data, independent of motion. A polite status reports download initiation, a visible image link provides an alternate save path, and failures restore retry. On narrow screens the bar moves below identity and leaves 96px for the amount.
+
+## 合同与身份呈现
+
+球员头像为前景主视觉，放大并压暗的当前球队 Logo 作背景，取消角落小徽标；当前合同规模紧邻身份，未来续约独立标识。详情和 PNG 保留合同总额、保障、平均年薪、赛季及核查日期。未核实不伪造；来源旧球衣不覆盖薪资快照球队。

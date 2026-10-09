@@ -185,7 +185,17 @@
         "name": "narrow-mobile",
         "value": "370px"
       }
-    ]
+    ],
+    "contractMedia": {
+      "portraitSize": 88,
+      "teamBadgeSize": null,
+      "currentContract": "Primary identity context; full terms in detail and PNG",
+      "futureExtension": "Separate gold label",
+      "unknown": "Explicit unverified label",
+      "export": "Embedded offline PNG media",
+      "heroPortraitSize": 210,
+      "teamLogo": "Large backdrop behind portrait, opacity 0.18–0.20"
+    }
   },
   "components": [
     {
@@ -235,6 +245,13 @@
       "description": "Net estimate with persistent unit; example amount is illustrative.",
       "html": "<div class=\"ds-total\"><div>本情景税后约</div><strong>100</strong><span>万美元</span></div>",
       "css": ".ds-total{font-family:'Ledger Han','PingFang SC','Noto Sans CJK SC','Microsoft YaHei',sans-serif;font-size:14px;line-height:1.65;color:var(--muted,#afb5b8);font-size:12px;margin-top:5px;border-top:1px solid var(--line,#343a3d);padding-top:17px}.ds-total strong{font-family:'Ledger Numbers',sans-serif;font-size:46px;line-height:1.2;font-weight:500;color:var(--gold,#d7b878);font-variant-numeric:tabular-nums}.ds-total span{margin-left:7px}"
+    },
+    {
+      "name": "Save Image",
+      "kind": "button",
+      "description": "Download the current ranking as PNG. Full width on mobile.",
+      "html": "<button class=\"ds-save-image\">保存为图片</button>",
+      "css": ".ds-save-image{background:#d7b878;color:#111416;border:1px solid #d7b878;border-radius:5px;padding:10px 16px;min-height:44px;font:500 14px sans-serif;cursor:pointer}.ds-save-image:hover{background:#e6ca94}.ds-save-image:focus-visible{outline:2px solid #d7b878;outline-offset:5px}.ds-save-image:disabled{opacity:.45;cursor:default}"
     }
   ],
   "narrative": {

@@ -40,3 +40,7 @@ Approved in conversation: dark graphite, warm white, restrained gold; refined Ch
 - Preserve scope and uncertainty at every view.
 - Keep ordinary queries offline and fast.
 - Generate the table and visual from one result, with a portable artifact fallback.
+
+## 合同与身份呈现
+
+球员头像为前景主视觉，放大并压暗的当前球队 Logo 作背景，取消角落小徽标；当前合同规模紧邻身份，未来续约独立标识。详情和 PNG 保留合同总额、保障、平均年薪、赛季及核查日期。未核实不伪造；来源旧球衣不覆盖薪资快照球队。
