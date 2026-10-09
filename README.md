@@ -6,7 +6,7 @@
 
 [直接交给 Agent 的安装链接](https://github.com/jesusguy115-crypto/nba-take-home-pay/tree/main/skills/nba-take-home-pay) · [GitHub 仓库](https://github.com/jesusguy115-crypto/nba-take-home-pay) · [下载完整 ZIP](https://github.com/jesusguy115-crypto/nba-take-home-pay/archive/refs/heads/main.zip)
 
-**v0.4.0** 新增批量排名、球队名单和多人比较；普通查询与申报情景切换直接读取缓存，支持精简输出。重建时记录分项数据版本及球员金额变化。详见 [更新记录](CHANGELOG.md)。
+**v0.5.0** 加入联盟结算调整。默认先给“假设最终工资扣减 5.48%”后的税后估值，并显示本季不扣减的合同基准；5.48% 取自上一季报道，仅作历史参照，**不是已知的 2026–27 结算结果**。暂扣 10% 另列税前现金流；税额按结算情景重算，避免重复扣除。批量查询与情景切换继续使用预计算结果。详见 [托管与结算说明](skills/nba-take-home-pay/references/escrow.md) 和 [更新记录](CHANGELOG.md)。
 
 ## 内容与运行要求
 
@@ -64,6 +64,10 @@ npx skills add jesusguy115-crypto/nba-take-home-pay --skill nba-take-home-pay
 
 > 解释杜兰特的每项税、客场工作日分摊和抵免。
 
+> 库里的托管暂扣多少？假设最终扣减 5.48%，税后会少多少？
+
+> 只看约基奇本季没有联盟结算扣减的税后合同基准。
+
 > 查询新赛季税前薪水前十名的税后收入，标注免税州。
 
 > 按税后收入排前十名。
@@ -84,10 +88,13 @@ python3 -X utf8 skills/nba-take-home-pay/scripts/take_home.py --top 10 --sort ne
 python3 -X utf8 skills/nba-take-home-pay/scripts/take_home.py --team MIN --brief --json
 python3 -X utf8 skills/nba-take-home-pay/scripts/take_home.py --compare "库里" "杜兰特" "杨瀚森" --brief --json
 python3 -X utf8 skills/nba-take-home-pay/scripts/take_home.py "库里" --filing-status mfj --brief --json
+python3 -X utf8 skills/nba-take-home-pay/scripts/take_home.py "约基奇" --settlement baseline --brief --json
 python3 -X utf8 skills/nba-take-home-pay/scripts/take_home.py --coverage
 ```
 
 `--top` 默认按税前 Cash Total 排名，覆盖所有现金薪资接收者；`--sort net` 改按未取整的税后估值排名。`--team` 默认只查该队 Active Roster；`--scope all` 包含该队付款的其他接收者，展示的仍是此人所有付款球队合计收入。多人 `--compare` 默认保留输入顺序，可加 `--sort gross` 或 `--sort net`。不同申报情景和免税州标签会随每行结果保留。
+
+`--settlement historical` 为默认的 5.48% 历史参照情景；`--settlement baseline` 为本季最终扣减和补发均为零的合同基准。两者保持相同的上季工资调整假设，以便比较本季影响；基准仍不代表实际工资已全额返还。普通单人和批量查询都保留当前情景与合同基准。
 
 `--brief --json` 提供回答所需的精简结果；不加 `--brief` 可读取完整普通查询字段。普通 `--filing-status` 直接读取对应缓存，`--explain`、`--ledger` 与自定义 `--scenario` 则重算详细模型。若明确指定美国 Single/MFJ，而比较范围包含猛龙的加拿大情景，工具会报不兼容；不会改套美国税表或悄悄排除猛龙。税后排名需要比较整个筛选范围，跨国排名建议保留各球员默认情景。
 
@@ -105,7 +112,7 @@ py -3 -X utf8 skills/nba-take-home-pay/scripts/take_home.py "库里" --brief --j
 
 ## 数据版本与更新记录
 
-薪资（含上季收入代理）、赛程、球员资料、税则和模型代码分组记录内容版本、哈希及可用的来源日期；缓存生成时间单列，不能当成来源更新时间。`--coverage` 可查看版本与按赛程明细计算的覆盖情况，未定比赛数不再写死为每队两场。
+薪资（含上季收入代理）、赛程、球员资料、税则、联盟结算规则和模型代码分组记录内容版本、哈希及可用的来源日期；缓存生成时间单列，不能当成来源更新时间。`--coverage` 可查看版本与按赛程明细计算的覆盖情况，未定比赛数不再写死为每队两场。
 
 若提示数据或模型指纹变化，检查文件完整性，确认更新后运行：
 
@@ -115,7 +122,7 @@ python3 -X utf8 skills/nba-take-home-pay/scripts/build_estimates.py
 
 重建会生成 `assets/update-report-2026-27.json`，记录与前一缓存相比发生变化的输入类别、球员工资/球队/情景字段和各申报情景税后金额差；有变化的报告保存在 `assets/update-history-2026-27.json`。共同变化的输入只说明可能相关的因素，金额差并非各因素的精确因果拆分。首次从旧缓存升级时，旧的分项哈希可能未知，报告会明确说明。
 
-这些文件位于技能目录下。重建不会访问网站或更新原始数据；本版来源快照仍为 **2026-10-09**。换入新输入后再重建，来源日期才随输入更新。本仓库 `.gitattributes` 保持文本 LF 换行，避免 Windows Git 自动换行造成指纹不一致。
+这些文件位于技能目录下。重建不会访问网站或更新原始数据；本版薪资及赛程快照仍为 **2026-10-09**，联盟结算规则核对日为 **2026-10-10**。换入新输入后再重建，来源日期才随输入更新。本仓库 `.gitattributes` 保持文本 LF 换行，避免 Windows Git 自动换行造成指纹不一致。
 
 ## 高级用法：更换数据
 
@@ -135,4 +142,4 @@ python3 -X utf8 import_data.py --source "已有数据的 assets 文件夹"
 
 ## 计算方法
 
-见技能内的 [计算方法](skills/nba-take-home-pay/references/methodology.md)、[数据覆盖](skills/nba-take-home-pay/references/2026-27-data.md)、[婚姻与申报身份政策](skills/nba-take-home-pay/references/player-profile-policy.md)。经纪费、联盟临时托管与税负分别处理，默认数字不额外扣除前两者。
+见技能内的 [计算方法](skills/nba-take-home-pay/references/methodology.md)、[托管与结算](skills/nba-take-home-pay/references/escrow.md)、[数据覆盖](skills/nba-take-home-pay/references/2026-27-data.md)、[婚姻与申报身份政策](skills/nba-take-home-pay/references/player-profile-policy.md)。主结果已纳入明确假设的最终工资调整；暂扣只列税前现金流，不声称银行实收。返还及补发的实际付款税年未知，默认按原 24 期工资比例归属；经纪费、会费和自愿扣款没有默认扣除。

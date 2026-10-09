@@ -62,6 +62,67 @@ class FastQueryTests(unittest.TestCase):
                     self.assertEqual(selected[key], variant[key])
             self.assertEqual(row, original)
 
+    def test_settlement_default_and_baseline_are_cached_with_matching_filing(self):
+        row = next(p for p in self.players if p['player'] == 'Stephen Curry')
+        default = self.json_query('库里', '--brief')
+        historical = self.json_query('库里', '--settlement', 'historical', '--brief')
+        self.assertEqual(default, historical)
+        self.assertEqual(default['escrow_scenario']['final_reduction_rate'], 0.0548)
+        self.assertEqual(default['escrow_scenario']['current_season_rate_status'], 'unknown_assumption')
+        for status, variant in row['filing_scenarios'].items():
+            with self.subTest(status=status):
+                baseline = self.json_query('库里', '--settlement', 'baseline', '--filing-status', status, '--brief')
+                self.assertEqual(baseline['query_path'], 'precomputed_cache')
+                self.assertEqual(baseline['estimated_net_usd'], variant['contract_baseline']['estimated_net_usd'])
+                self.assertEqual(baseline['estimated_tax_usd'], variant['contract_baseline']['estimated_tax_usd'])
+                self.assertEqual(baseline['gross_usd'], variant['contract_baseline']['gross_usd'])
+                self.assertEqual(baseline['filing_scenario']['status'], status)
+                self.assertEqual(baseline['filing_scenario']['selection_reason'], 'user_requested_counterfactual')
+                self.assertEqual(baseline['escrow_scenario']['final_reduction_rate'], 0)
+                self.assertEqual(baseline['cashflow_scenario']['modeled_final_reduction_usd'], 0)
+                self.assertEqual(baseline['settlement_impact']['net_reduction_usd'], 0)
+                self.assertEqual(baseline['filing_scenarios'][status]['estimated_net_usd'], baseline['estimated_net_usd'])
+                self.assertTrue(any('不代表已知全额返还' in note for note in baseline['common_uncertainties']))
+                self.assertEqual(baseline['spotrac_salary_usd'], row['spotrac_salary_usd'])
+
+    def test_baseline_net_ranking_uses_selected_net_and_keeps_contract_gross(self):
+        expected = sorted(self.players, key=lambda p: (-p['contract_baseline']['estimated_net_usd'],
+                          p['player'].casefold(), str(p['player_id'])))[:10]
+        actual = self.json_query('--top', '10', '--sort', 'net', '--settlement', 'baseline', '--brief')
+        self.assertEqual(actual['query']['settlement'], 'baseline')
+        self.assertEqual([p['player_id'] for p in actual['results']], [p['player_id'] for p in expected])
+        for output, original in zip(actual['results'], expected):
+            self.assertEqual(output['estimated_net_usd'], original['contract_baseline']['estimated_net_usd'])
+            self.assertEqual(output['spotrac_salary_usd'], original['spotrac_salary_usd'])
+
+    def test_settlement_brief_and_text_keep_amounts_as_pretax_not_bank_cash(self):
+        result = self.json_query('库里', '--brief')
+        self.assertIn('contract_baseline', result)
+        self.assertIn('settlement_impact', result)
+        cash = result['cashflow_scenario']
+        self.assertNotIn('net_after_assumed_fees_and_escrow_usd', cash)
+        self.assertAlmostEqual(cash['temporary_escrow_usd'], result['spotrac_salary_usd'] * 0.10, places=2)
+        self.assertAlmostEqual(cash['modeled_final_reduction_usd'] + cash['modeled_refund_before_tax_usd'],
+                               cash['temporary_escrow_usd'], places=2)
+        self.assertGreater(result['contract_baseline']['estimated_tax_usd'], result['estimated_tax_usd'])
+        self.assertGreater(result['contract_baseline']['estimated_net_usd'], result['estimated_net_usd'])
+        _, text, _ = self.query('库里', '--brief')
+        first_line = text.splitlines()[0]
+        self.assertIn('5.48%', first_line)
+        self.assertIn('历史', first_line)
+        self.assertIn('税前资金分解', text)
+        self.assertIn('不是银行到账', text)
+        self.assertIn('不预测释放日期', text)
+        _, batch_text, _ = self.query('--compare', '库里', '杜兰特', '--brief')
+        self.assertIn('未调整基准税后约', batch_text)
+        self.assertIn('2026–27实际结算尚未知', batch_text)
+
+    def test_old_cache_cannot_silently_omit_settlement_layer(self):
+        row = deepcopy(self.players[0])
+        row.pop('escrow_scenario', None)
+        with self.assertRaisesRegex(ValueError, '缓存缺少联盟结算层'):
+            take_home.cached_scenario(row)
+
     def test_gross_and_net_rankings_use_correct_sort_values(self):
         for basis, key in [('gross', 'spotrac_salary_usd'), ('net', 'estimated_net_usd')]:
             actual = self.json_query('--top', '10', '--sort', basis, '--brief')
@@ -132,6 +193,16 @@ class FastQueryTests(unittest.TestCase):
         self.assertLess(len(json.dumps(short)), len(json.dumps(regular)))
         self.assertNotIn('components_usd', short)
         self.assertNotIn('years', short)
+        self.assertNotIn('sources', short['escrow_scenario'])
+        self.assertEqual(short['settlement_rules']['sources'], regular['escrow_scenario']['sources'])
+        self.assertEqual(short['settlement_rules']['tax_timing_policy'], regular['escrow_scenario']['tax_timing_policy'])
+        self.assertFalse(short['escrow_scenario']['actual_2026_27_rate_known'])
+        self.assertIn('未知', short['escrow_scenario']['timing_note'])
+        batch = self.json_query('--top', '10', '--brief')
+        self.assertEqual(batch['settlement_rules']['sources'], short['settlement_rules']['sources'])
+        self.assertTrue(all('sources' not in row['escrow_scenario'] for row in batch['results']))
+        self.assertTrue(all('tax_timing_policy' not in row['escrow_scenario'] for row in batch['results']))
+        self.assertTrue(all('actual_net_payroll_deposit_usd' in row['cashflow_scenario'] for row in batch['results']))
 
     def test_schedule_note_is_data_driven(self):
         example = {'unassigned_regular_games': 0, 'schedule_coverage': {'unassigned_games_per_team': {'GSW': 0}}}
@@ -146,7 +217,8 @@ class FastQueryTests(unittest.TestCase):
         self.assertNotIn('球队城市', note)
 
     def test_conflicting_operations_are_rejected(self):
-        for args in [('库里', '--coverage'), ('--top', '5', '--coverage'), ('库里', '--explain', '--ledger')]:
+        for args in [('库里', '--coverage'), ('--top', '5', '--coverage'), ('库里', '--explain', '--ledger'),
+                     ('--coverage', '--settlement', 'baseline')]:
             with self.assertRaises(SystemExit) as error:
                 self.query(*args)
             self.assertEqual(error.exception.code, 2)
@@ -180,6 +252,29 @@ class FastQueryTests(unittest.TestCase):
         self.assertEqual(calculator.call_args.args[4], {'filing_status': 'single'})
         self.assertTrue(calculator.call_args.kwargs['full'])
         self.assertEqual(json.loads(output.getvalue())['query_path'], 'recomputed_detail_or_scenario')
+
+    def test_baseline_explain_matches_cached_selection_and_both_filing_comparisons(self):
+        cached = self.json_query('库里', '--settlement', 'baseline', '--filing-status', 'single')
+        _, text, _ = self.query('库里', '--explain', '--settlement', 'baseline',
+                                '--filing-status', 'single', forbid_compute=False)
+        detailed = json.loads(text)
+        for key in take_home.AMOUNT_FIELDS:
+            self.assertEqual(detailed[key], cached[key])
+        self.assertEqual(detailed['escrow_scenario']['final_reduction_rate'], 0)
+        self.assertEqual(detailed['filing_scenarios'], cached['filing_scenarios'])
+
+    def test_explicit_settlement_preset_is_forwarded_to_recalculation(self):
+        source = deepcopy(next(p for p in self.players if p['player'] == 'Stephen Curry'))
+        for preset, rate in [('baseline', 0), ('historical', 0.0548)]:
+            with patch.object(take_home, 'read', return_value=deepcopy(self.cache)), \
+                 patch.object(estimate, 'model_fingerprint', return_value=self.cache['model_fingerprint']), \
+                 patch.object(estimate, 'estimate_player', return_value=source) as calculator, \
+                 redirect_stdout(StringIO()):
+                take_home.main(['库里', '--explain', '--settlement', preset, '--filing-status', 'single'])
+            expected = {'filing_status': 'single', 'final_reduction_rate': rate}
+            if preset == 'baseline':
+                expected['settlement_bonus_usd'] = 0
+            self.assertEqual(calculator.call_args.args[4], expected)
 
 
 if __name__ == '__main__':

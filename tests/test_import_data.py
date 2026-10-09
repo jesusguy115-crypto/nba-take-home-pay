@@ -73,6 +73,17 @@ class ImportDataTest(unittest.TestCase):
         self.assertEqual((self.skill / "assets" / IMPORTER.CACHE).read_bytes(), (self.source / IMPORTER.CACHE).read_bytes())
         self.assert_no_staging()
 
+    def test_incomplete_settlement_cache_is_rejected(self):
+        path = self.source / IMPORTER.CACHE
+        data = json.loads(path.read_text())
+        data["estimates"][1].pop("contract_baseline")
+        path.write_text(json.dumps(data))
+        result = self.run_import()
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("contract_baseline", result.stderr)
+        self.assertFalse((self.skill / "assets").exists())
+        self.assert_no_staging()
+
     def test_missing_required_input_preserves_existing_assets(self):
         old = self.skill / "assets"
         shutil.copytree(self.source, old)
@@ -157,7 +168,7 @@ class ImportDataTest(unittest.TestCase):
         self.assertEqual(report["input_versions"]["salary"]["status"], "changed")
         self.assertEqual(report["player_change_count"], 1)
         self.assertIn("salary_changed", change["observed_changes"])
-        self.assertEqual(change["amounts"]["gross_usd"]["delta_usd"], 100000)
+        self.assertEqual(change["amounts"]["gross_usd"]["delta_usd"], 94520)  # $100k contract increase after 5.48% reference reduction
         self.assertEqual(change["amounts"]["estimated_net_usd"]["delta_usd"],
                          round(new_player["estimated_net_usd"] - old_player["estimated_net_usd"], 2))
         self.assertEqual(history["reports"][:-1], initial_history["reports"])

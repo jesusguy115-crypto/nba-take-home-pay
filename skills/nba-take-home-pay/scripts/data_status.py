@@ -12,8 +12,9 @@ CATEGORY_FILES = {
     'profiles': ('assets/player-tax-profiles-2026-27.json',),
     'tax_rules': ('scripts/tax_east.py', 'scripts/tax_west.py', 'scripts/tax_federal.py',
                   'scripts/tax-east.json', 'scripts/tax-west.json', 'scripts/tax-federal-crossborder.json'),
+    'settlement_rules': ('scripts/escrow-rules.json',),
     'model': ('scripts/estimate.py', 'scripts/duty_days.py', 'scripts/state_labels.py',
-              'scripts/data_status.py', 'scripts/build_estimates.py'),
+              'scripts/data_status.py', 'scripts/build_estimates.py', 'scripts/escrow.py'),
 }
 
 
@@ -135,12 +136,13 @@ def build_update_report(old_cache, new_cache):
                 'prior_season_salary_changed': 'previous_season_gross_usd',
                 'team_changed': 'team', 'payment_teams_changed': 'paying_teams',
                 'active_roster_status_changed': 'active_roster', 'profile_evidence_changed': 'tax_profile',
+                'settlement_assumptions_changed': 'escrow_scenario',
             }
             reasons.extend(label for label, key in observed.items() if old.get(key) != new.get(key))
             if old.get('filing_scenario', {}).get('status') != new.get('filing_scenario', {}).get('status'):
                 reasons.append('default_filing_scenario_changed')
         money = {key: amount_change(old.get(key) if old else None, new.get(key) if new else None)
-                 for key in ('gross_usd', 'estimated_net_usd', 'estimated_tax_usd')}
+                 for key in ('spotrac_salary_usd', 'gross_usd', 'estimated_net_usd', 'estimated_tax_usd')}
         old_variants = old.get('filing_scenarios', {}) if old else {}
         new_variants = new.get('filing_scenarios', {}) if new else {}
         variants = {}

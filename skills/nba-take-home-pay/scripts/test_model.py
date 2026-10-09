@@ -132,7 +132,7 @@ class ModelChecks(unittest.TestCase):
         base=self.result('库里');changed=self.result('库里',{'escrow_rate':.1,'agent_fee_rate':.04})
         self.assertEqual(base['estimated_net_usd'],changed['estimated_net_usd'])
         cash=changed['cashflow_scenario']
-        self.assertAlmostEqual(cash['temporary_escrow_usd'],base['gross_usd']*.1,places=2)
+        self.assertAlmostEqual(cash['temporary_escrow_usd'],base['spotrac_salary_usd']*.1,places=2)
 
     def test_ambiguous_names_and_full_names(self):
         self.assertTrue(requires_clarification(self.s['players'],'鲍尔的薪水',resolve(self.s['players'],'鲍尔的薪水')))

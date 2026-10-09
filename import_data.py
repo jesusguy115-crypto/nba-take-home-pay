@@ -161,13 +161,24 @@ def validate_cache(stage, salaries, fingerprint):
     estimates = rows(cache["estimates"], "cache.estimates")
     ids = []
     for item in estimates:
-        fields(item, ("player_id", "player", "team", "estimated_net_usd", "rounded_net_usd", "estimated_tax_usd", "components_usd", "filing_scenario", "filing_scenarios"), "cache.estimates[]")
+        fields(item, ("player_id", "player", "team", "estimated_net_usd", "rounded_net_usd", "estimated_tax_usd", "components_usd", "filing_scenario", "filing_scenarios", "escrow_scenario", "contract_baseline", "cashflow_scenario"), "cache.estimates[]")
         text_value(item["player_id"], "cache.player_id")
         for key in ("estimated_net_usd", "rounded_net_usd", "estimated_tax_usd"):
             amount(item[key], "cache." + key, nonnegative=False)
         require(isinstance(item["components_usd"], dict), "cache.components_usd must be an object")
         for value in item["components_usd"].values():
             amount(value, "cache.components_usd[]", nonnegative=False)
+        for view in [item, *item["filing_scenarios"].values()]:
+            fields(view, ("escrow_scenario", "contract_baseline", "cashflow_scenario"), "cached settlement view")
+            fields(view["escrow_scenario"], ("final_reduction_rate", "actual_2026_27_rate_known"), "escrow_scenario")
+            require(isinstance(view["escrow_scenario"]["actual_2026_27_rate_known"], bool),
+                    "Settlement rate evidence status must be explicit")
+            baseline = view["contract_baseline"]
+            fields(baseline, ("gross_usd", "estimated_net_usd", "estimated_tax_usd", "components_usd", "escrow_scenario", "cashflow_scenario"), "contract_baseline")
+            for key in ("gross_usd", "estimated_net_usd", "estimated_tax_usd"):
+                amount(baseline[key], "contract_baseline." + key, nonnegative=False)
+            require(abs(baseline["gross_usd"] - baseline["estimated_tax_usd"] - baseline["estimated_net_usd"]) < .02,
+                    "Settlement baseline accounting does not balance")
         ids.append(item["player_id"])
     expected_ids = {player["player_id"] for player in salaries["players"]}
     require(len(ids) == len(set(ids)) and set(ids) == expected_ids and cache["count"] == len(ids),

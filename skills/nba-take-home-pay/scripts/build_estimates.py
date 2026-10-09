@@ -6,6 +6,7 @@ from pathlib import Path
 import time
 from collections import Counter
 from state_labels import add_state_label
+from escrow import SNAPSHOT_FIELDS, RULES as ESCROW_RULES
 from data_status import data_versions,schedule_coverage,build_update_report,save_update_report,write_json_atomic
 from estimate import load,estimate_player,model_fingerprint,VERSION,SEASON,ASSETS,ROOT
 
@@ -22,11 +23,11 @@ def main():
         if default['team']!='TOR':
             alternative='mfj' if current=='single' else 'single'
             variants[alternative]=estimate_player(player,salaries,previous,schedule,{'filing_status':alternative},full=False)
-        default['filing_scenarios']={status:{k:r[k] for k in ('estimated_net_usd','rounded_net_usd','estimated_tax_usd','effective_tax_rate','components_usd','filing_scenario','specific_uncertainties')} for status,r in variants.items()}
+        default['filing_scenarios']={status:{k:r[k] for k in (*SNAPSHOT_FIELDS,'contract_baseline')} for status,r in variants.items()}
         default['filing_comparison_note']='US single vs MFJ wage-only counterfactuals exclude unprovided spouse income; not an error/confidence interval. Canadian individual returns are separate.'
         scenario_count+=len(variants);estimates.append(add_state_label(default))
     coverage=schedule_coverage(schedule)
-    cache={'cache_schema_version':2,'season':SEASON,'model_version':VERSION,'model_fingerprint':model_fingerprint(),
+    cache={'cache_schema_version':3,'season':SEASON,'model_version':VERSION,'model_fingerprint':model_fingerprint(),
            'generated_at_utc':datetime.now(timezone.utc).isoformat(),'salary_captured_date':salaries['captured_date'],
            'count':len(estimates),'active_roster_count':sum(x['active_roster'] for x in estimates),
            'profile_count':len(estimates),'marital_evidence_counts':dict(Counter(x['tax_profile']['marital_status'] for x in estimates)),
@@ -38,6 +39,13 @@ def main():
            'schedule_coverage':coverage,'data_versions':data_versions(ROOT,VERSION),
            'update_report':'assets/update-report-2026-27.json',
            'update_history':'assets/update-history-2026-27.json',
+           'settlement_policy':{'default_final_reduction_rate':ESCROW_RULES['default_final_reduction_rate'],
+               'default_withholding_rate':ESCROW_RULES['default_withholding_rate'],
+               'default_prior_season_final_reduction_rate':ESCROW_RULES['default_prior_season_final_reduction_rate'],
+               'current_season_actual_final_reduction_rate':None,
+               'default_supplemental_payment_usd':0,
+               'basis':ESCROW_RULES['default_rate_basis'],
+               'tax_timing_policy':ESCROW_RULES['tax_timing_policy']},
            'precision':'Modeled point estimates; display rounded to USD 10,000; no validated error bound.',
            'estimates':estimates}
     report=build_update_report(old_cache,cache)

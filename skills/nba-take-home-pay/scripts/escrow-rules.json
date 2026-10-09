@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "checked_date": "2026-10-10",
+  "season": "2026-27",
+  "default_withholding_rate": 0.10,
+  "default_final_reduction_rate": 0.0548,
+  "default_prior_season_final_reduction_rate": 0.0548,
+  "default_rate_basis": "2025-26 reported 54.8% of 10% payroll reduction; historical reference scenario, not a 2026-27 forecast or audited individual adjustment",
+  "current_season_actual_final_reduction_rate": null,
+  "historical_reference_season": "2025-26",
+  "historical_reference_status": "reported_aggregate_not_individual_payroll_verified",
+  "tax_timing_policy": "Proportionally reduce modeled contract wages under the same 24-payment attribution proxy. Does not assert actual payroll withholding, refund dates, constructive receipt, W-2 reporting or deduction treatment.",
+  "bri_share_formula": "min(0.51 * actual_BRI, max(0.49 * actual_BRI, 0.50 * forecast_BRI + 0.605 * (actual_BRI - forecast_BRI)))",
+  "bri_formula_scope": "Illustrates designated player share only; individual reductions cannot be derived without benefits, adjustments, prior carryovers and applicable CBA provisions.",
+  "sources": [
+    {"title": "2023 NBA-NBPA Collective Bargaining Agreement, Article VII Section 12", "url": "https://imgix.cosmicjs.com/25da5eb0-15eb-11ee-b5b3-fbd321202bdf-Final-2023-NBA-Collective-Bargaining-Agreement-6-28-23.pdf", "supports": "Compensation reduction and final reconciliation; does not establish the 2026-27 realized rate."},
+    {"title": "2025-26 aggregate compensation and escrow report", "url": "https://sports.yahoo.com/articles/total-salaries-benefits-2025-26-185256547.html", "supports": "Historical 54.8% share of the 10% reduction, modeled as 5.48% of salary."},
+    {"title": "Kurt Badenhausen reporting on 2025-26 escrow", "url": "https://www.linkedin.com/posts/kurt-badenhausen-90bb185_nba-players-owners-to-split-580m-in-escrow-activity-7478516153640947712-jq_h", "supports": "Historical reporting; not a forward season audited outcome."}
+  ]
+}
