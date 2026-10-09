@@ -4,7 +4,9 @@
 
 **完整公开版随包提供数据和预计算结果，安装后即可离线查询。** 快照截至 2026-10-09，覆盖 520 名球员及其他薪资接收者、1,023 个申报情景和 1,200 场已定常规赛。原创代码及说明采用 MIT，来源与许可范围见 [第三方说明](THIRD_PARTY.md)。
 
-[GitHub 仓库](https://github.com/jesusguy115-crypto/nba-take-home-pay) · [下载完整 ZIP](https://github.com/jesusguy115-crypto/nba-take-home-pay/archive/refs/heads/main.zip)
+[直接交给 Agent 的安装链接](https://github.com/jesusguy115-crypto/nba-take-home-pay/tree/main/skills/nba-take-home-pay) · [GitHub 仓库](https://github.com/jesusguy115-crypto/nba-take-home-pay) · [下载完整 ZIP](https://github.com/jesusguy115-crypto/nba-take-home-pay/archive/refs/heads/main.zip)
+
+**v0.4.0** 新增批量排名、球队名单和多人比较；普通查询与申报情景切换直接读取缓存，支持精简输出。重建时记录分项数据版本及球员金额变化。详见 [更新记录](CHANGELOG.md)。
 
 ## 内容与运行要求
 
@@ -64,33 +66,56 @@ npx skills add jesusguy115-crypto/nba-take-home-pay --skill nba-take-home-pay
 
 > 查询新赛季税前薪水前十名的税后收入，标注免税州。
 
+> 按税后收入排前十名。
+
+> 森林狼现役名单每个人税后收入是多少？
+
+> 比较库里、杜兰特和杨瀚森的税后收入。
+
 可先在本发布目录运行命令，核对离线查询是否可用。
 
 macOS / Linux：
 
 ```sh
-python3 -X utf8 skills/nba-take-home-pay/scripts/take_home.py "库里" --json
+python3 -X utf8 skills/nba-take-home-pay/scripts/take_home.py "库里" --brief --json
 python3 -X utf8 skills/nba-take-home-pay/scripts/take_home.py "杜兰特" --explain
+python3 -X utf8 skills/nba-take-home-pay/scripts/take_home.py --top 10 --sort gross --brief --json
+python3 -X utf8 skills/nba-take-home-pay/scripts/take_home.py --top 10 --sort net --brief --json
+python3 -X utf8 skills/nba-take-home-pay/scripts/take_home.py --team MIN --brief --json
+python3 -X utf8 skills/nba-take-home-pay/scripts/take_home.py --compare "库里" "杜兰特" "杨瀚森" --brief --json
+python3 -X utf8 skills/nba-take-home-pay/scripts/take_home.py "库里" --filing-status mfj --brief --json
 python3 -X utf8 skills/nba-take-home-pay/scripts/take_home.py --coverage
 ```
+
+`--top` 默认按税前 Cash Total 排名，覆盖所有现金薪资接收者；`--sort net` 改按未取整的税后估值排名。`--team` 默认只查该队 Active Roster；`--scope all` 包含该队付款的其他接收者，展示的仍是此人所有付款球队合计收入。多人 `--compare` 默认保留输入顺序，可加 `--sort gross` 或 `--sort net`。不同申报情景和免税州标签会随每行结果保留。
+
+`--brief --json` 提供回答所需的精简结果；不加 `--brief` 可读取完整普通查询字段。普通 `--filing-status` 直接读取对应缓存，`--explain`、`--ledger` 与自定义 `--scenario` 则重算详细模型。若明确指定美国 Single/MFJ，而比较范围包含猛龙的加拿大情景，工具会报不兼容；不会改套美国税表或悄悄排除猛龙。税后排名需要比较整个筛选范围，跨国排名建议保留各球员默认情景。
 
 Windows：
 
 ```powershell
-py -3 -X utf8 skills/nba-take-home-pay/scripts/take_home.py "库里" --json
+py -3 -X utf8 skills/nba-take-home-pay/scripts/take_home.py "库里" --brief --json
 ```
 
 若没有 `py`，使用已指向 Python 3 的 `python -X utf8`。`-X utf8` 统一文件和终端编码，避免中文 JSON 在不同系统代码页下出错。
 
 若仍出现 `UnicodeEncodeError`，检查是否显式设置了非 UTF-8 的 `PYTHONIOENCODING`；清除该设置或改为 `utf-8` 后重试。
 
-预计算缓存让普通查询直接读结果；实际回复速度还取决于 Agent 的调度和生成速度。若提示数据或模型指纹变化，检查文件完整性，确认更新后运行：
+预计算缓存让普通查询、批量查询及已缓存的申报情景直接读结果；实际回复速度还取决于 Agent 的调度和生成速度。
+
+## 数据版本与更新记录
+
+薪资（含上季收入代理）、赛程、球员资料、税则和模型代码分组记录内容版本、哈希及可用的来源日期；缓存生成时间单列，不能当成来源更新时间。`--coverage` 可查看版本与按赛程明细计算的覆盖情况，未定比赛数不再写死为每队两场。
+
+若提示数据或模型指纹变化，检查文件完整性，确认更新后运行：
 
 ```sh
 python3 -X utf8 skills/nba-take-home-pay/scripts/build_estimates.py
 ```
 
-本仓库 `.gitattributes` 保持文本 LF 换行，避免 Windows Git 自动换行造成指纹不一致。
+重建会生成 `assets/update-report-2026-27.json`，记录与前一缓存相比发生变化的输入类别、球员工资/球队/情景字段和各申报情景税后金额差；有变化的报告保存在 `assets/update-history-2026-27.json`。共同变化的输入只说明可能相关的因素，金额差并非各因素的精确因果拆分。首次从旧缓存升级时，旧的分项哈希可能未知，报告会明确说明。
+
+这些文件位于技能目录下。重建不会访问网站或更新原始数据；本版来源快照仍为 **2026-10-09**。换入新输入后再重建，来源日期才随输入更新。本仓库 `.gitattributes` 保持文本 LF 换行，避免 Windows Git 自动换行造成指纹不一致。
 
 ## 高级用法：更换数据
 
@@ -100,7 +125,7 @@ python3 -X utf8 skills/nba-take-home-pay/scripts/build_estimates.py
 python3 -X utf8 import_data.py --source "已有数据的 assets 文件夹"
 ```
 
-也可对已安装的技能根目录中的 `import_data.py` 运行同一命令。工具只接收本项目定义的 JSON 格式；已有文件时默认拒绝替换，确认更新可加 `--force`，成功替换后保留旧数据备份。详见 [输入格式与验证](DATA_FORMAT.md)。这一步不会抓取来源网站。
+也可对已安装的技能根目录中的 `import_data.py` 运行同一命令。工具只接收本项目定义的 JSON 格式；已有文件时默认拒绝替换，确认更新可加 `--force`，成功替换后保留旧数据备份，并以目标原有缓存为基准生成变化报告、延续更新历史。详见 [输入格式与验证](DATA_FORMAT.md)。这一步不会抓取来源网站。
 
 ## 能覆盖哪些 Agent
 

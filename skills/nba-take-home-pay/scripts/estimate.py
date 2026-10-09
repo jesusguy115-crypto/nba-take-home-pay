@@ -12,6 +12,7 @@ import math
 from functools import lru_cache
 
 from duty_days import TEAMS, home_location, make_ledger, summarize
+from data_status import input_file_paths, schedule_uncertainty
 import tax_east as east
 import tax_west as west
 import tax_federal as federal
@@ -50,8 +51,7 @@ def filing_selection(player_id,payer,scenario):
 
 def model_fingerprint():
     digest=hashlib.sha256()
-    paths=[ASSETS/'salaries-2026-27.json',ASSETS/'salaries-2025-26.json',ASSETS/'schedule-2026-27.json',ASSETS/'player-tax-profiles-2026-27.json']
-    paths += [Path(__file__).with_name(n) for n in ['estimate.py','duty_days.py','state_labels.py','tax_east.py','tax_west.py','tax_federal.py','tax-east.json','tax-west.json']]
+    paths=input_file_paths(ROOT)
     for p in paths:
         digest.update(p.name.encode());digest.update(p.read_bytes())
     return digest.hexdigest()
@@ -376,7 +376,7 @@ def estimate_player(player,salaries,previous,schedule,scenario=None,full=True):
         f'居民地是假设的 {rs} {rc or "不计居民城市税"}；不代表查明了球员真实住所或申报身份。',
         '按已公布赛程假设全程随队；非比赛日位置和0.5天旅行/训练权重属于模型，不是实际行程或各州法定工作日认证。',
         '训练营/季前赛期间默认在球队城市；未覆盖实际异地训练营、季前赛、全明星和季后赛行程。',
-        '每队仍有2场常规赛未定；这些日期按普通日历间隔估算，未编造对手、杯赛决赛或奖金。',
+        schedule_uncertainty(schedule,payer),
         '2026–27赛季按24期默认工资表分配：2026年1/6、2027年5/6；按年度平均税率归属，不是独立报税表。',
         '2026年度收入参考上赛季现金薪资；2027以本赛季薪资年化，不预测未来合同或交易；两年地理比例统一用本赛季代理行程。',
         '2027尚未核定的税档、扣除和社保上限使用2026代理；已核实的已立法变化单独应用。',

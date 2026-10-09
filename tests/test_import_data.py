@@ -64,8 +64,12 @@ class ImportDataTest(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         report = json.loads(result.stdout)
         self.assertFalse(report["cache_rebuilt"])
-        self.assertEqual({p.name for p in (self.skill / "assets").iterdir()}, set(IMPORTER.REQUIRED + (IMPORTER.CACHE,)))
+        self.assertEqual({p.name for p in (self.skill / "assets").iterdir()}, set(IMPORTER.REQUIRED + (IMPORTER.CACHE, IMPORTER.UPDATE_REPORT, IMPORTER.UPDATE_HISTORY)))
         self.assertGreater(report["players"], 0)
+        self.assertEqual(report["comparison_status"], "no_prior_cache")
+        self.assertEqual(report["player_change_count"], report["players"])
+        self.assertTrue(Path(report["update_report"]).is_file())
+        self.assertTrue(Path(report["update_history"]).is_file())
         self.assertEqual((self.skill / "assets" / IMPORTER.CACHE).read_bytes(), (self.source / IMPORTER.CACHE).read_bytes())
         self.assert_no_staging()
 
@@ -121,6 +125,66 @@ class ImportDataTest(unittest.TestCase):
         self.assertTrue(json.loads(result.stdout)["cache_rebuilt"])
         self.assertTrue((self.skill / "assets" / IMPORTER.CACHE).is_file())
         self.assertFalse((self.source / IMPORTER.CACHE).exists())
+        self.assert_no_staging()
+
+    def test_salary_update_reports_delta_and_preserves_history(self):
+        first = self.run_import()
+        self.assertEqual(first.returncode, 0, first.stderr)
+        assets = self.skill / "assets"
+        old_cache = json.loads((assets / IMPORTER.CACHE).read_text())
+        initial_history = json.loads((assets / IMPORTER.UPDATE_HISTORY).read_text())
+        salary_path = self.source / IMPORTER.REQUIRED[0]
+        salary = json.loads(salary_path.read_text())
+        player = salary["players"][0]
+        player_id = player["player_id"]
+        player["cash_total_usd"] += 100000
+        payment = next(row for row in salary["payment_records"]
+                       if row["record_id"] == player["payment_record_ids"][0])
+        payment["cash_total_usd"] += 100000
+        salary_path.write_text(json.dumps(salary, ensure_ascii=False), encoding="utf-8")
+        (self.source / IMPORTER.CACHE).unlink()
+        result = self.run_import("--force")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        output = json.loads(result.stdout)
+        self.assertTrue(output["cache_rebuilt"])
+        report = json.loads(Path(output["update_report"]).read_text())
+        history = json.loads(Path(output["update_history"]).read_text())
+        new_cache = json.loads((assets / IMPORTER.CACHE).read_text())
+        old_player = next(row for row in old_cache["estimates"] if row["player_id"] == player_id)
+        new_player = next(row for row in new_cache["estimates"] if row["player_id"] == player_id)
+        change = next(row for row in report["player_changes"] if row["player_id"] == player_id)
+        self.assertEqual(report["comparison_status"], "versioned_comparison")
+        self.assertEqual(report["input_versions"]["salary"]["status"], "changed")
+        self.assertEqual(report["player_change_count"], 1)
+        self.assertIn("salary_changed", change["observed_changes"])
+        self.assertEqual(change["amounts"]["gross_usd"]["delta_usd"], 100000)
+        self.assertEqual(change["amounts"]["estimated_net_usd"]["delta_usd"],
+                         round(new_player["estimated_net_usd"] - old_player["estimated_net_usd"], 2))
+        self.assertEqual(history["reports"][:-1], initial_history["reports"])
+        self.assertEqual(history["reports"][-1]["report_id"], report["report_id"])
+        self.assert_no_staging()
+
+        # Importing a supplied, unchanged cache still writes a latest report,
+        # while retaining history without a duplicate no-change entry.
+        shutil.copyfile(assets / IMPORTER.CACHE, self.source / IMPORTER.CACHE)
+        repeated = self.run_import("--force")
+        self.assertEqual(repeated.returncode, 0, repeated.stderr)
+        repeated_output = json.loads(repeated.stdout)
+        self.assertFalse(repeated_output["cache_rebuilt"])
+        self.assertEqual(repeated_output["player_change_count"], 0)
+        self.assertEqual(json.loads((assets / IMPORTER.UPDATE_HISTORY).read_text()), history)
+        self.assertEqual(json.loads((assets / IMPORTER.UPDATE_REPORT).read_text())["player_change_count"], 0)
+        self.assert_no_staging()
+
+    def test_invalid_previous_history_leaves_assets_untouched(self):
+        old = self.skill / "assets"
+        shutil.copytree(self.source, old)
+        (old / IMPORTER.UPDATE_HISTORY).write_text("{invalid history", encoding="utf-8")
+        before = directory_digest(old)
+        result = self.run_import("--force")
+        self.assertEqual(result.returncode, 2)
+        self.assertEqual(directory_digest(old), before)
+        self.assertFalse(list(self.skill.glob("assets.backup-*")))
         self.assert_no_staging()
 
     def test_installed_skill_entry_defaults_to_its_own_directory(self):

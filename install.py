@@ -25,7 +25,7 @@ AGENT_DIRECTORIES = {
 }
 REQUIRED_SCRIPTS = (
     "take_home.py", "build_estimates.py", "estimate.py", "duty_days.py",
-    "state_labels.py", "player_names.py", "tax_east.py", "tax_west.py",
+    "state_labels.py", "player_names.py", "data_status.py", "tax_east.py", "tax_west.py",
     "tax_federal.py", "query_cache.py", "lookup_2026_27.py",
     "tax-east.json", "tax-west.json", "tax-federal-crossborder.json",
 )

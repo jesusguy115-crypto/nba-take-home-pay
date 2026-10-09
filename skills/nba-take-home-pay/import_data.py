@@ -19,6 +19,8 @@ REQUIRED = (
     "player-tax-profiles-2026-27.json",
 )
 CACHE = "net-estimates-2026-27.json"
+UPDATE_REPORT = "update-report-2026-27.json"
+UPDATE_HISTORY = "update-history-2026-27.json"
 HERE = Path(__file__).resolve().parent
 DEFAULT_SKILL = HERE if (HERE / "SKILL.md").is_file() else HERE / "skills" / "nba-take-home-pay"
 
@@ -181,6 +183,34 @@ def validate_cache(stage, salaries, fingerprint):
     return len(ids), player_id
 
 
+
+def prepare_update_report(stage, target):
+    """Compare to the installed cache after validation, entirely within staging."""
+    # A staged rebuild starts with no old cache and can create its own history.
+    # Replace that history with the installed history before recording this import.
+    staged_history = stage / "assets" / UPDATE_HISTORY
+    if staged_history.exists():
+        staged_history.unlink()
+    prior_history = target / UPDATE_HISTORY
+    if prior_history.is_file():
+        shutil.copyfile(prior_history, staged_history)
+    code = """
+import json
+from pathlib import Path
+import sys
+from data_status import build_update_report, save_update_report
+old_path, new_path = (Path(value) for value in sys.argv[1:])
+old_cache = json.loads(old_path.read_text(encoding='utf-8')) if old_path.is_file() else None
+new_cache = json.loads(new_path.read_text(encoding='utf-8'))
+report = build_update_report(old_cache, new_cache)
+save_update_report(new_path.parent, report)
+print(json.dumps({'player_change_count': report['player_change_count'],
+                  'comparison_status': report['comparison_status']}, ensure_ascii=False))
+"""
+    return json.loads(run_model(stage, "-c", code, str(target / CACHE),
+                                str(stage / "assets" / CACHE)))
+
+
 def import_data(source, skill_path, force=False):
     source, skill_path = Path(source).resolve(), Path(skill_path).resolve()
     require(source.is_dir(), "--source must be your existing assets directory")
@@ -206,6 +236,7 @@ def import_data(source, skill_path, force=False):
             run_model(stage, "build_estimates.py")
         fingerprint = run_model(stage, "-c", "from estimate import model_fingerprint; print(model_fingerprint())")
         count, player_id = validate_cache(stage, salaries, fingerprint)
+        update = prepare_update_report(stage, target)
         # Recheck immediately before replacement. Each rename stays on the same filesystem.
         require(force or not target.exists() or not any(target.iterdir()), "Assets appeared during validation; rerun with --force")
         backup = None
@@ -220,7 +251,10 @@ def import_data(source, skill_path, force=False):
                 backup.rename(target)
             raise
     return {"assets": str(target), "backup": str(backup) if backup else None,
-            "players": count, "verified_player_id": player_id, "cache_rebuilt": rebuilt}
+            "players": count, "verified_player_id": player_id, "cache_rebuilt": rebuilt,
+            "update_report": str(target / UPDATE_REPORT), "update_history": str(target / UPDATE_HISTORY),
+            "player_change_count": update["player_change_count"],
+            "comparison_status": update["comparison_status"]}
 
 
 def main(argv=None):

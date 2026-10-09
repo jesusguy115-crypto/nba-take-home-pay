@@ -1,8 +1,8 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "nba-take-home-pay",
-  "version": "0.3.1",
-  "description": "2026–27 NBA 球员税后合同收入离线情景估算，包含逐项税额、客场工作日分摊及抵免说明。",
+  "version": "0.4.0",
+  "description": "2026–27 NBA 球员税后合同收入离线查询，支持税前/税后排名、球队名单、多人比较与可追溯更新。",
   "keywords": [
     "nba",
     "salary",

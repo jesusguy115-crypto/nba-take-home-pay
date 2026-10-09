@@ -1,6 +1,6 @@
 ---
 name: nba-take-home-pay
-description: 查询2026–27赛季NBA球员税后合同收入，按Spotrac薪资及缓存赛程即时给出有假设的估计金额，再列不确定因素；支持逐税项、客场工作日分摊及抵免明细。用于球员税后薪水查询，不代表私人税单或实际银行到账。
+description: 查询2026–27赛季NBA球员税后合同收入，按Spotrac薪资及缓存赛程即时给出有假设的估计金额，再列不确定因素；支持薪资排名、球队名单、多人比较、逐税项和客场工作日抵免明细。用于球员税后薪水查询，不代表私人税单或实际银行到账。
 license: MIT for project-authored code and documentation; see LICENSE and THIRD_PARTY.md.
 ---
 
@@ -18,12 +18,37 @@ license: MIT for project-authored code and documentation; see LICENSE and THIRD_
 
 用户只问球员姓名、税后薪水或“下赛季”时，本技能默认固定 **2026–27 赛季**；首句明确赛季，避免相对年份歧义。用户明确指定别的赛季时，不拿本季结果替代。
 
-1. 直接运行本技能目录内 `python3 -X utf8 scripts/take_home.py '球员姓名' --json`。从任意目录运行时使用脚本绝对路径。读取已算好的税后缓存；无需先读大型参考资料，也无需重复联网查薪资、赛程和税表。
+1. 直接运行本技能目录内 `python3 -X utf8 scripts/take_home.py '球员姓名' --brief --json`。从任意目录运行时使用脚本绝对路径。读取已算好的税后缓存；无需先读大型参考资料，也无需重复联网查薪资、赛程和税表。
 2. **回答第一句给一个数**：“按默认情景估算，××在2026–27赛季税后合同收入约 **××万美元**。”使用 `rounded_net_usd`，保留到1万美元。不先给税前薪资，不先长篇铺垫，不等待用户补齐私人税务资料。
 3. 紧接着说明“这是公开资料估算，不是球员真实税单或银行到账”，给 Spotrac 税前薪资、数据日期及薪资来源链接。普通回答无须展开几百行算式。
 4. 按条列出不确定因素：①实际居民地、婚姻及扣除；②训练/旅行工作日和未定赛程；③伤病未随队；④G联赛下放地点；⑤跨税年发薪及2027代理税则；⑥海外协定/抵免和汇率；⑦杯赛奖金、季后赛行程、经纪费及联盟托管。可以合并相关条目，不能把这些因素说成已经查明的事实。还要保留返回值中与此球员相关的特殊说明，尤其猛龙、买断/保留付款和签约金。
 
 用户提供了明确的已支持情景，使用 `--scenario /absolute/path/scenario.json --json` 直接重算。姓名明确而球队说错时，先给球员数字，再依 `team_correction` 更正。只有姓氏歧义或缓存未匹配时才请求全名，不能猜成另一个人。
+
+## 批量查询：一次读缓存
+
+识别用户的排名口径，直接运行一次批量命令，不逐人启动脚本或联网。命令相对于技能目录：
+
+```sh
+# 税前薪水前十人的税后收入（默认所有现金薪资接收者）
+python3 -X utf8 scripts/take_home.py --top 10 --sort gross --brief --json
+# 税后估值前十
+python3 -X utf8 scripts/take_home.py --top 10 --sort net --brief --json
+# 森林狼 Active Roster 名单
+python3 -X utf8 scripts/take_home.py --team MIN --brief --json
+# 森林狼全部付款接收者，包括非 Active Roster
+python3 -X utf8 scripts/take_home.py --team MIN --scope all --brief --json
+# 按输入顺序比较多人
+python3 -X utf8 scripts/take_home.py --compare '库里' '杜兰特' '杨瀚森' --brief --json
+```
+
+`--top` 默认 `--sort gross`；“薪水前十的税后收入”通常采用这个口径。“税后收入最高”使用 `--sort net`，排名依据未取整的税后估值，不依据展示取整值。多人比较可显式加 `--sort gross` 或 `--sort net`；球队筛选可与 `--top` 组合。`--scope active` 仅含 Active Roster，`--scope all` 含其他现金薪资接收者；按球队查询默认 active，联盟排名默认 all。
+
+先给结果表，列姓名、球队/州、税前美元、税后估计美元及申报情景；之后统一列快照日期、来源和不确定因素。每行保留免税州标签；Single/MFJ 情景不同不能隐藏。同一球员跨队付款使用其所有付款合计金额；球队 `--scope all` 是付款关联筛选，不能把这份名单称为现役阵容，也不能把金额称为该队单独支付。
+
+`--brief --json` 为普通回答保留所需字段；用户要求完整普通记录时去掉 `--brief`。`--filing-status single` 或 `mfj` 可用于已有美国情景的快查，直接读缓存；猛龙采用 `individual_canada`。自定义情景、逐税项解释和工作日账仍通过计算引擎生成。不能为追求快答混用金额与另一申报身份的标签。
+
+批量明确指定美国 Single/MFJ 时，只能用于支持该情景的球员。税前前N名先确定名单再选择情景；税后排名须先计算整个筛选范围的比较值，范围含猛龙时不能统一套Single/MFJ。遇到不兼容返回，说明原因并保留默认跨国情景或按用户指定的美国球队/姓名范围比较，不擅自排除猛龙。默认批量查询可混合美国与加拿大情景，但必须标明每行情景。
 
 ## 免税州标注
 
@@ -61,10 +86,10 @@ license: MIT for project-authored code and documentation; see LICENSE and THIRD_
 
 ## 数据、维护与边界
 
-缓存截至2026-10-09：Spotrac 30队、533笔现金记录、520名接收者（504名Active Roster）；税后缓存覆盖全部520人，美国球队球员同时缓存Single与MFJ工资情景；猛龙保留加拿大个人申报情景。NBA官方已定常规赛1200场，每队80场，尚有每队2场未定。付款球队、所属队与薪资均按此快照，不预测未来交易或裁员。
+缓存截至2026-10-09：Spotrac 30队、533笔现金记录、520名接收者（504名Active Roster）；税后缓存覆盖全部520人，美国球队球员同时缓存Single与MFJ工资情景；猛龙保留加拿大个人申报情景。该快照中NBA官方已定常规赛1200场；查询时以返回的 `schedule_coverage` 或 `--coverage` 的动态统计为准，不把旧快照的每队未定场次复制到新数据回答。付款球队、所属队与薪资均按来源快照，不预测未来交易或裁员。
 
 薪资唯一来源为Spotrac对应赛季现金表，使用汇总 `cash_total_usd`；不以cap hit、合同总额或别的网站工资替代。2025–26历史薪资仅帮助构造2026年度工资代理。保留旧 `query_cache.py --season 2026-27 --team MIN --games` 用于税前数据和赛程；它不提供税后结论。
 
-查询脚本仅用Python 3标准库，无API密钥和网络依赖。预计算在 `assets/net-estimates-2026-27.json`；输入/计算代码指纹变化后会要求运行 `python3 -X utf8 scripts/build_estimates.py` 重建。用户要求最新、数据缺失或已知重大输入变化时，再查官方来源并更新快照及来源日期；不要每次快答自动抓全联盟数据，也不要悄悄把旧快照说成实时行情。
+查询脚本仅用Python 3标准库，无API密钥和网络依赖。预计算在 `assets/net-estimates-2026-27.json`；输入/计算代码指纹变化后会要求运行 `python3 -X utf8 scripts/build_estimates.py` 重建。缓存的 `data_versions` 分开保存薪资、赛程、资料、税则与代码的内容版本及日期；缓存生成时间不代表来源重新采集。重建同时写入 `assets/update-report-2026-27.json` 和有变化的 `assets/update-history-2026-27.json`，比较旧新金额及观察到的字段变化。相关输入的变化不能说成已精确分解出每一项原因。用户要求最新、数据缺失或已知重大输入变化时，再查官方来源并更新快照及来源日期；不要每次快答自动抓全联盟数据，也不要悄悄把旧快照说成实时行情。
 
 本模型给出可复算的**情景点估计**，尚无真实税单回测，不能保证固定误差率或宣传“误差在±5%”。伤病和下放情景可更新工作地点，不按缺席比赛数自动扣工资。默认税后数不扣经纪费、联盟临时托管、预扣税或雇主缴款；额外现金流情景单列，避免重复扣税。
