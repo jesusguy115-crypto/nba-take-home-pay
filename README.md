@@ -6,7 +6,9 @@
 
 [直接交给 Agent 的安装链接](https://github.com/jesusguy115-crypto/nba-take-home-pay/tree/main/skills/nba-take-home-pay) · [GitHub 仓库](https://github.com/jesusguy115-crypto/nba-take-home-pay) · [下载完整 ZIP](https://github.com/jesusguy115-crypto/nba-take-home-pay/archive/refs/heads/main.zip)
 
-**v0.5.0** 加入联盟结算调整。默认先给“假设最终工资扣减 5.48%”后的税后估值，并显示本季不扣减的合同基准；5.48% 取自上一季报道，仅作历史参照，**不是已知的 2026–27 结算结果**。暂扣 10% 另列税前现金流；税额按结算情景重算，避免重复扣除。批量查询与情景切换继续使用预计算结果。详见 [托管与结算说明](skills/nba-take-home-pay/references/escrow.md) 和 [更新记录](CHANGELOG.md)。
+**v0.5.1** 为快照中 520 人补齐中英文姓名，并统一 1,482 条别名及绰号索引；“安东尼・戴维斯”“浓眉”“AD”“杰森・塔图姆”“塔图姆”“獭兔”均可直接查询。中点、空格、大小写及英文重音符统一处理；重名保留候选，不擅自猜人。普通税后查询、多人比较与旧税前入口共用索引。
+
+v0.5.0 加入联盟结算调整。默认先给“假设最终工资扣减 5.48%”后的税后估值，并显示本季不扣减的合同基准；5.48% 取自上一季报道，仅作历史参照，**不是已知的 2026–27 结算结果**。暂扣 10% 另列税前现金流；税额按结算情景重算，避免重复扣除。批量查询与情景切换继续使用预计算结果。详见 [托管与结算说明](skills/nba-take-home-pay/references/escrow.md) 和 [更新记录](CHANGELOG.md)。
 
 ## 内容与运行要求
 

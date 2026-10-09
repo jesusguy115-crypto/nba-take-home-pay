@@ -84,6 +84,37 @@ class ImportDataTest(unittest.TestCase):
         self.assertFalse((self.skill / "assets").exists())
         self.assert_no_staging()
 
+    def test_source_name_index_is_imported_without_rebuilding_tax_cache(self):
+        source_index = self.original / IMPORTER.NAME_INDEX
+        shutil.copyfile(source_index, self.source / IMPORTER.NAME_INDEX)
+        result = self.run_import()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertFalse(json.loads(result.stdout)["cache_rebuilt"])
+        self.assertEqual((self.skill / "assets" / IMPORTER.NAME_INDEX).read_bytes(), source_index.read_bytes())
+
+    def test_salary_update_preserves_installed_name_index(self):
+        old = self.skill / "assets"
+        shutil.copytree(self.source, old)
+        source_index = self.original / IMPORTER.NAME_INDEX
+        shutil.copyfile(source_index, old / IMPORTER.NAME_INDEX)
+        result = self.run_import("--force")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual((old / IMPORTER.NAME_INDEX).read_bytes(), source_index.read_bytes())
+        self.assert_no_staging()
+
+    def test_invalid_name_index_preserves_existing_assets(self):
+        old = self.skill / "assets"
+        shutil.copytree(self.source, old)
+        before = directory_digest(old)
+        index = {"schema_version": 1, "season": "2026-27", "players": [
+            {"player_id": "1", "english_name": "Example", "aliases": [42]}]}
+        (self.source / IMPORTER.NAME_INDEX).write_text(json.dumps(index))
+        result = self.run_import("--force")
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("Name aliases", result.stderr)
+        self.assertEqual(directory_digest(old), before)
+        self.assert_no_staging()
+
     def test_missing_required_input_preserves_existing_assets(self):
         old = self.skill / "assets"
         shutil.copytree(self.source, old)

@@ -2,46 +2,19 @@
 """Offline salary and regular-season schedule lookup. Python standard library only."""
 import argparse
 import json
-import unicodedata
 from collections import Counter
 from pathlib import Path
+from player_names import resolve, requires_clarification, TEAM_NAMES
 
 ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT / "assets"
-ALIASES = {
-    "库里": "Stephen Curry", "斯蒂芬库里": "Stephen Curry",
-    "爱德华兹": "Anthony Edwards", "安东尼爱德华兹": "Anthony Edwards",
-    "詹姆斯": "LeBron James", "勒布朗": "LeBron James", "勒布朗詹姆斯": "LeBron James",
-    "杜兰特": "Kevin Durant", "东契奇": "Luka Doncic", "约基奇": "Nikola Jokic",
-    "字母哥": "Giannis Antetokounmpo", "文班亚马": "Victor Wembanyama",
-    "拉梅洛鲍尔": "LaMelo Ball", "拉梅洛": "LaMelo Ball", "三球": "LaMelo Ball",
-    "朗佐鲍尔": "Lonzo Ball", "大球": "Lonzo Ball",
-    "哈登": "James Harden", "加兰": "Darius Garland", "戴维斯": "Anthony Davis",
-    "浓眉": "Anthony Davis", "恩比德": "Joel Embiid", "塔图姆": "Jayson Tatum",
-    "杰伦布朗": "Jaylen Brown", "巴特勒": "Jimmy Butler", "布克": "Devin Booker",
-    "戈贝尔": "Rudy Gobert", "康利": "Mike Conley", "唐斯": "Karl-Anthony Towns",
-    "亚历山大": "Shai Gilgeous-Alexander", "米切尔": "Donovan Mitchell",
-    "利拉德": "Damian Lillard", "欧文": "Kyrie Irving",
-}
-TEAM_ALIASES = {
-    "森林狼": "MIN", "勇士": "GSW", "湖人": "LAL", "快船": "LAC", "黄蜂": "CHA",
-    "骑士": "CLE", "凯尔特人": "BOS", "火箭": "HOU", "雷霆": "OKC",
-    "掘金": "DEN", "马刺": "SAS", "雄鹿": "MIL", "独行侠": "DAL",
-    "尼克斯": "NYK", "76人": "PHI", "猛龙": "TOR",
-}
-
-def clean(value):
-    return "".join(c for c in unicodedata.normalize("NFKD", value).casefold() if c.isalnum())
+TEAM_ALIASES = TEAM_NAMES
 
 def load_json(name):
     return json.loads((ASSETS / name).read_text())
 
 def find_players(players, query):
-    alias_keys = {clean(k): v for k, v in ALIASES.items()}
-    query = alias_keys.get(clean(query), query.strip())
-    key = clean(query)
-    exact = [p for p in players if clean(p["player"]) == key or p["player_id"] == query]
-    return exact or [p for p in players if key and key in clean(p["player"])]
+    return resolve(players, query)
 
 def schedule_summary(season, team, include_games=False):
     team = TEAM_ALIASES.get(team, team.upper())
@@ -69,8 +42,8 @@ def schedule_summary(season, team, include_games=False):
 def lookup_player(season, query):
     data = load_json(f"salaries-{season}.json")
     matches = find_players(data["players"], query)
-    if len(matches) != 1:
-        return {"season": season, "query": query, "match_count": len(matches),
+    if len(matches) != 1 or requires_clarification(data["players"], query, matches):
+        return {"status": "ambiguous" if matches else "not_found", "season": season, "query": query, "match_count": len(matches),
                 "matches": [{"player": p["player"], "player_id": p["player_id"],
                              "cash_total_usd": p["cash_total_usd"]} for p in matches]}
     player = matches[0]

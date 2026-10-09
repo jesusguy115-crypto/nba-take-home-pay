@@ -19,6 +19,7 @@ REQUIRED = (
     "player-tax-profiles-2026-27.json",
 )
 CACHE = "net-estimates-2026-27.json"
+NAME_INDEX = "player-name-index-2026-27.json"
 UPDATE_REPORT = "update-report-2026-27.json"
 UPDATE_HISTORY = "update-history-2026-27.json"
 HERE = Path(__file__).resolve().parent
@@ -240,6 +241,25 @@ def import_data(source, skill_path, force=False):
         for name in REQUIRED + (CACHE,):
             if (source / name).is_file():
                 shutil.copyfile(source / name, stage / "assets" / name)
+        # Name aliases are package lookup data, independent of tax input fingerprints.
+        # A salary-only update must not erase the installed Chinese name index.
+        name_source = source / NAME_INDEX if (source / NAME_INDEX).is_file() else target / NAME_INDEX
+        if name_source.is_file():
+            index = read_json(name_source)
+            fields(index, ("schema_version", "season", "players"), NAME_INDEX)
+            require(index["season"] == "2026-27", "Wrong name index season")
+            require(index["schema_version"] == 1, "Unsupported name index schema")
+            seen = set()
+            for entry in rows(index["players"], "name index players"):
+                fields(entry, ("player_id", "english_name", "aliases"), "name index player")
+                text_value(entry["player_id"], "name index player_id")
+                text_value(entry["english_name"], "name index english_name")
+                require(entry["player_id"] not in seen, "Duplicate player in name index")
+                seen.add(entry["player_id"])
+                require(isinstance(entry["aliases"], list) and all(isinstance(v, str) and v.strip() for v in entry["aliases"]),
+                        "Name aliases must be nonempty strings")
+                require(entry.get("chinese_name") is None or isinstance(entry["chinese_name"], str), "Invalid Chinese name")
+            shutil.copyfile(name_source, stage / "assets" / NAME_INDEX)
         teams = json.loads(run_model(stage, "-c", "import json; from duty_days import TEAMS; print(json.dumps(list(TEAMS)))"))
         salaries = validate_inputs(stage / "assets", set(teams))
         rebuilt = not (stage / "assets" / CACHE).exists()

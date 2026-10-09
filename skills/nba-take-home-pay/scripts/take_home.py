@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 import sys
 
-from player_names import resolve, mentioned_team, requires_clarification, TEAM_NAMES
+from player_names import resolve, mentioned_team, requires_clarification, name_index_coverage, TEAM_NAMES
 from duty_days import TEAMS, make_ledger
 from state_labels import add_state_label
 
@@ -353,7 +353,9 @@ def main(argv=None):
     if model_fingerprint() != cache['model_fingerprint']:
         parser.exit(2, '输入数据或税则已改变，请运行 build_estimates.py 重建缓存后再查询。\n')
     if args.coverage:
-        print(json.dumps({k: v for k, v in cache.items() if k != 'estimates'}, ensure_ascii=False, indent=2))
+        coverage = {k: v for k, v in cache.items() if k != 'estimates'}
+        coverage['name_index'] = name_index_coverage(cache['estimates'])
+        print(json.dumps(coverage, ensure_ascii=False, indent=2))
         return
     if not args.player and not batch:
         parser.error('请输入球员姓名，或使用 --top/--team/--compare/--coverage')

@@ -34,6 +34,7 @@ REQUIRED_ASSETS = (
     "schedule-2025-26.json", "schedule-2026-27.json",
     "coverage-2025-26.json", "coverage-2026-27.json",
     "player-tax-profiles-2026-27.json", "net-estimates-2026-27.json",
+    "player-name-index-2026-27.json",
 )
 
 
