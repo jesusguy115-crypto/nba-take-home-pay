@@ -1,0 +1,179 @@
+"""Render one query result as a portable, offline chart and matching table."""
+import argparse
+from copy import deepcopy
+import base64
+import html
+import json
+import math
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+STYLE_VERSION = 'courtside-ledger-1'
+FILING = {'single': 'Single工资情景', 'mfj': '夫妻合报工资情景', 'individual_canada': '加拿大个人申报'}
+
+
+def money(value):
+    if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value):
+        raise ValueError('Chart amount must be a finite number')
+    return value
+
+
+def safe_url(value):
+    return value if isinstance(value, str) and value.startswith('https://') else ''
+
+
+def display(value, decimals=0):
+    return format(value / 10000, ',.' + str(decimals) + 'f')
+
+
+def chart_data(payload):
+    names = json.loads((ROOT / 'assets/player-name-index-2026-27.json').read_text(encoding='utf-8'))
+    names = {r['player_id']: r.get('chinese_name') or r['english_name'] for r in names['players']}
+    records = payload.get('results', [payload])
+    if payload.get('status') or not isinstance(records, list):
+        raise ValueError('Chart requires a successful query result')
+    query = payload.get('query', {})
+    af = query.get('age_filter') or {}
+    scope = []
+    if af.get('birth_year_min') is not None or af.get('birth_year_max') is not None:
+        lo, hi = af.get('birth_year_min'), af.get('birth_year_max')
+        scope.append('00后' if (lo, hi) == (2000, 2009) else '90后' if (lo, hi) == (1990, 1999)
+                     else f'{lo or "不限"}—{hi or "不限"}年出生')
+    lower, upper, under = af.get('min_inclusive'), af.get('max_inclusive'), af.get('max_exclusive')
+    if lower is not None and upper is not None:
+        scope.append(f'{lower}至{upper}岁')
+    elif lower is not None:
+        scope.append(f'{lower}岁及以上')
+    elif upper is not None:
+        scope.append(f'{upper}岁以内')
+    if under is not None:
+        scope.append(f'未满{under}岁')
+    if query.get('team'):
+        from duty_days import TEAMS
+        scope.insert(0, TEAMS[query['team']][0])
+    if len(records) == 1:
+        scope = [names.get(records[0]['player_id'], records[0]['player'])]
+    heading = ' · '.join(scope) or ('球员薪水对照' if query.get('kind') == 'comparison' else 'NBA球员薪水账本')
+    basis = query.get('sort', 'net')
+    order = query.get('order', 'desc' if basis != 'input' else 'input')
+    metric = 'gross' if basis == 'gross' else 'baseline' if query.get('settlement') == 'baseline' else 'net'
+    initial_label = '税前合同' if metric == 'gross' else '零调整基准' if metric == 'baseline' else '税后收入'
+    if len(records) == 1:
+        subtitle = '2026–27赛季 · 合同收入估算'
+    elif query.get('top'):
+        subtitle = f'{initial_label}{"最低" if order == "asc" else "最高"}的{len(records)}人'
+    else:
+        subtitle = f'{len(records)}名薪资接收者 · 同口径比较'
+    rows, ids = [], set()
+    for index, r in enumerate(records):
+        identifier = str(r['player_id'])
+        if identifier in ids:
+            raise ValueError('Duplicate player ID in chart query')
+        ids.add(identifier)
+        esc = r['escrow_scenario']
+        baseline = r['contract_baseline']
+        active = bool(r['active_roster'])
+        label = r.get('roster_status_label') or ('现役' if active else '非现役·保留付款')
+        team = r['team_tax_context']
+        row = {
+            'id': identifier, 'name': names.get(identifier, r['player']), 'english': r['player'],
+            'age': r.get('age'), 'birth': r.get('birth_date'), 'active': active,
+            'status': label, 'team': r.get('roster_team_display') or ('' if active else '付款球队：') + team['display_team'],
+            'taxFree': bool(team['team_in_no_state_income_tax_state']), 'state': team.get('team_state_zh') or team.get('team_state'),
+            'filing': FILING.get(r['filing_scenario']['status'], r['filing_scenario']['status']),
+            'filingNote': r['filing_scenario'].get('note', '采用公开资料工资情景，不确认个人真实申报身份。'),
+            'net': money(r['estimated_net_usd']), 'netLabel': money(r['rounded_net_usd']),
+            'gross': money(r['spotrac_salary_usd']), 'settledGross': money(r['gross_usd']),
+            'tax': money(r['estimated_tax_usd']), 'baseline': money(baseline['estimated_net_usd']),
+            'baselineLabel': money(baseline['rounded_net_usd']),
+            'reduction': money(r['settlement_impact']['gross_reduction_usd']),
+            'supplement': money(r.get('extra_settlement_bonus_usd', 0)),
+            'cup': money(r.get('extra_cup_bonus_usd', 0)),
+            'withheld': money(r['cashflow_scenario']['temporary_escrow_usd']),
+            'rate': money(esc['final_reduction_rate']), 'initial': index,
+            'source': safe_url(r['sources']['salary']), 'notes': r.get('specific_uncertainties', []),
+        }
+        rows.append(row)
+    first = records[0] if records else {}
+    esc = first.get('escrow_scenario', {})
+    return {
+        'schema': 'nba-ledger/1', 'style': STYLE_VERSION, 'heading': heading, 'subtitle': subtitle,
+        'season': payload.get('season', '2026-27'), 'salaryDate': payload.get('salary_captured_date', first.get('captured_date', '未知')),
+        'ageDate': query.get('age_as_of', first.get('age_as_of', '未知')), 'metric': metric, 'order': order,
+        'scope': query.get('scope_note', first.get('roster_status_note', '按薪资快照分类。')),
+        'settlement': query.get('settlement_note') or esc.get('label') or '请参阅查询中的结算情景',
+        'notice': payload.get('estimate_notice', '公开资料的情景估算，非私人税单或银行到账。'),
+        'uncertainties': payload.get('common_uncertainties', []), 'rows': rows,
+    }
+
+
+def table_markdown(data):
+    def cell(value):
+        return str(value).replace('|', '\\|').replace('\n', ' ')
+    lines = [f"# {data['heading']} · {data['subtitle']}", '',
+             f"{data['season']}赛季；年龄截至{data['ageDate']}；薪资快照{data['salaryDate']}。单位：万美元。", '',
+             '结算口径：' + data['settlement'], '',
+             '| 序号 | 球员 | 年龄 | 状态 | 球队或付款球队 | 合同税前 | 税后估值 | 零调整基准 | 申报情景 |',
+             '|---:|---|---:|---|---|---:|---:|---:|---|']
+    for i, row in enumerate(data['rows'], 1):
+        values = [i, row['name'], row['age'] if row['age'] is not None else '未知', row['status'], row['team'] + (' · 免税州' if row['taxFree'] and '免税州' not in row['team'] else ''),
+                  display(row['gross'], 2), display(row['netLabel']), display(row['baselineLabel']), row['filing']]
+        lines.append('| ' + ' | '.join(cell(x) for x in values) + ' |')
+    lines += ['', data['notice'], '', '范围：' + data['scope'], '',
+              '排序基于未取整金额；零调整基准仅移除本季扣减与补发，其他假设保持一致。', '']
+    lines += ['- ' + x for x in data['uncertainties']]
+    lines += ['', '薪资来源：'] + ['- [' + cell(r['name']) + '](' + r['source'] + ')' for r in data['rows'] if r['source']]
+    return '\n'.join(lines) + '\n'
+
+
+def static_table(data):
+    e = html.escape
+    cells = []
+    for i, row in enumerate(data['rows'], 1):
+        values = [str(i), row['name'], str(row['age']) if row['age'] is not None else '未知', row['status'], row['team'] + (' · 免税州' if row['taxFree'] and '免税州' not in row['team'] else ''),
+                  display(row['gross'], 2), display(row['netLabel']), display(row['baselineLabel']), row['filing']]
+        cells.append('<tr>' + ''.join('<td>' + e(v) + '</td>' for v in values) + '</tr>')
+    return ''.join(cells)
+
+
+def write_chart(payload, destination):
+    destination = Path(destination).expanduser().resolve()
+    if destination.suffix.lower() != '.html':
+        raise ValueError('--chart must end in .html')
+    source = deepcopy(payload)
+    source.pop('visualization', None)
+    data = chart_data(source)
+    encoded = json.dumps(data, ensure_ascii=False, separators=(',', ':'), allow_nan=False)
+    for original, escaped in [('&', '\\u0026'), ('<', '\\u003c'), ('>', '\\u003e'), ('\u2028', '\\u2028'), ('\u2029', '\\u2029')]:
+        encoded = encoded.replace(original, escaped)
+    template = (ROOT / 'assets/chart-template.html').read_text(encoding='utf-8')
+    for placeholder, name in [('__CJK_FONT__', 'NotoSansSC-subset.woff2'), ('__NUMBER_FONT__', 'BarlowSemiCondensed-latin.woff2')]:
+        template = template.replace(placeholder, base64.b64encode((ROOT / 'assets/fonts' / name).read_bytes()).decode('ascii'))
+    licenses = '\n\n'.join((ROOT / 'assets/fonts' / name).read_text(encoding='utf-8') for name in ['NotoSansSC-OFL.txt', 'BarlowSemiCondensed-OFL.txt'])
+    template = template.replace('__FONT_LICENSES__', '<pre>' + html.escape(licenses) + '</pre>')
+    template = template.replace('__DATA_JSON__', encoded).replace('__STATIC_TABLE__', static_table(data))
+    template = template.replace('__PAGE_TITLE__', html.escape(data['heading'] + ' · ' + data['subtitle']))
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    destination.write_text(template, encoding='utf-8')
+    markdown = destination.with_suffix('.md')
+    data_file = destination.with_suffix('.json')
+    markdown.write_text(table_markdown(data), encoding='utf-8')
+    data_file.write_text(json.dumps(source, ensure_ascii=False, indent=2, allow_nan=False) + '\n', encoding='utf-8')
+    return {'html': str(destination), 'table_markdown': str(markdown), 'data_json': str(data_file),
+            'style': STYLE_VERSION, 'scope': 'returned_query_roster_only'}
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('input', type=Path, help='Successful take_home.py JSON result')
+    parser.add_argument('--output', type=Path, required=True)
+    args = parser.parse_args()
+    try:
+        result = write_chart(json.loads(args.input.read_text(encoding='utf-8')), args.output)
+    except (ValueError, KeyError, OSError) as error:
+        parser.exit(2, str(error) + '\n')
+    print(json.dumps(result, ensure_ascii=False))
+
+
+if __name__ == '__main__':
+    main()

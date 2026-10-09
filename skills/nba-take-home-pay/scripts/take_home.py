@@ -241,11 +241,12 @@ def match_error(players, query):
     }
 
 
-def sorted_results(rows, basis):
+def sorted_results(rows, basis, order='desc'):
     if not basis:
         return rows
     field = 'spotrac_salary_usd' if basis == 'gross' else 'estimated_net_usd'
-    ordered = sorted(rows, key=lambda row: (-row[field], row['player'].casefold(), str(row['player_id'])))
+    direction = 1 if order == 'asc' else -1
+    ordered = sorted(rows, key=lambda row: (direction * row[field], row['player'].casefold(), str(row['player_id'])))
     previous = None
     rank = 0
     for index, row in enumerate(ordered, 1):
@@ -306,7 +307,8 @@ def print_single(result, cache, brief=False):
 def print_batch(output):
     query = output['query']
     basis = {'gross': '税前合同现金薪资', 'net': '估计税后合同收入', 'input': '输入顺序'}[query['sort']]
-    print(f"2026–27赛季，共{output['returned_count']}人；排序依据：{basis}。")
+    direction = '从低到高' if query.get('order') == 'asc' else '从高到低' if query.get('order') == 'desc' else '保持输入顺序'
+    print(f"2026–27赛季，共{output['returned_count']}人；排序依据：{basis}，{direction}。")
     print('联盟结算情景：' + query['settlement_note'] + '；2026–27实际结算尚未知。')
     print('年龄按周岁计算，截至 ' + query['age_as_of'] + '。')
     if query.get('age_filter'):
@@ -342,7 +344,9 @@ def main(argv=None):
     parser.add_argument('--json', action='store_true', help='返回结构化结果；与 --brief 合用精简字段')
     parser.add_argument('--brief', action='store_true', help='保留金额、身份情景、风险及来源的快答输出')
     parser.add_argument('--top', type=positive_int, metavar='N', help='按 --sort 返回前N人，默认税前薪资排序')
-    parser.add_argument('--sort', choices=['gross', 'net'], help='按未取整税前薪资gross或税后估值net降序')
+    parser.add_argument('--sort', choices=['gross', 'net'], help='按未取整税前薪资gross或税后估值net排序')
+    parser.add_argument('--order', choices=['asc', 'desc'], help='asc从低到高；desc从高到低（默认）')
+    parser.add_argument('--chart', type=Path, help='生成固定风格的离线交互HTML及同名Markdown表格、JSON数据')
     parser.add_argument('--team', type=team_code, help='球队代码或中文队名；默认Active Roster')
     parser.add_argument('--scope', choices=['active', 'all'], help='active为现役名单；all含Dead Money/Retained接收者')
     parser.add_argument('--compare', nargs='+', metavar='PLAYER', help='一次比较多名球员，默认保留输入顺序')
@@ -372,10 +376,14 @@ def main(argv=None):
                                      (args.under_age is not None and args.min_age >= args.under_age)):
         parser.error('年龄上下界没有交集')
     batch = args.top is not None or args.team is not None or args.compare is not None or age_filtered
-    if args.coverage and (args.player or batch or args.scenario or args.explain or args.ledger or args.filing_status or args.settlement or args.scope or args.sort):
+    if args.coverage and (args.player or batch or args.scenario or args.explain or args.ledger or args.filing_status or args.settlement or args.scope or args.sort or args.order or args.chart):
         parser.error('--coverage 不能与球员查询、排名、身份或计算情景混用')
     if args.explain and args.ledger:
         parser.error('--explain 与 --ledger 请分别查询')
+    if args.chart and args.ledger:
+        parser.error('--chart 展示收入查询，不与逐日账 --ledger 混用')
+    if args.chart and args.chart.suffix.lower() != '.html':
+        parser.error('--chart 输出路径必须以 .html 结尾')
     if args.player and batch:
         parser.error('单人姓名与 --top/--team/--compare 不能同时使用')
     if args.compare and (args.top or args.team):
@@ -384,8 +392,10 @@ def main(argv=None):
         parser.error('逐项计算、逐日账和个人情景请指定一名球员；批量查询直接读取缓存')
     if args.brief and (args.explain or args.ledger):
         parser.error('--brief 与 --explain/--ledger 不能同时使用')
-    if (args.sort or args.scope) and not batch:
-        parser.error('--sort/--scope 需要 --top、--team 或 --compare')
+    if (args.sort or args.scope or args.order) and not batch:
+        parser.error('--sort/--scope/--order 需要 --top、--team 或 --compare')
+    if args.compare and args.order and not args.sort:
+        parser.error('--compare 使用 --order 时请同时选择 --sort gross 或 net')
     if args.compare and args.scope:
         parser.error('--compare 按明确姓名查询，不接受 --scope 筛选')
     if not CACHE.exists():
@@ -455,7 +465,8 @@ def main(argv=None):
     # Canadian player cannot block a US-only Top N comparison. Net rank needs
     # every eligible player's chosen estimate and therefore validates all of them.
     if batch and args.top is not None and basis == 'gross':
-        selected.sort(key=lambda pair: (-pair[0]['spotrac_salary_usd'], pair[0]['player'].casefold(), str(pair[0]['player_id'])))
+        direction = 1 if args.order == 'asc' else -1
+        selected.sort(key=lambda pair: (direction * pair[0]['spotrac_salary_usd'], pair[0]['player'].casefold(), str(pair[0]['player_id'])))
         selected = selected[:args.top]
     results = []
     for original, query in selected:
@@ -473,7 +484,7 @@ def main(argv=None):
         results.append(result)
     if batch:
         basis = args.sort or (None if args.compare else 'gross')
-        results = sorted_results(results, basis)
+        results = sorted_results(results, basis, args.order or 'desc')
         count = selected_count
         if args.top is not None:
             results = results[:args.top]
@@ -490,6 +501,7 @@ def main(argv=None):
         output.update(query={'kind': 'comparison' if args.compare else 'team' if args.team else 'ranking',
                              'team': args.team, 'scope': scope, 'scope_note': scope_note,
                              'sort': basis or 'input', 'top': args.top,
+                             'order': args.order or ('desc' if basis else 'input'),
                              'age_as_of': as_of.isoformat(),
                              'age_filter': {'min_inclusive': args.min_age, 'max_inclusive': args.max_age,
                                             'max_exclusive': args.under_age, 'birth_year_min': args.birth_year_min,
@@ -502,14 +514,22 @@ def main(argv=None):
                                                 f'{args.birth_year_max}年及以前出生' if args.birth_year_max is not None else '') if text)} if age_filtered else None,
                              'settlement': args.settlement or 'historical',
                              'settlement_note': settlement_label(results[0]) if results else ('本季扣减及补发均为零的税后基准' if args.settlement == 'baseline' else '按5.48%历史扣减比例参照'),
-                             'ranking_note': '未取整金额降序；同金额并列名次，再按英文姓名与ID排序；最多返回指定人数。'},
+                             'ranking_note': '按指定方向排序未取整金额；同金额并列名次，再按英文姓名与ID排序；最多返回指定人数。'},
                       matched_count=count, returned_count=len(results),
                       results=[brief_result(row) if args.brief else
                                {k: v for k, v in row.items() if k not in FULL_ONLY} for row in results])
+        if args.chart:
+            try:
+                from render_chart import write_chart
+                output['visualization'] = write_chart(output, args.chart)
+            except (ValueError, KeyError, OSError) as error:
+                parser.exit(2, '图表生成失败：' + str(error) + '\n')
         if args.json:
             print(json.dumps(output, ensure_ascii=False, indent=None if args.brief else 2))
         else:
             print_batch(output)
+            if args.chart:
+                print('交互图表：' + output['visualization']['html'])
         return
     result = results[0]
     if args.scenario or args.explain or args.ledger:
@@ -541,14 +561,26 @@ def main(argv=None):
             print(json.dumps(make_ledger(result['team'], load('schedule-2026-27.json')['games'],
                                          scenario.get('duty_day_overrides')), ensure_ascii=False, indent=2))
             return
-    if args.json or args.explain:
+    if args.json or args.explain or args.chart:
         if args.brief:
             output = brief_result(result)
             output.update(shared_metadata(cache, result['team'], compact=True, residence=result['residence_scenario'],
                                           settlement=result['escrow_scenario']))
         else:
             output = result if args.explain else {k: v for k, v in result.items() if k not in FULL_ONLY}
-        print(json.dumps(output, ensure_ascii=False, indent=None if args.brief else 2))
+        if args.chart:
+            output.update(shared_metadata(cache, result['team'], compact=True, residence=result['residence_scenario'],
+                                          settlement=result['escrow_scenario']))
+            try:
+                from render_chart import write_chart
+                output['visualization'] = write_chart(output, args.chart)
+            except (ValueError, KeyError, OSError) as error:
+                parser.exit(2, '图表生成失败：' + str(error) + '\n')
+        if args.json or args.explain:
+            print(json.dumps(output, ensure_ascii=False, indent=None if args.brief else 2))
+        else:
+            print_single(result, cache, args.brief)
+            print('交互图表：' + output['visualization']['html'])
     else:
         print_single(result, cache, args.brief)
 

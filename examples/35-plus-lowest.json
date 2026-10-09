@@ -1,0 +1,1304 @@
+{
+  "season": "2026-27",
+  "model_version": "2026-27.3.0",
+  "salary_captured_date": "2026-10-09",
+  "estimate_notice": "公开资料的情景点估计，非真实税单或银行到账；无经真实税单验证的固定误差率。",
+  "contract_baseline_note": "本季扣减及补发均为零、保留同一上季扣减假设的税后基准。",
+  "common_uncertainties": [
+    "居民地与申报：采用球队城市居民情景；真实税籍、申报方式、配偶收入和个人扣除未知。",
+    "客场工作日：全联盟尚有30场常规赛未定；比赛不等于实际出席，训练、旅行和休息日地点仍为代理。",
+    "伤病与下放：默认随队；异地康复或G联赛服务会改变税源分摊。",
+    "跨税年：按24期发薪分配；2027未发布税则参数沿用2026代理，已立法变化另计。",
+    "额外收入和行程：默认不加杯赛/季后赛奖金、季后赛和异地季前赛工作日。",
+    "联盟结算：2026–27最终扣减率尚未确定；本结果采用5.48%扣减情景，税款已按该工资情景计算。",
+    "现金时点：10.00%发薪暂扣与最终工资扣减不可重复相减；本结果不预测工资预扣或返还日期。",
+    "实际到账：协定、汇率、抵免、经纪费、NBPA会费和个人扣款仍会影响结果。"
+  ],
+  "data_versions": {
+    "salary": {
+      "version": "sha256:6d420886cb2f57e1",
+      "as_of": "2026-10-09"
+    },
+    "schedule": {
+      "version": "sha256:f964b6d98325b439",
+      "as_of": "2026-10-09"
+    },
+    "profiles": {
+      "version": "sha256:a510f8826cbba9be",
+      "as_of": "2026-10-09"
+    },
+    "tax_rules": {
+      "version": "sha256:29b1d1c35e23cab8",
+      "as_of": "2026-10-09"
+    },
+    "settlement_rules": {
+      "version": "sha256:6a2cd71d3f69b0f0",
+      "as_of": "2026-10-10"
+    },
+    "model": {
+      "version": "sha256:e6bc451695466f0e",
+      "as_of": null
+    }
+  },
+  "schedule_coverage": {
+    "known_regular_season_games": 1200,
+    "expected_regular_season_games": 1230,
+    "unassigned_regular_games": 30
+  },
+  "settlement_rules": {
+    "historical_reference_status": "reported_aggregate_not_individual_payroll_verified",
+    "tax_timing_policy": "Proportionally reduce modeled contract wages under the same 24-payment attribution proxy. Does not assert actual payroll withholding, refund dates, constructive receipt, W-2 reporting or deduction treatment.",
+    "supplemental_allocation_policy": "same_contract_service_mix_and_24_payment_year_attribution_proxy_not_actual_payment_timing",
+    "withholding_scope": "Spotrac_contract_cash_proxy_excludes_separately_supplied_Cup_bonus",
+    "sources": [
+      {
+        "title": "2023 NBA-NBPA Collective Bargaining Agreement, Article VII Section 12",
+        "url": "https://imgix.cosmicjs.com/25da5eb0-15eb-11ee-b5b3-fbd321202bdf-Final-2023-NBA-Collective-Bargaining-Agreement-6-28-23.pdf",
+        "supports": "Compensation reduction and final reconciliation; does not establish the 2026-27 realized rate."
+      },
+      {
+        "title": "2025-26 aggregate compensation and escrow report",
+        "url": "https://sports.yahoo.com/articles/total-salaries-benefits-2025-26-185256547.html",
+        "supports": "Historical 54.8% share of the 10% reduction, modeled as 5.48% of salary."
+      },
+      {
+        "title": "Kurt Badenhausen reporting on 2025-26 escrow",
+        "url": "https://www.linkedin.com/posts/kurt-badenhausen-90bb185_nba-players-owners-to-split-580m-in-escrow-activity-7478516153640947712-jq_h",
+        "supports": "Historical reporting; not a forward season audited outcome."
+      }
+    ],
+    "cashflow_note": "暂扣、返还和补扣均为税前分解，最终扣减只计算一次；未估算实际工资预扣或银行到账。返还时点及税务处理未知。"
+  },
+  "query": {
+    "kind": "ranking",
+    "team": null,
+    "scope": "all",
+    "scope_note": "包括Active Roster、Dead Money及Retained现金接收者。薪资为每名球员全部付款球队的CashTotal合计。",
+    "sort": "net",
+    "top": 10,
+    "order": "asc",
+    "age_as_of": "2026-10-10",
+    "age_filter": {
+      "min_inclusive": 35,
+      "max_inclusive": null,
+      "max_exclusive": null,
+      "birth_year_min": null,
+      "birth_year_max": null,
+      "description": "满35岁及以上"
+    },
+    "settlement": "historical",
+    "settlement_note": "按5.48%历史扣减比例参照（非本赛季已知结算）",
+    "ranking_note": "按指定方向排序未取整金额；同金额并列名次，再按英文姓名与ID排序；最多返回指定人数。"
+  },
+  "matched_count": 23,
+  "returned_count": 10,
+  "results": [
+    {
+      "season": "2026-27",
+      "player_id": "6278",
+      "player": "Taj Gibson",
+      "team": "NOP",
+      "team_zh": "鹈鹕",
+      "active_roster": false,
+      "spotrac_salary_usd": 148828.0,
+      "estimated_net_usd": 101048.76,
+      "rounded_net_usd": 100000,
+      "estimated_tax_usd": 39623.47,
+      "effective_tax_rate": 0.28167231708081936,
+      "team_tax_context": {
+        "team_state": "LA",
+        "team_state_zh": null,
+        "team_in_no_state_income_tax_state": false,
+        "badge": null,
+        "display_team": "鹈鹕",
+        "residence_scenario_has_no_state_income_tax": false,
+        "scope_note": "标签指球队所在州，不确认球员真实税籍；仍计算联邦税、雇员工资税和适用的客场州/地方税。"
+      },
+      "captured_date": "2026-10-09",
+      "model_version": "2026-27.3.0",
+      "tax_checked_date": "2026-10-09",
+      "query_path": "precomputed_cache",
+      "residence_scenario": {
+        "country": "US",
+        "state": "LA",
+        "city": "New Orleans"
+      },
+      "gross_usd": 140672.2256,
+      "contract_gross_usd": 148828.0,
+      "extra_cup_bonus_usd": 0.0,
+      "escrow_scenario": {
+        "withholding_rate": 0.1,
+        "final_reduction_rate": 0.0548,
+        "prior_season_final_reduction_rate": 0.0548,
+        "settlement_bonus_usd": 0.0,
+        "label": "按5.48%历史扣减比例参照的税后情景（非本赛季已知结算）",
+        "selection_reason": "historical_2025_26_reference_not_current_season_forecast",
+        "supplemental_payment_status": "unknown_default_zero",
+        "current_season_rate_status": "unknown_assumption",
+        "actual_2026_27_rate_known": false,
+        "historical_reference_season": "2025-26",
+        "prior_season_rate_status": "reported_aggregate_reference_not_individual_payroll_verified",
+        "legacy_escrow_rate_used": false,
+        "timing_note": "按24期比例归属税年；实际预扣、返还日期及税务处理未知。"
+      },
+      "settlement_impact": {
+        "gross_reduction_usd": 8155.77,
+        "supplemental_payment_usd": 0.0,
+        "net_gross_adjustment_usd": -8155.77,
+        "tax_reduction_usd": 2861.92,
+        "net_reduction_usd": 5293.85
+      },
+      "extra_settlement_bonus_usd": 0.0,
+      "calculation_type": "modeled_settlement_adjusted_after_tax_income_not_bank_deposit",
+      "filing_scenario": {
+        "status": "single",
+        "selection_reason": "marriage_unverified_single_table_reference_with_MFJ_comparison",
+        "actual_filing_status": "unknown",
+        "note": "婚姻资料未知，采用Single税表情景；不认定球员单身。"
+      },
+      "tax_profile": {
+        "marital_status": "unknown",
+        "actual_filing_status": "unknown",
+        "as_of": "2026-10-09"
+      },
+      "filing_scenarios": {
+        "single": {
+          "estimated_net_usd": 101048.76,
+          "rounded_net_usd": 100000
+        },
+        "mfj": {
+          "estimated_net_usd": 110250.69,
+          "rounded_net_usd": 110000
+        }
+      },
+      "specific_uncertainties": [
+        "联盟结算：2026–27实际扣减率未知，本次用5.48%假设；默认5.48%来自上季汇总报道，不能视为本季或个人已定结果。",
+        "跨年托管税务：暂按调整后的工资比例归属2026/2027税年，上季扣减假设5.48%；实际付款、退款与税表处理可能不同。",
+        "婚姻资料未核实或不足以确认税年末状态；Single/MFJ均为工资测算情景，不将资料未知认定为单身。",
+        "包含Dead Money/Retained等非当前服务付款；来源暂按假定居民地，且最终扣减率统一用于Spotrac现金额；实际适用扣减及工资性质需逐笔核定。"
+      ],
+      "contract_baseline": {
+        "estimated_net_usd": 106342.61,
+        "rounded_net_usd": 110000,
+        "estimated_tax_usd": 42485.39,
+        "gross_usd": 148828.0
+      },
+      "sources": {
+        "salary": "https://www.spotrac.com/nba/player/_/id/6278/taj-gibson"
+      },
+      "rank": 1,
+      "position": 1,
+      "cashflow_scenario": {
+        "temporary_escrow_usd": 14882.8,
+        "initial_before_tax_payable_usd": 133945.2,
+        "modeled_final_reduction_usd": 8155.77,
+        "modeled_refund_before_tax_usd": 6727.03,
+        "modeled_additional_collection_before_tax_usd": 0,
+        "supplemental_settlement_payment_before_tax_usd": 0.0,
+        "settled_before_tax_gross_usd": 140672.23,
+        "actual_net_payroll_deposit_usd": null,
+        "actual_settlement_payment_date": null
+      },
+      "age": 41,
+      "birth_date": "1985-06-24",
+      "age_as_of": "2026-10-10",
+      "age_status": "known",
+      "age_source": {
+        "source_url": "https://nba.hupu.com/players/tajgibson-3357.html",
+        "source_english_name": "Taj Gibson",
+        "retrieval": "public_profile_or_draft_record"
+      },
+      "birth_date_checked": "2026-10-10",
+      "roster_status_label": "非现役·保留付款",
+      "roster_team_display": "付款球队：鹈鹕",
+      "roster_status_note": "按薪资快照的Active Roster分类；非现役不等于已确认退役。"
+    },
+    {
+      "season": "2026-27",
+      "player_id": "6305",
+      "player": "Ricky Rubio",
+      "team": "CLE",
+      "team_zh": "骑士",
+      "active_roster": false,
+      "spotrac_salary_usd": 424672.0,
+      "estimated_net_usd": 258061.21,
+      "rounded_net_usd": 260000,
+      "estimated_tax_usd": 143338.76,
+      "effective_tax_rate": 0.3570970932637907,
+      "team_tax_context": {
+        "team_state": "OH",
+        "team_state_zh": null,
+        "team_in_no_state_income_tax_state": false,
+        "badge": null,
+        "display_team": "骑士",
+        "residence_scenario_has_no_state_income_tax": false,
+        "scope_note": "标签指球队所在州，不确认球员真实税籍；仍计算联邦税、雇员工资税和适用的客场州/地方税。"
+      },
+      "captured_date": "2026-10-09",
+      "model_version": "2026-27.3.0",
+      "tax_checked_date": "2026-10-09",
+      "query_path": "precomputed_cache",
+      "residence_scenario": {
+        "country": "US",
+        "state": "OH",
+        "city": "Cleveland"
+      },
+      "gross_usd": 401399.9744,
+      "contract_gross_usd": 424672.0,
+      "extra_cup_bonus_usd": 0.0,
+      "escrow_scenario": {
+        "withholding_rate": 0.1,
+        "final_reduction_rate": 0.0548,
+        "prior_season_final_reduction_rate": 0.0548,
+        "settlement_bonus_usd": 0.0,
+        "label": "按5.48%历史扣减比例参照的税后情景（非本赛季已知结算）",
+        "selection_reason": "historical_2025_26_reference_not_current_season_forecast",
+        "supplemental_payment_status": "unknown_default_zero",
+        "current_season_rate_status": "unknown_assumption",
+        "actual_2026_27_rate_known": false,
+        "historical_reference_season": "2025-26",
+        "prior_season_rate_status": "reported_aggregate_reference_not_individual_payroll_verified",
+        "legacy_escrow_rate_used": false,
+        "timing_note": "按24期比例归属税年；实际预扣、返还日期及税务处理未知。"
+      },
+      "settlement_impact": {
+        "gross_reduction_usd": 23272.03,
+        "supplemental_payment_usd": 0.0,
+        "net_gross_adjustment_usd": -23272.03,
+        "tax_reduction_usd": 9693.31,
+        "net_reduction_usd": 13578.72
+      },
+      "extra_settlement_bonus_usd": 0.0,
+      "calculation_type": "modeled_settlement_adjusted_after_tax_income_not_bank_deposit",
+      "filing_scenario": {
+        "status": "single",
+        "selection_reason": "marriage_unverified_single_table_reference_with_MFJ_comparison",
+        "actual_filing_status": "unknown",
+        "note": "婚姻资料未知，采用Single税表情景；不认定球员单身。"
+      },
+      "tax_profile": {
+        "marital_status": "unknown",
+        "actual_filing_status": "unknown",
+        "as_of": "2026-10-09"
+      },
+      "filing_scenarios": {
+        "single": {
+          "estimated_net_usd": 258061.21,
+          "rounded_net_usd": 260000
+        },
+        "mfj": {
+          "estimated_net_usd": 288383.7,
+          "rounded_net_usd": 290000
+        }
+      },
+      "specific_uncertainties": [
+        "联盟结算：2026–27实际扣减率未知，本次用5.48%假设；默认5.48%来自上季汇总报道，不能视为本季或个人已定结果。",
+        "跨年托管税务：暂按调整后的工资比例归属2026/2027税年，上季扣减假设5.48%；实际付款、退款与税表处理可能不同。",
+        "婚姻资料未核实或不足以确认税年末状态；Single/MFJ均为工资测算情景，不将资料未知认定为单身。",
+        "包含Dead Money/Retained等非当前服务付款；来源暂按假定居民地，且最终扣减率统一用于Spotrac现金额；实际适用扣减及工资性质需逐笔核定。",
+        "假设住在球队所在城市/县；实际住在郊区或另一税区，地方税可明显不同。"
+      ],
+      "contract_baseline": {
+        "estimated_net_usd": 271639.93,
+        "rounded_net_usd": 270000,
+        "estimated_tax_usd": 153032.07,
+        "gross_usd": 424672.0
+      },
+      "sources": {
+        "salary": "https://www.spotrac.com/nba/player/_/id/6305/ricky-rubio"
+      },
+      "rank": 2,
+      "position": 2,
+      "cashflow_scenario": {
+        "temporary_escrow_usd": 42467.2,
+        "initial_before_tax_payable_usd": 382204.8,
+        "modeled_final_reduction_usd": 23272.03,
+        "modeled_refund_before_tax_usd": 19195.17,
+        "modeled_additional_collection_before_tax_usd": 0,
+        "supplemental_settlement_payment_before_tax_usd": 0.0,
+        "settled_before_tax_gross_usd": 401399.97,
+        "actual_net_payroll_deposit_usd": null,
+        "actual_settlement_payment_date": null
+      },
+      "age": 35,
+      "birth_date": "1990-10-21",
+      "age_as_of": "2026-10-10",
+      "age_status": "known",
+      "age_source": {
+        "source_url": "https://nba.hupu.com/players/rickyrubio-3345.html",
+        "source_english_name": "Ricky Rubio",
+        "retrieval": "public_profile_or_draft_record"
+      },
+      "birth_date_checked": "2026-10-10",
+      "roster_status_label": "非现役·保留付款",
+      "roster_team_display": "付款球队：骑士",
+      "roster_status_note": "按薪资快照的Active Roster分类；非现役不等于已确认退役。"
+    },
+    {
+      "season": "2026-27",
+      "player_id": "6159",
+      "player": "JaVale McGee",
+      "team": "DAL",
+      "team_zh": "独行侠",
+      "active_roster": false,
+      "spotrac_salary_usd": 2208856.0,
+      "estimated_net_usd": 1306606.43,
+      "rounded_net_usd": 1310000,
+      "estimated_tax_usd": 781204.26,
+      "effective_tax_rate": 0.37417389434776355,
+      "team_tax_context": {
+        "team_state": "TX",
+        "team_state_zh": "得克萨斯州",
+        "team_in_no_state_income_tax_state": true,
+        "badge": "免税州（无州个人所得税）",
+        "display_team": "独行侠｜得克萨斯州（免税州）",
+        "residence_scenario_has_no_state_income_tax": true,
+        "scope_note": "标签指球队所在州，不确认球员真实税籍；仍计算联邦税、雇员工资税和适用的客场州/地方税。"
+      },
+      "captured_date": "2026-10-09",
+      "model_version": "2026-27.3.0",
+      "tax_checked_date": "2026-10-09",
+      "query_path": "precomputed_cache",
+      "residence_scenario": {
+        "country": "US",
+        "state": "TX",
+        "city": "Dallas"
+      },
+      "gross_usd": 2087810.6912,
+      "contract_gross_usd": 2208856.0,
+      "extra_cup_bonus_usd": 0.0,
+      "escrow_scenario": {
+        "withholding_rate": 0.1,
+        "final_reduction_rate": 0.0548,
+        "prior_season_final_reduction_rate": 0.0548,
+        "settlement_bonus_usd": 0.0,
+        "label": "按5.48%历史扣减比例参照的税后情景（非本赛季已知结算）",
+        "selection_reason": "historical_2025_26_reference_not_current_season_forecast",
+        "supplemental_payment_status": "unknown_default_zero",
+        "current_season_rate_status": "unknown_assumption",
+        "actual_2026_27_rate_known": false,
+        "historical_reference_season": "2025-26",
+        "prior_season_rate_status": "reported_aggregate_reference_not_individual_payroll_verified",
+        "legacy_escrow_rate_used": false,
+        "timing_note": "按24期比例归属税年；实际预扣、返还日期及税务处理未知。"
+      },
+      "settlement_impact": {
+        "gross_reduction_usd": 121045.31,
+        "supplemental_payment_usd": 0.0,
+        "net_gross_adjustment_usd": -121045.31,
+        "tax_reduction_usd": 47309.53,
+        "net_reduction_usd": 73735.78
+      },
+      "extra_settlement_bonus_usd": 0.0,
+      "calculation_type": "modeled_settlement_adjusted_after_tax_income_not_bank_deposit",
+      "filing_scenario": {
+        "status": "single",
+        "selection_reason": "marriage_unverified_single_table_reference_with_MFJ_comparison",
+        "actual_filing_status": "unknown",
+        "note": "婚姻资料未知，采用Single税表情景；不认定球员单身。"
+      },
+      "tax_profile": {
+        "marital_status": "unknown",
+        "actual_filing_status": "unknown",
+        "as_of": "2026-10-09"
+      },
+      "filing_scenarios": {
+        "single": {
+          "estimated_net_usd": 1306606.43,
+          "rounded_net_usd": 1310000
+        },
+        "mfj": {
+          "estimated_net_usd": 1346806.18,
+          "rounded_net_usd": 1350000
+        }
+      },
+      "specific_uncertainties": [
+        "联盟结算：2026–27实际扣减率未知，本次用5.48%假设；默认5.48%来自上季汇总报道，不能视为本季或个人已定结果。",
+        "跨年托管税务：暂按调整后的工资比例归属2026/2027税年，上季扣减假设5.48%；实际付款、退款与税表处理可能不同。",
+        "婚姻资料未核实或不足以确认税年末状态；Single/MFJ均为工资测算情景，不将资料未知认定为单身。",
+        "包含Dead Money/Retained等非当前服务付款；来源暂按假定居民地，且最终扣减率统一用于Spotrac现金额；实际适用扣减及工资性质需逐笔核定。"
+      ],
+      "contract_baseline": {
+        "estimated_net_usd": 1380342.21,
+        "rounded_net_usd": 1380000,
+        "estimated_tax_usd": 828513.79,
+        "gross_usd": 2208856.0
+      },
+      "sources": {
+        "salary": "https://www.spotrac.com/nba/player/_/id/6159/javale-mcgee"
+      },
+      "rank": 3,
+      "position": 3,
+      "cashflow_scenario": {
+        "temporary_escrow_usd": 220885.6,
+        "initial_before_tax_payable_usd": 1987970.4,
+        "modeled_final_reduction_usd": 121045.31,
+        "modeled_refund_before_tax_usd": 99840.29,
+        "modeled_additional_collection_before_tax_usd": 0,
+        "supplemental_settlement_payment_before_tax_usd": 0.0,
+        "settled_before_tax_gross_usd": 2087810.69,
+        "actual_net_payroll_deposit_usd": null,
+        "actual_settlement_payment_date": null
+      },
+      "age": 38,
+      "birth_date": "1988-01-19",
+      "age_as_of": "2026-10-10",
+      "age_status": "known",
+      "age_source": {
+        "source_url": "https://nba.hupu.com/players/javalemcgee-3038.html",
+        "source_english_name": "JaVale McGee",
+        "retrieval": "public_profile_or_draft_record"
+      },
+      "birth_date_checked": "2026-10-10",
+      "roster_status_label": "非现役·保留付款",
+      "roster_team_display": "付款球队：独行侠｜得克萨斯州（免税州）",
+      "roster_status_note": "按薪资快照的Active Roster分类；非现役不等于已确认退役。"
+    },
+    {
+      "season": "2026-27",
+      "player_id": "2532",
+      "player": "Mike Conley",
+      "team": "BOS",
+      "team_zh": "凯尔特人",
+      "active_roster": true,
+      "spotrac_salary_usd": 3876529.0,
+      "estimated_net_usd": 1992822.44,
+      "rounded_net_usd": 1990000,
+      "estimated_tax_usd": 1671272.77,
+      "effective_tax_rate": 0.4561215460208849,
+      "team_tax_context": {
+        "team_state": "MA",
+        "team_state_zh": null,
+        "team_in_no_state_income_tax_state": false,
+        "badge": null,
+        "display_team": "凯尔特人",
+        "residence_scenario_has_no_state_income_tax": false,
+        "scope_note": "标签指球队所在州，不确认球员真实税籍；仍计算联邦税、雇员工资税和适用的客场州/地方税。"
+      },
+      "captured_date": "2026-10-09",
+      "model_version": "2026-27.3.0",
+      "tax_checked_date": "2026-10-09",
+      "query_path": "precomputed_cache",
+      "residence_scenario": {
+        "country": "US",
+        "state": "MA",
+        "city": "Boston"
+      },
+      "gross_usd": 3664095.2108,
+      "contract_gross_usd": 3876529.0,
+      "extra_cup_bonus_usd": 0.0,
+      "escrow_scenario": {
+        "withholding_rate": 0.1,
+        "final_reduction_rate": 0.0548,
+        "prior_season_final_reduction_rate": 0.0548,
+        "settlement_bonus_usd": 0.0,
+        "label": "按5.48%历史扣减比例参照的税后情景（非本赛季已知结算）",
+        "selection_reason": "historical_2025_26_reference_not_current_season_forecast",
+        "supplemental_payment_status": "unknown_default_zero",
+        "current_season_rate_status": "unknown_assumption",
+        "actual_2026_27_rate_known": false,
+        "historical_reference_season": "2025-26",
+        "prior_season_rate_status": "reported_aggregate_reference_not_individual_payroll_verified",
+        "legacy_escrow_rate_used": false,
+        "timing_note": "按24期比例归属税年；实际预扣、返还日期及税务处理未知。"
+      },
+      "settlement_impact": {
+        "gross_reduction_usd": 212433.79,
+        "supplemental_payment_usd": 0.0,
+        "net_gross_adjustment_usd": -212433.79,
+        "tax_reduction_usd": 102881.43,
+        "net_reduction_usd": 109552.36
+      },
+      "extra_settlement_bonus_usd": 0.0,
+      "calculation_type": "modeled_settlement_adjusted_after_tax_income_not_bank_deposit",
+      "filing_scenario": {
+        "status": "mfj",
+        "selection_reason": "reported_married_MFJ_wage_only_assumption",
+        "actual_filing_status": "unknown",
+        "note": "MFJ仅纳入球员工资，未核实实际合报方式及配偶收入。"
+      },
+      "tax_profile": {
+        "marital_status": "married",
+        "actual_filing_status": "unknown",
+        "as_of": "2026-10-09"
+      },
+      "filing_scenarios": {
+        "mfj": {
+          "estimated_net_usd": 1992822.44,
+          "rounded_net_usd": 1990000
+        },
+        "single": {
+          "estimated_net_usd": 1955595.31,
+          "rounded_net_usd": 1960000
+        }
+      },
+      "specific_uncertainties": [
+        "联盟结算：2026–27实际扣减率未知，本次用5.48%假设；默认5.48%来自上季汇总报道，不能视为本季或个人已定结果。",
+        "跨年托管税务：暂按调整后的工资比例归属2026/2027税年，上季扣减假设5.48%；实际付款、退款与税表处理可能不同。",
+        "夫妻合报情景只纳入球员工资，配偶收入未纳入模型，不代表配偶实际没有收入；实际申报方式与家庭税负归属仍未知。",
+        "公开已婚资料用于选择MFJ估算情景；历史婚姻记录不证明2026/2027年末状态，也不证明其实际联合报税。"
+      ],
+      "contract_baseline": {
+        "estimated_net_usd": 2102374.8,
+        "rounded_net_usd": 2100000,
+        "estimated_tax_usd": 1774154.2,
+        "gross_usd": 3876529.0
+      },
+      "sources": {
+        "salary": "https://www.spotrac.com/nba/player/_/id/2532/mike-conley"
+      },
+      "rank": 4,
+      "position": 4,
+      "cashflow_scenario": {
+        "temporary_escrow_usd": 387652.9,
+        "initial_before_tax_payable_usd": 3488876.1,
+        "modeled_final_reduction_usd": 212433.79,
+        "modeled_refund_before_tax_usd": 175219.11,
+        "modeled_additional_collection_before_tax_usd": 0,
+        "supplemental_settlement_payment_before_tax_usd": 0.0,
+        "settled_before_tax_gross_usd": 3664095.21,
+        "actual_net_payroll_deposit_usd": null,
+        "actual_settlement_payment_date": null
+      },
+      "age": 38,
+      "birth_date": "1987-10-11",
+      "age_as_of": "2026-10-10",
+      "age_status": "known",
+      "age_source": {
+        "birth_date": "1987-10-11",
+        "source_url": "https://nba.hupu.com/players/celtics",
+        "source_player_url": "https://nba.hupu.com/players/mikeconley-1411.html",
+        "source_english_name": "Mike Conley"
+      },
+      "birth_date_checked": "2026-10-10",
+      "roster_status_label": "现役",
+      "roster_team_display": "凯尔特人",
+      "roster_status_note": "按薪资快照的Active Roster分类；非现役不等于已确认退役。"
+    },
+    {
+      "season": "2026-27",
+      "player_id": "2257",
+      "player": "LeBron James",
+      "team": "PHI",
+      "team_zh": "76人",
+      "active_roster": true,
+      "spotrac_salary_usd": 3876529.0,
+      "estimated_net_usd": 2014679.9,
+      "rounded_net_usd": 2010000,
+      "estimated_tax_usd": 1649415.31,
+      "effective_tax_rate": 0.450156236131475,
+      "team_tax_context": {
+        "team_state": "PA",
+        "team_state_zh": null,
+        "team_in_no_state_income_tax_state": false,
+        "badge": null,
+        "display_team": "76人",
+        "residence_scenario_has_no_state_income_tax": false,
+        "scope_note": "标签指球队所在州，不确认球员真实税籍；仍计算联邦税、雇员工资税和适用的客场州/地方税。"
+      },
+      "captured_date": "2026-10-09",
+      "model_version": "2026-27.3.0",
+      "tax_checked_date": "2026-10-09",
+      "query_path": "precomputed_cache",
+      "residence_scenario": {
+        "country": "US",
+        "state": "PA",
+        "city": "Philadelphia"
+      },
+      "gross_usd": 3664095.2108,
+      "contract_gross_usd": 3876529.0,
+      "extra_cup_bonus_usd": 0.0,
+      "escrow_scenario": {
+        "withholding_rate": 0.1,
+        "final_reduction_rate": 0.0548,
+        "prior_season_final_reduction_rate": 0.0548,
+        "settlement_bonus_usd": 0.0,
+        "label": "按5.48%历史扣减比例参照的税后情景（非本赛季已知结算）",
+        "selection_reason": "historical_2025_26_reference_not_current_season_forecast",
+        "supplemental_payment_status": "unknown_default_zero",
+        "current_season_rate_status": "unknown_assumption",
+        "actual_2026_27_rate_known": false,
+        "historical_reference_season": "2025-26",
+        "prior_season_rate_status": "reported_aggregate_reference_not_individual_payroll_verified",
+        "legacy_escrow_rate_used": false,
+        "timing_note": "按24期比例归属税年；实际预扣、返还日期及税务处理未知。"
+      },
+      "settlement_impact": {
+        "gross_reduction_usd": 212433.79,
+        "supplemental_payment_usd": 0.0,
+        "net_gross_adjustment_usd": -212433.79,
+        "tax_reduction_usd": 99621.06,
+        "net_reduction_usd": 112812.73
+      },
+      "extra_settlement_bonus_usd": 0.0,
+      "calculation_type": "modeled_settlement_adjusted_after_tax_income_not_bank_deposit",
+      "filing_scenario": {
+        "status": "mfj",
+        "selection_reason": "reported_married_MFJ_wage_only_assumption",
+        "actual_filing_status": "unknown",
+        "note": "MFJ仅纳入球员工资，未核实实际合报方式及配偶收入。"
+      },
+      "tax_profile": {
+        "marital_status": "married",
+        "actual_filing_status": "unknown",
+        "as_of": "2026-10-09"
+      },
+      "filing_scenarios": {
+        "mfj": {
+          "estimated_net_usd": 2014679.9,
+          "rounded_net_usd": 2010000
+        },
+        "single": {
+          "estimated_net_usd": 1979730.16,
+          "rounded_net_usd": 1980000
+        }
+      },
+      "specific_uncertainties": [
+        "联盟结算：2026–27实际扣减率未知，本次用5.48%假设；默认5.48%来自上季汇总报道，不能视为本季或个人已定结果。",
+        "跨年托管税务：暂按调整后的工资比例归属2026/2027税年，上季扣减假设5.48%；实际付款、退款与税表处理可能不同。",
+        "夫妻合报情景只纳入球员工资，配偶收入未纳入模型，不代表配偶实际没有收入；实际申报方式与家庭税负归属仍未知。",
+        "公开已婚资料用于选择MFJ估算情景；历史婚姻记录不证明2026/2027年末状态，也不证明其实际联合报税。",
+        "假设住在球队所在城市/县；实际住在郊区或另一税区，地方税可明显不同。"
+      ],
+      "contract_baseline": {
+        "estimated_net_usd": 2127492.63,
+        "rounded_net_usd": 2130000,
+        "estimated_tax_usd": 1749036.37,
+        "gross_usd": 3876529.0
+      },
+      "sources": {
+        "salary": "https://www.spotrac.com/nba/player/_/id/2257/lebron-james"
+      },
+      "rank": 5,
+      "position": 5,
+      "cashflow_scenario": {
+        "temporary_escrow_usd": 387652.9,
+        "initial_before_tax_payable_usd": 3488876.1,
+        "modeled_final_reduction_usd": 212433.79,
+        "modeled_refund_before_tax_usd": 175219.11,
+        "modeled_additional_collection_before_tax_usd": 0,
+        "supplemental_settlement_payment_before_tax_usd": 0.0,
+        "settled_before_tax_gross_usd": 3664095.21,
+        "actual_net_payroll_deposit_usd": null,
+        "actual_settlement_payment_date": null
+      },
+      "age": 41,
+      "birth_date": "1984-12-30",
+      "age_as_of": "2026-10-10",
+      "age_status": "known",
+      "age_source": {
+        "birth_date": "1984-12-30",
+        "source_url": "https://nba.hupu.com/players/76ers",
+        "source_player_url": "https://nba.hupu.com/players/lebronjames-650.html",
+        "source_english_name": "LeBron James"
+      },
+      "birth_date_checked": "2026-10-10",
+      "roster_status_label": "现役",
+      "roster_team_display": "76人",
+      "roster_status_note": "按薪资快照的Active Roster分类；非现役不等于已确认退役。"
+    },
+    {
+      "season": "2026-27",
+      "player_id": "6117",
+      "player": "DeAndre Jordan",
+      "team": "NOP",
+      "team_zh": "鹈鹕",
+      "active_roster": true,
+      "spotrac_salary_usd": 3876529.0,
+      "estimated_net_usd": 2122484.79,
+      "rounded_net_usd": 2120000,
+      "estimated_tax_usd": 1541610.42,
+      "effective_tax_rate": 0.4207342698115305,
+      "team_tax_context": {
+        "team_state": "LA",
+        "team_state_zh": null,
+        "team_in_no_state_income_tax_state": false,
+        "badge": null,
+        "display_team": "鹈鹕",
+        "residence_scenario_has_no_state_income_tax": false,
+        "scope_note": "标签指球队所在州，不确认球员真实税籍；仍计算联邦税、雇员工资税和适用的客场州/地方税。"
+      },
+      "captured_date": "2026-10-09",
+      "model_version": "2026-27.3.0",
+      "tax_checked_date": "2026-10-09",
+      "query_path": "precomputed_cache",
+      "residence_scenario": {
+        "country": "US",
+        "state": "LA",
+        "city": "New Orleans"
+      },
+      "gross_usd": 3664095.2108,
+      "contract_gross_usd": 3876529.0,
+      "extra_cup_bonus_usd": 0.0,
+      "escrow_scenario": {
+        "withholding_rate": 0.1,
+        "final_reduction_rate": 0.0548,
+        "prior_season_final_reduction_rate": 0.0548,
+        "settlement_bonus_usd": 0.0,
+        "label": "按5.48%历史扣减比例参照的税后情景（非本赛季已知结算）",
+        "selection_reason": "historical_2025_26_reference_not_current_season_forecast",
+        "supplemental_payment_status": "unknown_default_zero",
+        "current_season_rate_status": "unknown_assumption",
+        "actual_2026_27_rate_known": false,
+        "historical_reference_season": "2025-26",
+        "prior_season_rate_status": "reported_aggregate_reference_not_individual_payroll_verified",
+        "legacy_escrow_rate_used": false,
+        "timing_note": "按24期比例归属税年；实际预扣、返还日期及税务处理未知。"
+      },
+      "settlement_impact": {
+        "gross_reduction_usd": 212433.79,
+        "supplemental_payment_usd": 0.0,
+        "net_gross_adjustment_usd": -212433.79,
+        "tax_reduction_usd": 91489.84,
+        "net_reduction_usd": 120943.95
+      },
+      "extra_settlement_bonus_usd": 0.0,
+      "calculation_type": "modeled_settlement_adjusted_after_tax_income_not_bank_deposit",
+      "filing_scenario": {
+        "status": "single",
+        "selection_reason": "marriage_unverified_single_table_reference_with_MFJ_comparison",
+        "actual_filing_status": "unknown",
+        "note": "婚姻资料未知，采用Single税表情景；不认定球员单身。"
+      },
+      "tax_profile": {
+        "marital_status": "unknown",
+        "actual_filing_status": "unknown",
+        "as_of": "2026-10-09"
+      },
+      "filing_scenarios": {
+        "single": {
+          "estimated_net_usd": 2122484.79,
+          "rounded_net_usd": 2120000
+        },
+        "mfj": {
+          "estimated_net_usd": 2164769.55,
+          "rounded_net_usd": 2160000
+        }
+      },
+      "specific_uncertainties": [
+        "联盟结算：2026–27实际扣减率未知，本次用5.48%假设；默认5.48%来自上季汇总报道，不能视为本季或个人已定结果。",
+        "跨年托管税务：暂按调整后的工资比例归属2026/2027税年，上季扣减假设5.48%；实际付款、退款与税表处理可能不同。",
+        "婚姻资料未核实或不足以确认税年末状态；Single/MFJ均为工资测算情景，不将资料未知认定为单身。",
+        "含海外比赛：用固定汇率与境外税则代理估算；实际跨国分摊、费用、协定及最终抵免可能不同。"
+      ],
+      "contract_baseline": {
+        "estimated_net_usd": 2243428.74,
+        "rounded_net_usd": 2240000,
+        "estimated_tax_usd": 1633100.26,
+        "gross_usd": 3876529.0
+      },
+      "sources": {
+        "salary": "https://www.spotrac.com/nba/player/_/id/6117/deandre-jordan"
+      },
+      "rank": 6,
+      "position": 6,
+      "cashflow_scenario": {
+        "temporary_escrow_usd": 387652.9,
+        "initial_before_tax_payable_usd": 3488876.1,
+        "modeled_final_reduction_usd": 212433.79,
+        "modeled_refund_before_tax_usd": 175219.11,
+        "modeled_additional_collection_before_tax_usd": 0,
+        "supplemental_settlement_payment_before_tax_usd": 0.0,
+        "settled_before_tax_gross_usd": 3664095.21,
+        "actual_net_payroll_deposit_usd": null,
+        "actual_settlement_payment_date": null
+      },
+      "age": 38,
+      "birth_date": "1988-07-21",
+      "age_as_of": "2026-10-10",
+      "age_status": "known",
+      "age_source": {
+        "birth_date": "1988-07-21",
+        "source_url": "https://nba.hupu.com/players/pelicans",
+        "source_player_url": "https://nba.hupu.com/players/deandrejordan-3014.html",
+        "source_english_name": "DeAndre Jordan"
+      },
+      "birth_date_checked": "2026-10-10",
+      "roster_status_label": "现役",
+      "roster_team_display": "鹈鹕",
+      "roster_status_note": "按薪资快照的Active Roster分类；非现役不等于已确认退役。"
+    },
+    {
+      "season": "2026-27",
+      "player_id": "15397",
+      "player": "Dwight Powell",
+      "team": "DAL",
+      "team_zh": "独行侠",
+      "active_roster": true,
+      "spotrac_salary_usd": 3876529.0,
+      "estimated_net_usd": 2207642.85,
+      "rounded_net_usd": 2210000,
+      "estimated_tax_usd": 1456452.36,
+      "effective_tax_rate": 0.3974930434256721,
+      "team_tax_context": {
+        "team_state": "TX",
+        "team_state_zh": "得克萨斯州",
+        "team_in_no_state_income_tax_state": true,
+        "badge": "免税州（无州个人所得税）",
+        "display_team": "独行侠｜得克萨斯州（免税州）",
+        "residence_scenario_has_no_state_income_tax": true,
+        "scope_note": "标签指球队所在州，不确认球员真实税籍；仍计算联邦税、雇员工资税和适用的客场州/地方税。"
+      },
+      "captured_date": "2026-10-09",
+      "model_version": "2026-27.3.0",
+      "tax_checked_date": "2026-10-09",
+      "query_path": "precomputed_cache",
+      "residence_scenario": {
+        "country": "US",
+        "state": "TX",
+        "city": "Dallas"
+      },
+      "gross_usd": 3664095.2108,
+      "contract_gross_usd": 3876529.0,
+      "extra_cup_bonus_usd": 0.0,
+      "escrow_scenario": {
+        "withholding_rate": 0.1,
+        "final_reduction_rate": 0.0548,
+        "prior_season_final_reduction_rate": 0.0548,
+        "settlement_bonus_usd": 0.0,
+        "label": "按5.48%历史扣减比例参照的税后情景（非本赛季已知结算）",
+        "selection_reason": "historical_2025_26_reference_not_current_season_forecast",
+        "supplemental_payment_status": "unknown_default_zero",
+        "current_season_rate_status": "unknown_assumption",
+        "actual_2026_27_rate_known": false,
+        "historical_reference_season": "2025-26",
+        "prior_season_rate_status": "reported_aggregate_reference_not_individual_payroll_verified",
+        "legacy_escrow_rate_used": false,
+        "timing_note": "按24期比例归属税年；实际预扣、返还日期及税务处理未知。"
+      },
+      "settlement_impact": {
+        "gross_reduction_usd": 212433.79,
+        "supplemental_payment_usd": 0.0,
+        "net_gross_adjustment_usd": -212433.79,
+        "tax_reduction_usd": 86530.56,
+        "net_reduction_usd": 125903.23
+      },
+      "extra_settlement_bonus_usd": 0.0,
+      "calculation_type": "modeled_settlement_adjusted_after_tax_income_not_bank_deposit",
+      "filing_scenario": {
+        "status": "single",
+        "selection_reason": "marriage_unverified_single_table_reference_with_MFJ_comparison",
+        "actual_filing_status": "unknown",
+        "note": "婚姻资料未知，采用Single税表情景；不认定球员单身。"
+      },
+      "tax_profile": {
+        "marital_status": "unknown",
+        "actual_filing_status": "unknown",
+        "as_of": "2026-10-09"
+      },
+      "filing_scenarios": {
+        "single": {
+          "estimated_net_usd": 2207642.85,
+          "rounded_net_usd": 2210000
+        },
+        "mfj": {
+          "estimated_net_usd": 2249113.15,
+          "rounded_net_usd": 2250000
+        }
+      },
+      "specific_uncertainties": [
+        "联盟结算：2026–27实际扣减率未知，本次用5.48%假设；默认5.48%来自上季汇总报道，不能视为本季或个人已定结果。",
+        "跨年托管税务：暂按调整后的工资比例归属2026/2027税年，上季扣减假设5.48%；实际付款、退款与税表处理可能不同。",
+        "婚姻资料未核实或不足以确认税年末状态；Single/MFJ均为工资测算情景，不将资料未知认定为单身。"
+      ],
+      "contract_baseline": {
+        "estimated_net_usd": 2333546.08,
+        "rounded_net_usd": 2330000,
+        "estimated_tax_usd": 1542982.92,
+        "gross_usd": 3876529.0
+      },
+      "sources": {
+        "salary": "https://www.spotrac.com/nba/player/_/id/15397/dwight-powell"
+      },
+      "rank": 7,
+      "position": 7,
+      "cashflow_scenario": {
+        "temporary_escrow_usd": 387652.9,
+        "initial_before_tax_payable_usd": 3488876.1,
+        "modeled_final_reduction_usd": 212433.79,
+        "modeled_refund_before_tax_usd": 175219.11,
+        "modeled_additional_collection_before_tax_usd": 0,
+        "supplemental_settlement_payment_before_tax_usd": 0.0,
+        "settled_before_tax_gross_usd": 3664095.21,
+        "actual_net_payroll_deposit_usd": null,
+        "actual_settlement_payment_date": null
+      },
+      "age": 35,
+      "birth_date": "1991-07-20",
+      "age_as_of": "2026-10-10",
+      "age_status": "known",
+      "age_source": {
+        "birth_date": "1991-07-20",
+        "source_url": "https://nba.hupu.com/players/mavericks",
+        "source_player_url": "https://nba.hupu.com/players/dwightpowell-4967.html",
+        "source_english_name": "Dwight Powell"
+      },
+      "birth_date_checked": "2026-10-10",
+      "roster_status_label": "现役",
+      "roster_team_display": "独行侠｜得克萨斯州（免税州）",
+      "roster_status_note": "按薪资快照的Active Roster分类；非现役不等于已确认退役。"
+    },
+    {
+      "season": "2026-27",
+      "player_id": "8067",
+      "player": "Nikola Vucevic",
+      "team": "ORL",
+      "team_zh": "魔术",
+      "active_roster": true,
+      "spotrac_salary_usd": 3876529.0,
+      "estimated_net_usd": 2238863.99,
+      "rounded_net_usd": 2240000,
+      "estimated_tax_usd": 1425231.22,
+      "effective_tax_rate": 0.38897221335928955,
+      "team_tax_context": {
+        "team_state": "FL",
+        "team_state_zh": "佛罗里达州",
+        "team_in_no_state_income_tax_state": true,
+        "badge": "免税州（无州个人所得税）",
+        "display_team": "魔术｜佛罗里达州（免税州）",
+        "residence_scenario_has_no_state_income_tax": true,
+        "scope_note": "标签指球队所在州，不确认球员真实税籍；仍计算联邦税、雇员工资税和适用的客场州/地方税。"
+      },
+      "captured_date": "2026-10-09",
+      "model_version": "2026-27.3.0",
+      "tax_checked_date": "2026-10-09",
+      "query_path": "precomputed_cache",
+      "residence_scenario": {
+        "country": "US",
+        "state": "FL",
+        "city": "Orlando"
+      },
+      "gross_usd": 3664095.2108,
+      "contract_gross_usd": 3876529.0,
+      "extra_cup_bonus_usd": 0.0,
+      "escrow_scenario": {
+        "withholding_rate": 0.1,
+        "final_reduction_rate": 0.0548,
+        "prior_season_final_reduction_rate": 0.0548,
+        "settlement_bonus_usd": 0.0,
+        "label": "按5.48%历史扣减比例参照的税后情景（非本赛季已知结算）",
+        "selection_reason": "historical_2025_26_reference_not_current_season_forecast",
+        "supplemental_payment_status": "unknown_default_zero",
+        "current_season_rate_status": "unknown_assumption",
+        "actual_2026_27_rate_known": false,
+        "historical_reference_season": "2025-26",
+        "prior_season_rate_status": "reported_aggregate_reference_not_individual_payroll_verified",
+        "legacy_escrow_rate_used": false,
+        "timing_note": "按24期比例归属税年；实际预扣、返还日期及税务处理未知。"
+      },
+      "settlement_impact": {
+        "gross_reduction_usd": 212433.79,
+        "supplemental_payment_usd": 0.0,
+        "net_gross_adjustment_usd": -212433.79,
+        "tax_reduction_usd": 86643.23,
+        "net_reduction_usd": 125790.56
+      },
+      "extra_settlement_bonus_usd": 0.0,
+      "calculation_type": "modeled_settlement_adjusted_after_tax_income_not_bank_deposit",
+      "filing_scenario": {
+        "status": "mfj",
+        "selection_reason": "reported_married_MFJ_wage_only_assumption",
+        "actual_filing_status": "unknown",
+        "note": "MFJ仅纳入球员工资，未核实实际合报方式及配偶收入。"
+      },
+      "tax_profile": {
+        "marital_status": "married",
+        "actual_filing_status": "unknown",
+        "as_of": "2026-10-09"
+      },
+      "filing_scenarios": {
+        "mfj": {
+          "estimated_net_usd": 2238863.99,
+          "rounded_net_usd": 2240000
+        },
+        "single": {
+          "estimated_net_usd": 2202967.69,
+          "rounded_net_usd": 2200000
+        }
+      },
+      "specific_uncertainties": [
+        "联盟结算：2026–27实际扣减率未知，本次用5.48%假设；默认5.48%来自上季汇总报道，不能视为本季或个人已定结果。",
+        "跨年托管税务：暂按调整后的工资比例归属2026/2027税年，上季扣减假设5.48%；实际付款、退款与税表处理可能不同。",
+        "夫妻合报情景只纳入球员工资，配偶收入未纳入模型，不代表配偶实际没有收入；实际申报方式与家庭税负归属仍未知。",
+        "公开已婚资料用于选择MFJ估算情景；历史婚姻记录不证明2026/2027年末状态，也不证明其实际联合报税。"
+      ],
+      "contract_baseline": {
+        "estimated_net_usd": 2364654.55,
+        "rounded_net_usd": 2360000,
+        "estimated_tax_usd": 1511874.45,
+        "gross_usd": 3876529.0
+      },
+      "sources": {
+        "salary": "https://www.spotrac.com/nba/player/_/id/8067/nikola-vucevic"
+      },
+      "rank": 8,
+      "position": 8,
+      "cashflow_scenario": {
+        "temporary_escrow_usd": 387652.9,
+        "initial_before_tax_payable_usd": 3488876.1,
+        "modeled_final_reduction_usd": 212433.79,
+        "modeled_refund_before_tax_usd": 175219.11,
+        "modeled_additional_collection_before_tax_usd": 0,
+        "supplemental_settlement_payment_before_tax_usd": 0.0,
+        "settled_before_tax_gross_usd": 3664095.21,
+        "actual_net_payroll_deposit_usd": null,
+        "actual_settlement_payment_date": null
+      },
+      "age": 35,
+      "birth_date": "1990-10-24",
+      "age_as_of": "2026-10-10",
+      "age_status": "known",
+      "age_source": {
+        "birth_date": "1990-10-24",
+        "source_url": "https://nba.hupu.com/players/magic",
+        "source_player_url": "https://nba.hupu.com/players/nikolavucevic-3569.html",
+        "source_english_name": "Nikola Vučević"
+      },
+      "birth_date_checked": "2026-10-10",
+      "roster_status_label": "现役",
+      "roster_team_display": "魔术｜佛罗里达州（免税州）",
+      "roster_status_note": "按薪资快照的Active Roster分类；非现役不等于已确认退役。"
+    },
+    {
+      "season": "2026-27",
+      "player_id": "10864",
+      "player": "Khris Middleton",
+      "team": "WAS",
+      "team_zh": "奇才",
+      "active_roster": true,
+      "spotrac_salary_usd": 5591122.0,
+      "estimated_net_usd": 2679587.91,
+      "rounded_net_usd": 2680000,
+      "estimated_tax_usd": 2605140.6,
+      "effective_tax_rate": 0.4929563725730454,
+      "team_tax_context": {
+        "team_state": "DC",
+        "team_state_zh": null,
+        "team_in_no_state_income_tax_state": false,
+        "badge": null,
+        "display_team": "奇才",
+        "residence_scenario_has_no_state_income_tax": false,
+        "scope_note": "标签指球队所在州，不确认球员真实税籍；仍计算联邦税、雇员工资税和适用的客场州/地方税。"
+      },
+      "captured_date": "2026-10-09",
+      "model_version": "2026-27.3.0",
+      "tax_checked_date": "2026-10-09",
+      "query_path": "precomputed_cache",
+      "residence_scenario": {
+        "country": "US",
+        "state": "DC",
+        "city": "Washington"
+      },
+      "gross_usd": 5284728.514400001,
+      "contract_gross_usd": 5591122.0,
+      "extra_cup_bonus_usd": 0.0,
+      "escrow_scenario": {
+        "withholding_rate": 0.1,
+        "final_reduction_rate": 0.0548,
+        "prior_season_final_reduction_rate": 0.0548,
+        "settlement_bonus_usd": 0.0,
+        "label": "按5.48%历史扣减比例参照的税后情景（非本赛季已知结算）",
+        "selection_reason": "historical_2025_26_reference_not_current_season_forecast",
+        "supplemental_payment_status": "unknown_default_zero",
+        "current_season_rate_status": "unknown_assumption",
+        "actual_2026_27_rate_known": false,
+        "historical_reference_season": "2025-26",
+        "prior_season_rate_status": "reported_aggregate_reference_not_individual_payroll_verified",
+        "legacy_escrow_rate_used": false,
+        "timing_note": "按24期比例归属税年；实际预扣、返还日期及税务处理未知。"
+      },
+      "settlement_impact": {
+        "gross_reduction_usd": 306393.49,
+        "supplemental_payment_usd": 0.0,
+        "net_gross_adjustment_usd": -306393.49,
+        "tax_reduction_usd": 153849.44,
+        "net_reduction_usd": 152544.05
+      },
+      "extra_settlement_bonus_usd": 0.0,
+      "calculation_type": "modeled_settlement_adjusted_after_tax_income_not_bank_deposit",
+      "filing_scenario": {
+        "status": "single",
+        "selection_reason": "marriage_unverified_single_table_reference_with_MFJ_comparison",
+        "actual_filing_status": "unknown",
+        "note": "婚姻资料未知，采用Single税表情景；不认定球员单身。"
+      },
+      "tax_profile": {
+        "marital_status": "unknown",
+        "actual_filing_status": "unknown",
+        "as_of": "2026-10-09"
+      },
+      "filing_scenarios": {
+        "single": {
+          "estimated_net_usd": 2679587.91,
+          "rounded_net_usd": 2680000
+        },
+        "mfj": {
+          "estimated_net_usd": 2715842.2,
+          "rounded_net_usd": 2720000
+        }
+      },
+      "specific_uncertainties": [
+        "联盟结算：2026–27实际扣减率未知，本次用5.48%假设；默认5.48%来自上季汇总报道，不能视为本季或个人已定结果。",
+        "跨年托管税务：暂按调整后的工资比例归属2026/2027税年，上季扣减假设5.48%；实际付款、退款与税表处理可能不同。",
+        "婚姻资料未核实或不足以确认税年末状态；Single/MFJ均为工资测算情景，不将资料未知认定为单身。"
+      ],
+      "contract_baseline": {
+        "estimated_net_usd": 2832131.96,
+        "rounded_net_usd": 2830000,
+        "estimated_tax_usd": 2758990.04,
+        "gross_usd": 5591122.0
+      },
+      "sources": {
+        "salary": "https://www.spotrac.com/nba/player/_/id/10864/khris-middleton"
+      },
+      "rank": 9,
+      "position": 9,
+      "cashflow_scenario": {
+        "temporary_escrow_usd": 559112.2,
+        "initial_before_tax_payable_usd": 5032009.8,
+        "modeled_final_reduction_usd": 306393.49,
+        "modeled_refund_before_tax_usd": 252718.71,
+        "modeled_additional_collection_before_tax_usd": 0,
+        "supplemental_settlement_payment_before_tax_usd": 0.0,
+        "settled_before_tax_gross_usd": 5284728.51,
+        "actual_net_payroll_deposit_usd": null,
+        "actual_settlement_payment_date": null
+      },
+      "age": 35,
+      "birth_date": "1991-08-12",
+      "age_as_of": "2026-10-10",
+      "age_status": "known",
+      "age_source": {
+        "birth_date": "1991-08-12",
+        "source_url": "https://nba.hupu.com/players/wizards",
+        "source_player_url": "https://nba.hupu.com/players/khrismiddleton-3676.html",
+        "source_english_name": "Khris Middleton"
+      },
+      "birth_date_checked": "2026-10-10",
+      "roster_status_label": "现役",
+      "roster_team_display": "奇才",
+      "roster_status_note": "按薪资快照的Active Roster分类；非现役不等于已确认退役。"
+    },
+    {
+      "season": "2026-27",
+      "player_id": "2199",
+      "player": "Al Horford",
+      "team": "GSW",
+      "team_zh": "勇士",
+      "active_roster": true,
+      "spotrac_salary_usd": 6822000.0,
+      "estimated_net_usd": 3100045.37,
+      "rounded_net_usd": 3100000,
+      "estimated_tax_usd": 3348109.03,
+      "effective_tax_rate": 0.519235245678998,
+      "team_tax_context": {
+        "team_state": "CA",
+        "team_state_zh": null,
+        "team_in_no_state_income_tax_state": false,
+        "badge": null,
+        "display_team": "勇士",
+        "residence_scenario_has_no_state_income_tax": false,
+        "scope_note": "标签指球队所在州，不确认球员真实税籍；仍计算联邦税、雇员工资税和适用的客场州/地方税。"
+      },
+      "captured_date": "2026-10-09",
+      "model_version": "2026-27.3.0",
+      "tax_checked_date": "2026-10-09",
+      "query_path": "precomputed_cache",
+      "residence_scenario": {
+        "country": "US",
+        "state": "CA",
+        "city": "San Francisco"
+      },
+      "gross_usd": 6448154.4,
+      "contract_gross_usd": 6822000.0,
+      "extra_cup_bonus_usd": 0.0,
+      "escrow_scenario": {
+        "withholding_rate": 0.1,
+        "final_reduction_rate": 0.0548,
+        "prior_season_final_reduction_rate": 0.0548,
+        "settlement_bonus_usd": 0.0,
+        "label": "按5.48%历史扣减比例参照的税后情景（非本赛季已知结算）",
+        "selection_reason": "historical_2025_26_reference_not_current_season_forecast",
+        "supplemental_payment_status": "unknown_default_zero",
+        "current_season_rate_status": "unknown_assumption",
+        "actual_2026_27_rate_known": false,
+        "historical_reference_season": "2025-26",
+        "prior_season_rate_status": "reported_aggregate_reference_not_individual_payroll_verified",
+        "legacy_escrow_rate_used": false,
+        "timing_note": "按24期比例归属税年；实际预扣、返还日期及税务处理未知。"
+      },
+      "settlement_impact": {
+        "gross_reduction_usd": 373845.6,
+        "supplemental_payment_usd": 0.0,
+        "net_gross_adjustment_usd": -373845.6,
+        "tax_reduction_usd": 200779.24,
+        "net_reduction_usd": 173066.36
+      },
+      "extra_settlement_bonus_usd": 0.0,
+      "calculation_type": "modeled_settlement_adjusted_after_tax_income_not_bank_deposit",
+      "filing_scenario": {
+        "status": "mfj",
+        "selection_reason": "reported_married_MFJ_wage_only_assumption",
+        "actual_filing_status": "unknown",
+        "note": "MFJ仅纳入球员工资，未核实实际合报方式及配偶收入。"
+      },
+      "tax_profile": {
+        "marital_status": "married",
+        "actual_filing_status": "unknown",
+        "as_of": "2026-10-09"
+      },
+      "filing_scenarios": {
+        "mfj": {
+          "estimated_net_usd": 3100045.37,
+          "rounded_net_usd": 3100000
+        },
+        "single": {
+          "estimated_net_usd": 3037604.2,
+          "rounded_net_usd": 3040000
+        }
+      },
+      "specific_uncertainties": [
+        "联盟结算：2026–27实际扣减率未知，本次用5.48%假设；默认5.48%来自上季汇总报道，不能视为本季或个人已定结果。",
+        "跨年托管税务：暂按调整后的工资比例归属2026/2027税年，上季扣减假设5.48%；实际付款、退款与税表处理可能不同。",
+        "夫妻合报情景只纳入球员工资，配偶收入未纳入模型，不代表配偶实际没有收入；实际申报方式与家庭税负归属仍未知。",
+        "公开已婚资料用于选择MFJ估算情景；历史婚姻记录不证明2026/2027年末状态，也不证明其实际联合报税。"
+      ],
+      "contract_baseline": {
+        "estimated_net_usd": 3273111.73,
+        "rounded_net_usd": 3270000,
+        "estimated_tax_usd": 3548888.27,
+        "gross_usd": 6822000.0
+      },
+      "sources": {
+        "salary": "https://www.spotrac.com/nba/player/_/id/2199/al-horford"
+      },
+      "rank": 10,
+      "position": 10,
+      "cashflow_scenario": {
+        "temporary_escrow_usd": 682200.0,
+        "initial_before_tax_payable_usd": 6139800.0,
+        "modeled_final_reduction_usd": 373845.6,
+        "modeled_refund_before_tax_usd": 308354.4,
+        "modeled_additional_collection_before_tax_usd": 0,
+        "supplemental_settlement_payment_before_tax_usd": 0.0,
+        "settled_before_tax_gross_usd": 6448154.4,
+        "actual_net_payroll_deposit_usd": null,
+        "actual_settlement_payment_date": null
+      },
+      "age": 40,
+      "birth_date": "1986-06-03",
+      "age_as_of": "2026-10-10",
+      "age_status": "known",
+      "age_source": {
+        "birth_date": "1986-06-03",
+        "source_url": "https://nba.hupu.com/players/warriors",
+        "source_player_url": "https://nba.hupu.com/players/alhorford-1239.html",
+        "source_english_name": "Al Horford"
+      },
+      "birth_date_checked": "2026-10-10",
+      "roster_status_label": "现役",
+      "roster_team_display": "勇士",
+      "roster_status_note": "按薪资快照的Active Roster分类；非现役不等于已确认退役。"
+    }
+  ]
+}

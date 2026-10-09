@@ -6,7 +6,9 @@
 
 [直接交给 Agent 的安装链接](https://github.com/jesusguy115-crypto/nba-take-home-pay/tree/main/skills/nba-take-home-pay) · [GitHub 仓库](https://github.com/jesusguy115-crypto/nba-take-home-pay) · [下载完整 ZIP](https://github.com/jesusguy115-crypto/nba-take-home-pay/archive/refs/heads/main.zip)
 
-**v0.6.1** 在每行明确显示“现役”或“非现役·保留付款”；非现役记录的球队显示为“付款球队”。分类依薪资快照，不将非现役等同于已退役。联盟排名继续包含全部现金接收者，只看现役可指定 `--scope active`。
+**v0.7.0** 新增固定风格动态薪水账本：深石墨底色、暖白文字、金色横条，内嵌中英文字体；图表、表格和源 JSON 一次生成。可切换金额口径、排序和球员详情，支持手机、离线打开及减少动画设置。图内切换仅重排本次名单。新增 `--order asc` 可直接查询最低薪水。
+
+v0.6.1 在每行明确显示“现役”或“非现役·保留付款”；非现役记录的球队显示为“付款球队”。分类依薪资快照，不将非现役等同于已退役。联盟排名继续包含全部现金接收者，只看现役可指定 `--scope active`。
 
 v0.6.0 加入全员出生日期与年龄筛选，可直接查询“30岁以内税后前十”“未满25岁税后前十”或“25至30岁的森林狼球员”。年龄按查询日计算，生日自动变化，也可指定日期；筛选与排名直接读取本地缓存。
 
@@ -159,3 +161,16 @@ python3 -X utf8 import_data.py --source "已有数据的 assets 文件夹"
 ## 计算方法
 
 见技能内的 [计算方法](skills/nba-take-home-pay/references/methodology.md)、[托管与结算](skills/nba-take-home-pay/references/escrow.md)、[数据覆盖](skills/nba-take-home-pay/references/2026-27-data.md)、[婚姻与申报身份政策](skills/nba-take-home-pay/references/player-profile-policy.md)。主结果已纳入明确假设的最终工资调整；暂扣只列税前现金流，不声称银行实收。返还及补发的实际付款税年未知，默认按原 24 期工资比例归属；经纪费、会费和自愿扣款没有默认扣除。
+
+## 表格与交互图表
+
+在技能目录运行，输出路径可按需修改：
+
+```sh
+python3 -X utf8 scripts/take_home.py --min-age 35 --top 10 --sort net --order asc --age-date 2026-10-10 --brief --json --chart ./35-plus-lowest.html
+python3 -X utf8 scripts/take_home.py '库里' --brief --json --chart ./curry.html
+```
+
+命令同时生成 `.html`、`.md` 与 `.json`，用浏览器打开 HTML 即可交互，不需要服务器或网络。字体和脚本均内嵌。其他 Agent 若不能在聊天中内嵌 HTML，可提供文件下载；仅安装 Skill 不会增加宿主的 HTML 展示能力。
+
+[固定样式说明](skills/nba-take-home-pay/references/chart-design.md) · [示例 HTML](examples/35-plus-lowest.html) · [示例表格](examples/35-plus-lowest.md)。GitHub 文件页展示源码，下载 HTML 后用浏览器打开即可操作。

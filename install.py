@@ -26,7 +26,7 @@ AGENT_DIRECTORIES = {
 REQUIRED_SCRIPTS = (
     "take_home.py", "build_estimates.py", "estimate.py", "duty_days.py",
     "state_labels.py", "player_names.py", "player_ages.py", "data_status.py", "escrow.py", "tax_east.py", "tax_west.py",
-    "tax_federal.py", "query_cache.py", "lookup_2026_27.py",
+    "tax_federal.py", "query_cache.py", "lookup_2026_27.py", "render_chart.py",
     "tax-east.json", "tax-west.json", "tax-federal-crossborder.json", "escrow-rules.json",
 )
 REQUIRED_ASSETS = (
@@ -36,6 +36,10 @@ REQUIRED_ASSETS = (
     "player-tax-profiles-2026-27.json", "net-estimates-2026-27.json",
     "player-name-index-2026-27.json", "player-birthdates-2026-27.json",
 )
+
+CHART_RESOURCES = ("chart-template.html", "fonts/NotoSansSC-subset.woff2",
+    "fonts/BarlowSemiCondensed-latin.woff2", "fonts/NotoSansSC-OFL.txt",
+    "fonts/BarlowSemiCondensed-OFL.txt", "fonts/SOURCES.json")
 
 
 class InstallError(Exception):
@@ -88,6 +92,7 @@ def validate_source(source: Path, *, code_only: bool = False) -> None:
             raise InstallError("技能包缺少目录：{}".format(name))
     required = [source / "SKILL.md"]
     required.extend(source / "scripts" / name for name in REQUIRED_SCRIPTS)
+    required.extend(source / "assets" / name for name in CHART_RESOURCES)
     if not code_only:
         required.extend(source / "assets" / name for name in REQUIRED_ASSETS)
     for path in required:

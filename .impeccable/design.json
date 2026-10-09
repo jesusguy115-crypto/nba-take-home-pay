@@ -1,0 +1,260 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-09T17:49:34.386567+00:00",
+  "title": "Design System: Courtside Ledger",
+  "extensions": {
+    "colorMeta": {
+      "bg": {
+        "role": "neutral",
+        "displayName": "Graphite canvas",
+        "tonalRamp": [
+          "oklch(15.00% 0.00624 236.93)",
+          "oklch(26.43% 0.00624 236.93)",
+          "oklch(37.86% 0.00624 236.93)",
+          "oklch(49.29% 0.00624 236.93)",
+          "oklch(60.71% 0.00624 236.93)",
+          "oklch(72.14% 0.00624 236.93)",
+          "oklch(83.57% 0.00624 236.93)",
+          "oklch(95.00% 0.00624 236.93)"
+        ]
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "Graphite surface",
+        "tonalRamp": [
+          "oklch(15.00% 0.00837 240.26)",
+          "oklch(26.43% 0.00837 240.26)",
+          "oklch(37.86% 0.00837 240.26)",
+          "oklch(49.29% 0.00837 240.26)",
+          "oklch(60.71% 0.00837 240.26)",
+          "oklch(72.14% 0.00837 240.26)",
+          "oklch(83.57% 0.00837 240.26)",
+          "oklch(95.00% 0.00837 240.26)"
+        ]
+      },
+      "hover": {
+        "role": "neutral",
+        "displayName": "Hover surface",
+        "tonalRamp": [
+          "oklch(15.00% 0.00908 234.05)",
+          "oklch(26.43% 0.00908 234.05)",
+          "oklch(37.86% 0.00908 234.05)",
+          "oklch(49.29% 0.00908 234.05)",
+          "oklch(60.71% 0.00908 234.05)",
+          "oklch(72.14% 0.00908 234.05)",
+          "oklch(83.57% 0.00908 234.05)",
+          "oklch(95.00% 0.00908 234.05)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Warm white",
+        "tonalRamp": [
+          "oklch(15.00% 0.01436 84.58)",
+          "oklch(26.43% 0.01436 84.58)",
+          "oklch(37.86% 0.01436 84.58)",
+          "oklch(49.29% 0.01436 84.58)",
+          "oklch(60.71% 0.01436 84.58)",
+          "oklch(72.14% 0.01436 84.58)",
+          "oklch(83.57% 0.01436 84.58)",
+          "oklch(95.00% 0.01436 84.58)"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Muted gray",
+        "tonalRamp": [
+          "oklch(15.00% 0.00800 228.89)",
+          "oklch(26.43% 0.00800 228.89)",
+          "oklch(37.86% 0.00800 228.89)",
+          "oklch(49.29% 0.00800 228.89)",
+          "oklch(60.71% 0.00800 228.89)",
+          "oklch(72.14% 0.00800 228.89)",
+          "oklch(83.57% 0.00800 228.89)",
+          "oklch(95.00% 0.00800 228.89)"
+        ]
+      },
+      "gold": {
+        "role": "primary",
+        "displayName": "Restrained gold",
+        "tonalRamp": [
+          "oklch(15.00% 0.08960 84.64)",
+          "oklch(26.43% 0.08960 84.64)",
+          "oklch(37.86% 0.08960 84.64)",
+          "oklch(49.29% 0.08960 84.64)",
+          "oklch(60.71% 0.08960 84.64)",
+          "oklch(72.14% 0.08960 84.64)",
+          "oklch(83.57% 0.08960 84.64)",
+          "oklch(95.00% 0.08960 84.64)"
+        ]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Ledger rule",
+        "tonalRamp": [
+          "oklch(15.00% 0.00969 229.15)",
+          "oklch(26.43% 0.00969 229.15)",
+          "oklch(37.86% 0.00969 229.15)",
+          "oklch(49.29% 0.00969 229.15)",
+          "oklch(60.71% 0.00969 229.15)",
+          "oklch(72.14% 0.00969 229.15)",
+          "oklch(83.57% 0.00969 229.15)",
+          "oklch(95.00% 0.00969 229.15)"
+        ]
+      },
+      "green": {
+        "role": "secondary",
+        "displayName": "Tax-free green",
+        "tonalRamp": [
+          "oklch(15.00% 0.04817 177.61)",
+          "oklch(26.43% 0.04817 177.61)",
+          "oklch(37.86% 0.04817 177.61)",
+          "oklch(49.29% 0.04817 177.61)",
+          "oklch(60.71% 0.04817 177.61)",
+          "oklch(72.14% 0.04817 177.61)",
+          "oklch(83.57% 0.04817 177.61)",
+          "oklch(95.00% 0.04817 177.61)"
+        ]
+      },
+      "retained": {
+        "role": "neutral",
+        "displayName": "Retained-payment gray",
+        "tonalRamp": [
+          "oklch(15.00% 0.01461 248.02)",
+          "oklch(26.43% 0.01461 248.02)",
+          "oklch(37.86% 0.01461 248.02)",
+          "oklch(49.29% 0.01461 248.02)",
+          "oklch(60.71% 0.01461 248.02)",
+          "oklch(72.14% 0.01461 248.02)",
+          "oklch(83.57% 0.01461 248.02)",
+          "oklch(95.00% 0.01461 248.02)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "headline": {
+        "displayName": "Chinese headline",
+        "purpose": "Query heading."
+      },
+      "amount": {
+        "displayName": "Financial amount",
+        "purpose": "Ranking values using tabular numerals."
+      }
+    },
+    "shadows": [],
+    "motion": [
+      {
+        "name": "bar-duration",
+        "value": "650ms",
+        "purpose": "Bar geometry and value counting."
+      },
+      {
+        "name": "sort-duration",
+        "value": "520ms",
+        "purpose": "Row reordering."
+      },
+      {
+        "name": "surface-duration",
+        "value": "180ms",
+        "purpose": "Control and row hover."
+      },
+      {
+        "name": "ledger-ease",
+        "value": "cubic-bezier(.16,1,.3,1)",
+        "purpose": "Bars and row positions."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "wide",
+        "value": "1550px"
+      },
+      {
+        "name": "compact-desktop",
+        "value": "1120px"
+      },
+      {
+        "name": "stacked-chart",
+        "value": "900px"
+      },
+      {
+        "name": "mobile",
+        "value": "600px"
+      },
+      {
+        "name": "narrow-mobile",
+        "value": "370px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Selected metric",
+      "kind": "button",
+      "refersTo": "metric-active",
+      "description": "Metric control; selection applies to the existing roster.",
+      "html": "<button class=\"ds-metric-active\" aria-pressed=\"true\">税后估值</button>",
+      "css": ".ds-metric-active{font-family:'Ledger Han','PingFang SC','Noto Sans CJK SC','Microsoft YaHei',sans-serif;font-size:14px;line-height:1.65;border:1px solid transparent;border-radius:5px;padding:9px 14px;cursor:pointer;transition:background .18s,color .18s;background:var(--gold,#d7b878);color:var(--bg,#111416);}.ds-metric-active:focus-visible{outline:2px solid var(--gold,#d7b878);outline-offset:5px}"
+    },
+    {
+      "name": "Available metric",
+      "kind": "button",
+      "refersTo": "metric-idle",
+      "description": "Metric control; selection applies to the existing roster.",
+      "html": "<button class=\"ds-metric-idle\" aria-pressed=\"false\">税后估值</button>",
+      "css": ".ds-metric-idle{font-family:'Ledger Han','PingFang SC','Noto Sans CJK SC','Microsoft YaHei',sans-serif;font-size:14px;line-height:1.65;border:1px solid transparent;border-radius:5px;padding:9px 14px;cursor:pointer;transition:background .18s,color .18s;background:transparent;color:var(--ink,#f2ede3);}.ds-metric-idle:focus-visible{outline:2px solid var(--gold,#d7b878);outline-offset:5px}.ds-metric-idle:hover{background:var(--hover,#23282b)}"
+    },
+    {
+      "name": "Sort order",
+      "kind": "input",
+      "refersTo": "order-select",
+      "description": "Native sort selector.",
+      "html": "<label class=\"ds-order\">排序 <select aria-label=\"排序\"><option>从低到高</option><option>从高到低</option><option>查询顺序</option></select></label>",
+      "css": ".ds-order{font-family:'Ledger Han','PingFang SC','Noto Sans CJK SC','Microsoft YaHei',sans-serif;font-size:14px;line-height:1.65;font-size:12px;color:var(--muted,#afb5b8)}.ds-order select{font-family:'Ledger Han','PingFang SC','Noto Sans CJK SC','Microsoft YaHei',sans-serif;font-size:14px;line-height:1.65;background:var(--surface,#191d20);color:var(--ink,#f2ede3);border:1px solid var(--line,#343a3d);padding:8px 27px 8px 10px;border-radius:5px;min-height:40px}.ds-order select:focus-visible{outline:2px solid var(--gold,#d7b878);outline-offset:5px}"
+    },
+    {
+      "name": "Roster status",
+      "kind": "chip",
+      "refersTo": "status-label",
+      "description": "Explicit retained-payment identity.",
+      "html": "<span class=\"ds-status\">非现役·保留付款</span>",
+      "css": ".ds-status{font-family:'Ledger Han','PingFang SC','Noto Sans CJK SC','Microsoft YaHei',sans-serif;font-size:14px;line-height:1.65;font-size:12px;padding:0 5px;border:1px solid #4c5358;color:#c8ced2;border-radius:3px}"
+    },
+    {
+      "name": "Ranking row",
+      "kind": "custom",
+      "refersTo": "chart-row",
+      "description": "Interactive ranking row; example amounts are illustrative.",
+      "html": "<button class=\"ds-row\" aria-label=\"示例球员，现役，税后估值 100 万美元，查看详情\"><span class=\"ds-rank\">01</span><span>示例球员</span><span class=\"ds-track\"><i></i></span><span class=\"ds-value\">100</span></button>",
+      "css": ".ds-row{font-family:'Ledger Han','PingFang SC','Noto Sans CJK SC','Microsoft YaHei',sans-serif;font-size:14px;line-height:1.65;display:grid;grid-template-columns:30px 120px minmax(30px,1fr) 60px;gap:15px;width:100%;min-height:74px;padding:13px 0;text-align:left;background:transparent;color:var(--ink,#f2ede3);border:0;border-top:1px solid #292e31;cursor:pointer;transition:background .18s}.ds-row:hover{background:var(--surface,#191d20)}.ds-row:focus-visible{outline:2px solid var(--gold,#d7b878);outline-offset:5px}.ds-rank{color:var(--muted,#afb5b8);text-align:center}.ds-rank,.ds-value{font-family:'Ledger Numbers',sans-serif;font-variant-numeric:tabular-nums}.ds-value{font-size:25px;font-weight:500;line-height:1.1;text-align:right}.ds-track{position:relative;height:26px}.ds-track i{position:absolute;top:5px;width:65%;height:16px;border-radius:2px;background:var(--gold,#d7b878)}"
+    },
+    {
+      "name": "Account total",
+      "kind": "custom",
+      "refersTo": "net-total",
+      "description": "Net estimate with persistent unit; example amount is illustrative.",
+      "html": "<div class=\"ds-total\"><div>本情景税后约</div><strong>100</strong><span>万美元</span></div>",
+      "css": ".ds-total{font-family:'Ledger Han','PingFang SC','Noto Sans CJK SC','Microsoft YaHei',sans-serif;font-size:14px;line-height:1.65;color:var(--muted,#afb5b8);font-size:12px;margin-top:5px;border-top:1px solid var(--line,#343a3d);padding-top:17px}.ds-total strong{font-family:'Ledger Numbers',sans-serif;font-size:46px;line-height:1.2;font-weight:500;color:var(--gold,#d7b878);font-variant-numeric:tabular-nums}.ds-total span{margin-left:7px}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Courtside Ledger",
+    "overview": "Courtside Ledger presents Chinese NBA salary estimates as a readable financial ledger. Dark graphite, warm white and restrained gold support horizontal ranking bars, aligned amounts and explicit roster status.\n\nThe same result drives the chart and table. Embedded Chinese and numeric fonts preserve the presentation offline; labels and calculation assumptions remain visible alongside the amounts.",
+    "keyCharacteristics": [
+      "Graphite surfaces with warm white text and restrained gold emphasis.",
+      "Chinese sans-serif labels paired with condensed, tabular financial numerals.",
+      "Flat ledger rows, visible status labels and a synchronized data table."
+    ],
+    "rules": [],
+    "dos": [
+      "Keep chart and table values, selection scope and ordering consistent.",
+      "Keep monetary units, roster status, snapshot dates and settlement assumptions visible.",
+      "Embed the bundled fonts and honor reduced-motion preferences."
+    ],
+    "donts": [
+      "Do not imply that a metric switch selects a new league-wide roster.",
+      "Do not equate retained payments with confirmed retirement.",
+      "Do not replace explicit status labels with color alone."
+    ]
+  }
+}

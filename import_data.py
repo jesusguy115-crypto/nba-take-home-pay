@@ -18,6 +18,9 @@ REQUIRED = (
     "schedule-2026-27.json",
     "player-tax-profiles-2026-27.json",
 )
+CHART_RESOURCES = ("chart-template.html", "fonts/NotoSansSC-subset.woff2",
+    "fonts/BarlowSemiCondensed-latin.woff2", "fonts/NotoSansSC-OFL.txt",
+    "fonts/BarlowSemiCondensed-OFL.txt", "fonts/SOURCES.json")
 CACHE = "net-estimates-2026-27.json"
 NAME_INDEX = "player-name-index-2026-27.json"
 BIRTHDATES = "player-birthdates-2026-27.json"
@@ -242,6 +245,16 @@ def import_data(source, skill_path, force=False):
         for name in REQUIRED + (CACHE,):
             if (source / name).is_file():
                 shutil.copyfile(source / name, stage / "assets" / name)
+        # Presentation resources belong to the installed code, not salary input.
+        for name in CHART_RESOURCES:
+            resource = target / name
+            if not resource.is_file():
+                resource = source / name
+            if resource.is_file():
+                require(not resource.is_symlink(), "Chart resource cannot be a symlink")
+                destination = stage / "assets" / name
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(resource, destination)
         # Name aliases are package lookup data, independent of tax input fingerprints.
         # A salary-only update must not erase the installed Chinese name index.
         name_source = source / NAME_INDEX if (source / NAME_INDEX).is_file() else target / NAME_INDEX

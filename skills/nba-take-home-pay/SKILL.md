@@ -1,6 +1,6 @@
 ---
 name: nba-take-home-pay
-description: 查询2026–27赛季NBA球员税后合同收入，按Spotrac薪资及缓存赛程即时给出有假设的估计金额，再列不确定因素；支持联盟结算假设与合同基准对照、年龄筛选、薪资排名、球队名单、多人比较及逐税项明细。用于球员税后薪水查询，不代表私人税单或实际银行到账。
+description: 查询2026–27赛季NBA球员税后合同收入，按Spotrac薪资及缓存赛程即时给出有假设的估计金额，再列不确定因素；支持联盟结算假设与合同基准对照、年龄筛选、薪资排名、球队名单、多人比较、固定风格交互图表及逐税项明细。用于球员税后薪水查询，不代表私人税单或实际银行到账。
 license: MIT for project-authored code and documentation; see LICENSE and THIRD_PARTY.md.
 ---
 
@@ -18,12 +18,33 @@ license: MIT for project-authored code and documentation; see LICENSE and THIRD_
 
 用户只问球员姓名、税后薪水或“下赛季”时，本技能默认固定 **2026–27 赛季**；首句明确赛季，避免相对年份歧义。用户明确指定别的赛季时，不拿本季结果替代。
 
-1. 直接运行本技能目录内 `python3 -X utf8 scripts/take_home.py '球员姓名' --brief --json`。从任意目录运行时使用脚本绝对路径。读取已算好的税后缓存；无需先读大型参考资料，也无需重复联网查薪资、赛程和税表。
+1. 直接运行本技能目录内 `python3 -X utf8 scripts/take_home.py '球员姓名' --brief --json --chart /absolute/writable/output/nba-pay.html`。从任意目录运行时使用脚本绝对路径。读取已算好的税后缓存；无需先读大型参考资料，也无需重复联网查薪资、赛程和税表。
 2. **回答第一句给一个数并紧邻标出结算假设**：“××在2026–27赛季税后约 **××万美元**（假设联盟最终扣减工资5.48%，按上季报道作参照）。”使用 `rounded_net_usd`，保留到1万美元；上句是当前默认示例，若选择其他结算情景或规则更新，按返回的 `escrow_scenario` 改写比例与标签，不能仍套5.48%。不先给税前薪资，不先长篇铺垫，不等待用户补齐私人税务资料。
 3. 紧接着给 `contract_baseline` 的本季零结算调整税后对照值，并说明“2026–27最终结算未知；这是公开资料估算，不是球员真实税单或银行到账”。给 Spotrac 税前薪资、数据日期及薪资来源链接。普通回答无须展开几百行算式。
 4. 按条列出不确定因素：①实际居民地、婚姻及扣除；②训练/旅行工作日和未定赛程；③伤病未随队；④G联赛下放地点；⑤跨税年发薪及2027代理税则；⑥海外协定/抵免和汇率；⑦联盟最终扣减/补发比例与实际付款税年；⑧杯赛奖金、季后赛行程及经纪费。可以合并相关条目，不能把这些因素说成已经查明的事实。还要保留返回值中与此球员相关的特殊说明，尤其猛龙、买断/保留付款和签约金。
 
 用户提供了明确的已支持情景，使用 `--scenario /absolute/path/scenario.json --json` 直接重算。姓名明确而球队说错时，先给球员数字，再依 `team_correction` 更正。只有姓氏歧义或缓存未匹配时才请求全名，不能猜成另一个人。
+
+## 默认同时给表格与动态可视化
+
+成功查询默认在同一次命令中加 `--chart /absolute/writable/output/查询名.html`。选择宿主实际可写目录；查询名应区分不同结果，避免无意覆盖。无需另写图表代码、安装绘图库或联网找字体。仍先回答数字，再展示表格和图表，不把说明放在金额前。
+
+- `visualization.html` 是含内嵌字体的独立交互 HTML。支持税后估值、税前合同和本季零调整税后基准切换、升降序、条形与数字动画、球员账目详情；尊重系统减少动画设置。
+- `visualization.table_markdown` 是同次结果生成的 Markdown 表格，应直接用于回答；`visualization.data_json` 保存源结果。金额、名单、状态与日期均来自同一份查询，禁止另算一套图表数据。
+- 固定使用随包 `assets/chart-template.html` 和 `scripts/render_chart.py`，风格见 `references/chart-design.md`。不要每次生成新的视觉方案。
+- **图内切换金额和排序只重排本次返回名单，不重查全联盟。** 用户要求另一口径的全联盟前十时，要重新运行对应查询。横条的数字是本名单序号；缓存中的并列名次仍保留在源 JSON。
+- 每行明确显示“现役”或“非现役·保留付款”，后者显示付款球队；免税州保持文字标签。年龄截至日、薪资快照及结算假设必须保留。
+- 支持 HTML 展示的宿主打开交互文件；不支持内嵌的宿主提供可点击 HTML 文件，用户可下载后用浏览器打开。不能承诺所有 Agent 聊天界面都能播放 HTML；不能把截图称作动态图。
+- 生成图表失败时仍可运行不带 `--chart` 的查询先给表格，明确说明图表未生成，不伪造链接。用户明确只要数字、只要 JSON 或不需要图时，遵从用户。
+
+```sh
+# 35岁及以上，税后最低10人；年龄日期使用当前会话日期
+python3 -X utf8 scripts/take_home.py --min-age 35 --top 10 --sort net --order asc --age-date 2026-10-10 --brief --json --chart /absolute/writable/output/35-plus-lowest.html
+# 00后税后最高10人
+python3 -X utf8 scripts/take_home.py --birth-year-min 2000 --birth-year-max 2009 --top 10 --sort net --brief --json --chart /absolute/writable/output/post-2000.html
+```
+
+`--order asc` 查询最低，`--order desc` 查询最高（默认）。不应先取最高十人再倒序冒充最低十人。上例日期仅为示例；通常使用会话当前日期，或用户明确要求的日期。
 
 ## 姓名匹配
 

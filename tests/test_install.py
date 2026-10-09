@@ -37,7 +37,8 @@ class InstallTests(unittest.TestCase):
         for name in installer.REQUIRED_SCRIPTS:
             content = '{"fixture":true}\n' if name.endswith(".json") else "# Fixture only\n"
             (self.source / "scripts" / name).write_text(content, encoding="utf-8")
-        for name in installer.REQUIRED_ASSETS:
+        for name in installer.REQUIRED_ASSETS + installer.CHART_RESOURCES:
+            (self.source / "assets" / name).parent.mkdir(parents=True, exist_ok=True)
             (self.source / "assets" / name).write_text('{"fixture":true}\n', encoding="utf-8")
         (self.source / "references").mkdir()
         (self.source / "references" / "额外 说明.md").write_bytes(b"exact bytes\r\n")
@@ -56,7 +57,8 @@ class InstallTests(unittest.TestCase):
         (release_root / "EDITION.json").write_text(json.dumps(metadata), encoding="utf-8")
         (release_root / "NOTICE").write_text("Fixture data notice\n", encoding="utf-8")
         (release_root / "LICENSE").write_text("Fixture license\n", encoding="utf-8")
-        shutil.rmtree(self.source / "assets")
+        for name in installer.REQUIRED_ASSETS:
+            (self.source / "assets" / name).unlink()
 
     def test_install_preserves_complete_tree_and_bytes(self):
         before = snapshot(self.source)
@@ -172,7 +174,8 @@ class InstallTests(unittest.TestCase):
         self.code_only_release()
         result = installer.install(self.source, self.destination)
         self.assertTrue(result.code_only)
-        self.assertFalse((self.destination / "assets").exists())
+        self.assertFalse((self.destination / "assets" / installer.REQUIRED_ASSETS[0]).exists())
+        self.assertTrue((self.destination / "assets" / "chart-template.html").is_file())
         for name in ("EDITION.json", "NOTICE", "LICENSE"):
             self.assertEqual((self.source.parent.parent / name).read_bytes(),
                              (self.destination / name).read_bytes())

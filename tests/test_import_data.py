@@ -58,6 +58,16 @@ class ImportDataTest(unittest.TestCase):
     def assert_no_staging(self):
         self.assertFalse(list(self.root.glob(".skill-import-*")))
 
+    def test_salary_update_preserves_installed_chart_resources(self):
+        for name in IMPORTER.CHART_RESOURCES:
+            target = self.skill / 'assets' / name
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(self.original / name, target)
+        before = {name: (self.skill / 'assets' / name).read_bytes() for name in IMPORTER.CHART_RESOURCES}
+        result = self.run_import('--force')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(before, {name: (self.skill / 'assets' / name).read_bytes() for name in IMPORTER.CHART_RESOURCES})
+
     def test_import_existing_cache_and_query(self):
         (self.source / "extra-private-file.txt").write_text("must not be imported")
         result = self.run_import()
