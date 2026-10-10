@@ -367,6 +367,7 @@ def _main(argv=None):
     parser.add_argument('--top', type=positive_int, metavar='N', help='按 --sort 返回前N人，默认税前薪资排序')
     parser.add_argument('--sort', choices=['gross', 'net'], help='按未取整税前薪资gross或税后估值net排序')
     parser.add_argument('--order', choices=['asc', 'desc'], help='asc从低到高；desc从高到低（默认）')
+    parser.add_argument('--story', action='store_true', help='配合--chart生成工资去向图、横竖屏封面及口播稿；最多三人')
     parser.add_argument('--chart', type=Path, help='生成固定风格的离线交互HTML及同名Markdown表格、JSON数据')
     parser.add_argument('--team', type=team_code, help='球队代码或中文队名；默认Active Roster')
     parser.add_argument('--scope', choices=['active', 'all'], help='active为现役名单；all含Dead Money/Retained接收者')
@@ -393,6 +394,8 @@ def _main(argv=None):
         parser.exit(2, message + '\n')
     if args.season != '2026-27':
         fail('unsupported_season', '本技能仅支持2026–27赛季，不能用本季缓存回答其他赛季。')
+    if args.story and not args.chart:
+        parser.error('--story 需要 --chart 指定输出位置')
     age_filtered = any(v is not None for v in (args.min_age, args.max_age, args.under_age, args.birth_year_min, args.birth_year_max))
     as_of = args.age_date or date.today()
     if any(year is not None and not 1900 <= year <= 2200 for year in (args.birth_year_min, args.birth_year_max)):
@@ -551,6 +554,15 @@ def _main(argv=None):
                       matched_count=count, returned_count=len(results),
                       results=[brief_result(row) if args.brief else
                                {k: v for k, v in row.items() if k not in FULL_ONLY} for row in results])
+        if args.compare and len(results) == 2:
+            from story_pack import breakdown
+            output['salary_breakdown'] = breakdown(results)
+        if args.story:
+            if not 1 <= len(results) <= 3:
+                parser.error('视频素材每次支持1至3名球员，请缩小查询范围')
+            from story_pack import write_pack
+            args.chart.parent.mkdir(parents=True, exist_ok=True)
+            output['story_pack'] = write_pack(results, args.chart, cache['season'], cache.get('salary_captured_date', cache.get('captured_date', '2026-10-09')))
         if args.chart:
             try:
                 from render_chart import write_chart
@@ -611,6 +623,9 @@ def _main(argv=None):
             try:
                 from render_chart import write_chart
                 output['visualization'] = write_chart(output, args.chart)
+                if args.story:
+                    from story_pack import write_pack
+                    output['story_pack'] = write_pack([result], args.chart, result['season'], result['captured_date'])
             except (ValueError, KeyError, OSError) as error:
                 parser.exit(2, '图表生成失败：' + str(error) + '\n')
         if args.json or args.explain:

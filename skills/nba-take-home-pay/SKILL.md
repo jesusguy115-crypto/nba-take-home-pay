@@ -25,7 +25,7 @@ python3 -X utf8 scripts/take_home.py '杨瀚森' --season 2026-27 --brief --json
 ```
 
 - 首句使用 `rounded_net_usd`，例如“某球员2026–27赛季税后约××万美元”。用户问算式时可直接展开。
-- 读取 `visualization.table_markdown` 所指文件作表格，展示 `visualization.html`；源数据为 `visualization.data_json`。用户不需要图时不加 `--chart`。
+- 读取 `visualization.table_markdown` 所指文件作表格，在浏览器/可视化预览中渲染 `visualization.html`，禁止用源码编辑器打开HTML或向用户输出代码/JSON；源数据为 `visualization.data_json`。用户不需要图时不加 `--chart`。
 - 每行使用 `roster_status_label`、`roster_team_display`、`team_tax_context`；“非现役”不等于已退役，免税州不证明真实居民地。
 - 底部给 `escrow_scenario`、`contract_baseline`、申报情景、Spotrac快照日期，以及居民地、配偶收入、伤病/下放、工作日、海外/跨税年、结算、奖金与经纪费等不确定因素。
 - 图表固定用随包模板；手机先生成图片供长按保存，支持时提供系统分享。分享或下载成功不等于已入相册。详情见 [回答与图片规范](references/response-guide.md)。
@@ -59,6 +59,10 @@ python3 -X utf8 scripts/take_home.py --compare '库里' '杜兰特' '杨瀚森' 
 | `unsupported_season` | 明确仅支持2026–27，请选择该季或更新整套赛季数据；禁止只改文件名冒充新季。 |
 | `query_errors` / 无筛选结果 | 多人查询列出每项错误，不漏人后输出完整比较；空结果说明没有符合筛选条件的缓存记录。 |
 | 图表失败 / 其他报错 | 去掉 `--chart` 重试收入查询，成功则先给表格并说明图表失败；其他错误按实际信息解释，不掩盖成查无此人。 |
+
+## 差距解释与视频素材
+
+两人 `--compare` 自动返回 `salary_breakdown`，用第一人减第二人的逐项贡献解释差距；这不是换队因果推断。用户要工资去向图、横竖屏素材或口播时，在查询中加 `--story --chart /可写目录/比较.html`（1至3人）。读取 `story_pack.report` 给出表格与约30秒口播，在浏览器渲染 `story_pack.studio`；可生成横屏、竖屏、封面PNG，手机长按保存。先给金额，口径放底部；素材来源与假设不得裁掉。
 
 ## 按需参考
 

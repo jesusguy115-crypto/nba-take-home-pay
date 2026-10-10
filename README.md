@@ -196,3 +196,13 @@ python3 -X utf8 scripts/take_home.py '库里' --brief --json --chart ./curry.htm
 ## v0.8.2 查询与手机保存改进
 
 手机点击保存后显示可长按保存的图片，设备支持时可调用系统分享；下载或分享不代表已自动存入相册。入口规则精简并拆分参考资料，新增 `--season 2026-27` 明确赛季，以及数据缺失、缓存过期、权限与姓名未收录的错误分类。已有用户须重新安装或更新技能文件才能使用。
+
+## v0.9.0 差距拆解与视频素材
+
+两人比较自动返回逐项差距；需要工资去向图、横竖屏图片、封面和约30秒口播时使用：
+
+```sh
+python3 skills/nba-take-home-pay/scripts/take_home.py --compare 申京 杰伦格林 --brief --json --story --chart ./output/comparison.html
+```
+
+在浏览器打开返回的 `story_pack.studio`，点击生成PNG；配套文字位于 `story_pack.report`。支持1至3人。差距拆解不是换队因果模拟，素材不代表真实税单；更新功能没有提高基础数据精度。

@@ -51,19 +51,28 @@ def chart_data(payload):
     if query.get('team'):
         from duty_days import TEAMS
         scope.insert(0, TEAMS[query['team']][0])
-    if len(records) == 1:
-        scope = [names.get(records[0]['player_id'], records[0]['player'])]
-    heading = ' · '.join(scope) or ('球员薪水对照' if query.get('kind') == 'comparison' else 'NBA球员薪水账本')
+    season = payload.get('season', '2026-27')
     basis = query.get('sort', 'net')
     order = query.get('order', 'desc' if basis != 'input' else 'input')
     metric = 'gross' if basis == 'gross' else 'baseline' if query.get('settlement') == 'baseline' else 'net'
-    initial_label = '税前合同' if metric == 'gross' else '零调整基准' if metric == 'baseline' else '税后收入'
-    if len(records) == 1:
-        subtitle = '2026–27赛季 · 合同收入估算'
+    initial_label = '税前薪水' if metric == 'gross' else '零调整税后薪水' if metric == 'baseline' else '税后薪水'
+    player_labels = [names.get(r['player_id'], r['player']) for r in records]
+    if query.get('kind') == 'comparison':
+        subject = '、'.join(player_labels[:3])
+        if len(player_labels) > 3:
+            subject += f'等{len(player_labels)}名球员'
+        heading = f'{subject} {season}赛季薪水对比'
     elif query.get('top'):
-        subtitle = f'{initial_label}{"最低" if order == "asc" else "最高"}的{len(records)}人'
+        subject = ' · '.join(scope) or 'NBA球员'
+        if query.get('scope') == 'active':
+            subject += '（现役）'
+        direction = '最低' if order == 'asc' else '最高'
+        heading = f'{subject} {season}赛季{initial_label}{direction}前{query["top"]}名'
+    elif len(records) == 1:
+        heading = f'{player_labels[0]} {season}赛季税后薪水'
     else:
-        subtitle = f'{len(records)}名薪资接收者 · 同口径比较'
+        heading = f'{" · ".join(scope) or "NBA球员"} {season}赛季薪水一览'
+    subtitle = '税前薪水与税后估算' if query.get('kind') == 'comparison' else f'本次展示{len(records)}名球员 · 合同收入估算'
     from player_context import context
     media_path = ROOT / 'assets/player-media-2026-27.json'
     media = json.loads(media_path.read_text(encoding='utf-8')) if media_path.is_file() else {}
@@ -169,11 +178,19 @@ def write_chart(payload, destination):
     template = template.replace('__FONT_LICENSES__', '<pre>' + html.escape(licenses) + '</pre>')
     template = template.replace('__DATA_JSON__', encoded).replace('__STATIC_TABLE__', static_table(data))
     template = template.replace('__PAGE_TITLE__', html.escape(data['heading'] + ' · ' + data['subtitle']))
+    difference = source.get('salary_breakdown', {}).get('difference')
+    difference_md = ''
+    if difference:
+        caption = '税后差距拆解（第一位减第二位）'
+        rows = ''.join('<tr><td>'+html.escape(x['label'])+'</td><td>'+f"{x['amount']/10000:+,.2f}"+'</td></tr>' for x in difference['steps'] if x['amount'])
+        panel = '<section class="table-section"><h2>'+caption+'</h2><p>单位：万美元；正数增加第一位优势，负数减少优势。会计差额分解，不是换队模拟。</p><table><thead><tr><th>项目</th><th>差距贡献</th></tr></thead><tbody>'+rows+'<tr><th>税后差距</th><td>'+f"{difference['net_difference']/10000:+,.2f}"+'</td></tr></tbody></table></section>'
+        template = template.replace('</main>', panel+'</main>')
+        difference_md = '\n\n## '+caption+'\n\n| 项目 | 差距贡献（万美元） |\n|---|---:|\n'+'\n'.join(f"| {x['label']} | {x['amount']/10000:+,.2f} |" for x in difference['steps'] if x['amount'])+'\n\n会计差额分解，不是换队因果模拟。\n'
     destination.parent.mkdir(parents=True, exist_ok=True)
     destination.write_text(template, encoding='utf-8')
     markdown = destination.with_suffix('.md')
     data_file = destination.with_suffix('.json')
-    markdown.write_text(table_markdown(data), encoding='utf-8')
+    markdown.write_text(table_markdown(data) + difference_md, encoding='utf-8')
     data_file.write_text(json.dumps(source, ensure_ascii=False, indent=2, allow_nan=False) + '\n', encoding='utf-8')
     return {'html': str(destination), 'table_markdown': str(markdown), 'data_json': str(data_file),
             'style': STYLE_VERSION, 'scope': 'returned_query_roster_only'}
