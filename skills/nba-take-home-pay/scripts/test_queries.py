@@ -273,6 +273,15 @@ class FastQueryTests(unittest.TestCase):
                 self.assertEqual(take_home.main(['杨瀚森', '--json']), 2)
             self.assertEqual(json.loads(output.getvalue())['status'], status)
 
+    def test_help_renders_literal_percent_without_loading_cache(self):
+        with patch.object(take_home, 'read', side_effect=AssertionError('help must not load data')), redirect_stdout(StringIO()) as output:
+            with self.assertRaises(SystemExit) as stopped:
+                take_home.main(['--help'])
+        self.assertEqual(stopped.exception.code, 0)
+        self.assertIn('5.48%', output.getvalue())
+        self.assertNotIn('5.48%%', output.getvalue())
+        self.assertIn('--story', output.getvalue())
+
     def test_fingerprint_gate_rejects_stale_cache(self):
         with patch.object(take_home, 'read', return_value=self.cache), \
              patch.object(estimate, 'model_fingerprint', return_value='stale'), \

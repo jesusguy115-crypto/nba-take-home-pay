@@ -376,7 +376,7 @@ def _main(argv=None):
     parser.add_argument('--ledger', action='store_true', help='返回逐日假设地点和依据 JSON')
     parser.add_argument('--scenario', type=Path, help='个人情景 JSON 文件；触发重算')
     parser.add_argument('--filing-status', choices=['single', 'mfj', 'individual_canada'], help='从缓存选择身份情景；不声明真实报税身份')
-    parser.add_argument('--settlement', choices=['baseline', 'historical'], help='baseline为未作联盟结算调整的基准；historical按5.48%历史扣减比例估算（默认），非2026–27已知结果。与--scenario合用时覆盖扣减率，baseline同时将本季补发设为0')
+    parser.add_argument('--settlement', choices=['baseline', 'historical'], help='baseline为未作联盟结算调整的基准；historical按5.48%%历史扣减比例估算（默认），非2026–27已知结果。与--scenario合用时覆盖扣减率，baseline同时将本季补发设为0')
     parser.add_argument('--coverage', action='store_true', help='查看缓存覆盖情况')
     parser.add_argument('--min-age', type=age_bound, help='最低周岁，包含边界')
     upper = parser.add_mutually_exclusive_group()
