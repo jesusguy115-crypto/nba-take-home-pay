@@ -51,27 +51,41 @@ def write_pack(rows, destination, season, salary_date):
     md+=['## 约30秒口播（时长随语速变化）','',spoken,'','## 素材说明','',notes,'','各人申报情景：'+'；'.join(r['player']+' '+r['filing_scenario']['status'] for r in rows),'','来源：'+'；'.join(r['sources']['salary'] for r in rows)]
     report=Path(str(dest)+'-story.md');report.write_text('\n'.join(md),encoding='utf-8')
     # SVG text is escaped; all assets are local. Waterfalls preserve the cumulative balance.
+    from render_chart import chart_data
+    visual=chart_data({'results':rows,'season':season})['rows']
     cards=[]
-    for p in data['players']:
-        steps=[s for s in p['steps'] if abs(s['amount'])>=1]
-        for mode,w,h in [('portrait',1080,1920),('landscape',1920,1080),('cover',1080,1440)]:
-            lines=steps if mode!='cover' else [steps[0]]
-            x0=400 if mode=='landscape' else 330; plot=w-x0-100
-            peak=max(sum(s['amount'] for s in steps[:i+1]) for i in range(len(steps)))
-            scale=plot/max(peak,1); start=270; dy=min(70,(h-470)/(len(lines)+1));y=start
-            elements=[f'<rect width="{w}" height="{h}" fill="#111516"/>',f'<text x="64" y="85" font-size="25" fill="#d8bc79">NBA / TAKE HOME · {season}</text>',f'<text x="64" y="155" font-size="48" fill="#f4f1e9">{html.escape(p["name"])} · 工资去向</text>',f'<text x="64" y="205" font-size="26" fill="#a9b1b2">税后约 {p["net"]/10000:,.0f} 万美元</text>']
-            running=0
-            for s in lines:
-                end=running+s['amount'];left=x0+min(running,end)*scale;width=max(2,abs(s['amount'])*scale)
-                color='#d8bc79' if s['amount']>=0 else '#ad7970'
-                elements += [f'<text x="64" y="{y+23}" font-size="22" fill="#e4e5e1">{html.escape(s["label"])}</text>',f'<rect x="{left}" y="{y}" width="{width}" height="28" fill="{color}"/>',f'<text x="{w-55}" y="{y+48}" text-anchor="end" font-size="22" fill="#e4e5e1">{s["amount"]/10000:+,.2f}</text>']
-                running=end;y+=dy
-            elements += [f'<text x="64" y="{y+55}" font-size="30" fill="#d8bc79">最终税后估值 {p["net"]/10000:,.2f} 万美元</text>']
-            for i,line in enumerate([f'单位：万美元 · 薪资快照 {salary_date}','联盟结算为假设；税款含抵免；非真实税单','不含代言与个人费用；完整口径见配套文字说明']):
-                elements.append(f'<text x="64" y="{h-125+i*32}" font-size="22" fill="#a9b1b2">{html.escape(line)}</text>')
-            svg=f'<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}" viewBox="0 0 {w} {h}" font-family="Arial, sans-serif">'+''.join(elements)+'</svg>'
-            cards.append((p['name']+' '+{'portrait':'竖屏 9:16','landscape':'横屏 16:9','cover':'封面 3:4'}[mode],svg))
-    sections=''.join('<section><h2>'+html.escape(label)+'</h2><button onclick="save(this)">生成PNG图片 / 保存</button><div class="art">'+svg+'</div><div class="preview"></div></section>' for label,svg in cards)
-    page='''<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'''+html.escape(title)+'''</title><style>body{background:#111516;color:#f4f1e9;font-family:system-ui;margin:24px}h1{font-size:28px}section{margin:48px auto;max-width:960px}svg,img{width:100%;height:auto}button{background:#d8bc79;padding:16px;border:0;border-radius:6px;font-size:16px;margin:12px 0}.preview a{color:#d8bc79}</style><h1>'''+html.escape(title)+'''</h1><p>竖屏、横屏与封面素材。点击生成PNG，手机可长按图片保存。</p>'''+sections+'''<script>async function save(b){const section=b.closest('section'),svg=section.querySelector('svg'),box=section.querySelector('.preview');b.disabled=true;try{const raw=new Blob([new XMLSerializer().serializeToString(svg)],{type:'image/svg+xml;charset=utf-8'}),url=URL.createObjectURL(raw),im=new Image();await new Promise((ok,no)=>{im.onload=ok;im.onerror=no;im.src=url});const c=document.createElement('canvas');c.width=svg.width.baseVal.value;c.height=svg.height.baseVal.value;c.getContext('2d').drawImage(im,0,0);URL.revokeObjectURL(url);const blob=await new Promise(ok=>c.toBlob(ok,'image/png'));if(!blob)throw Error('PNG生成失败');if(box.dataset.url)URL.revokeObjectURL(box.dataset.url);const out=URL.createObjectURL(blob);box.dataset.url=out;const img=new Image();img.src=out;img.alt='长按保存图片';const a=document.createElement('a');a.href=out;a.download=section.querySelector('h2').textContent+'.png';a.textContent='下载PNG（手机也可长按下图保存）';box.replaceChildren(a,img);box.scrollIntoView({behavior:'smooth'});}catch(e){box.textContent='图片生成失败，请重试：'+e.message}finally{b.disabled=false}}</script></html>'''
+    for p,r,v in zip(data['players'],rows,visual):
+        all_steps=[(x['label'],x['amount']) for x in p['steps']]
+        scenes=[('合同收入与最终结果', [('合同税前薪水',r['spotrac_salary_usd']),('最终税后估值',p['net'])])]
+        nonzero=[x for x in all_steps[1:] if x[1] != 0]
+        for offset in range(0,len(nonzero),5):
+            scenes.append(('工资扣减与抵免明细',nonzero[offset:offset+5]))
+        scenes.append(('汇总核对', [('合同税前薪水',r['spotrac_salary_usd']),('全部增减合计',p['net']-r['spotrac_salary_usd']),('最终税后估值',p['net'])]))
+        for scene_index,(scene_title,values) in enumerate(scenes):
+            e=html.escape
+            parts=['<rect width="1920" height="1080" fill="#101416"/>', '<rect x="64" y="64" width="6" height="48" fill="#d8bc79"/>']
+            def text(x,y,value,size=28,color='#f3f0e7'):
+                parts.append(f'<text x="{x}" y="{y}" font-size="{size}" fill="{color}">{e(str(value))}</text>')
+            text(90,100,'COURTSIDE / 薪水解析',28,'#d8bc79')
+            text(1390,100,season+'赛季 · 合同收入',26,'#abb3b4')
+            parts.append('<path d="M64 140H1856" stroke="#343c3e"/>')
+            if v['logo']:parts.append(f'<image href="{v["logo"]}" x="50" y="205" width="670" height="640" opacity=".13"/>')
+            if v['portrait']:parts.append(f'<image href="{v["portrait"]}" x="85" y="255" width="620" height="570"/>')
+            text(90,215,p['name'],54)
+            text(92,875,v['team'],28,'#abb3b4')
+            text(800,237,scene_title,30,'#abb3b4')
+            text(790,370,f'{p["net"]/10000:,.0f}',112,'#d8bc79');text(1190,365,'万美元',30,'#d8bc79')
+            maximum=r['spotrac_salary_usd']
+            for i,(label,value) in enumerate(values):
+                y=455+i*85;text(800,y,label,27,'#abb3b4');text(1530,y,f'{value/10000:+,.2f}',32)
+                parts.append(f'<rect x="800" y="{y+25}" width="980" height="12" rx="6" fill="#293134"/><rect x="800" y="{y+25}" width="{max(3,abs(value)/maximum*980)}" height="12" rx="6" fill="{"#d8bc79" if value>0 else "#9a7770"}"/>')
+            text(800,925,f'单位：万美元 · 第{scene_index+1}/{len(scenes)}幕 · 零额项目见配套明细',24,'#abb3b4')
+            parts.append('<path d="M64 970H1856" stroke="#343c3e"/>')
+            text(64,1020,f'薪资快照 {salary_date} · Spotrac / 头像 ESPN',23,'#abb3b4')
+            text(880,1020,f'结算扣减假设 {r["escrow_scenario"]["final_reduction_rate"]:.2%} · 非实际到账 · 不含个人费用',23,'#abb3b4')
+            svg='<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080" font-family="PingFang SC, Microsoft YaHei, Arial, sans-serif">'+''.join(parts)+'</svg>'
+            cards.append((p['name']+' · '+scene_title,svg))
+    sections=''.join('<section><h2>'+html.escape(label)+'</h2><button onclick="save(this)">生成PNG图片 / 保存</button><button onclick="video(this)">生成完整分幕视频（无配音）</button><div class="art">'+svg+'</div><div class="preview"></div></section>' for label,svg in cards)
+    page='''<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'''+html.escape(title)+'''</title><style>body{background:#111516;color:#f4f1e9;font-family:system-ui;margin:24px}h1{font-size:28px}section{margin:48px auto;max-width:960px}svg,img{width:100%;height:auto}button{background:#d8bc79;padding:16px;border:0;border-radius:6px;font-size:16px;margin:12px 0}.preview a{color:#d8bc79}</style><h1>'''+html.escape(title)+'''</h1><p>1920×1080 横屏素材与动态视频。点击生成PNG，手机可长按图片保存。</p>'''+sections+'''<script>async function video(b){const box=b.closest('section'),out=box.querySelector('.preview');if(!window.MediaRecorder||!HTMLCanvasElement.prototype.captureStream){out.textContent='当前浏览器不支持视频导出，请使用Chrome或Edge；仍可保存PNG素材。';return}b.disabled=true;try{const svgs=[...document.querySelectorAll('.art svg')],svg=svgs[0],images=[],urls=[];for(const source of svgs){const im=new Image(),u=URL.createObjectURL(new Blob([new XMLSerializer().serializeToString(source)],{type:'image/svg+xml'}));urls.push(u);await new Promise((ok,no)=>{im.onload=ok;im.onerror=no;im.src=u});images.push(im)}const c=document.createElement('canvas');c.width=svg.width.baseVal.value;c.height=svg.height.baseVal.value;const ctx=c.getContext('2d');const stream=c.captureStream(25),mime=['video/webm;codecs=vp9','video/webm;codecs=vp8','video/mp4'].find(x=>MediaRecorder.isTypeSupported(x));if(!mime)throw Error('没有可用的视频编码器');const recorder=new MediaRecorder(stream,{mimeType:mime}),chunks=[];recorder.ondataavailable=e=>chunks.push(e.data);const done=new Promise(ok=>recorder.onstop=ok);recorder.start();const start=performance.now();await new Promise(resolve=>{function frame(t){const f=Math.min(1,(t-start)/(images.length*4000));ctx.fillStyle='#111516';ctx.fillRect(0,0,c.width,c.height);ctx.save();ctx.beginPath();ctx.rect(0,0,c.width,c.height);ctx.clip();const scene=Math.min(images.length-1,Math.floor(f*images.length));ctx.globalAlpha=Math.min(1,((f*images.length)%1)*8+.2);if(f===1)ctx.globalAlpha=1;ctx.drawImage(images[scene],0,0);ctx.restore();b.textContent='视频生成中 '+Math.round(f*100)+'%';if(f<1)requestAnimationFrame(frame);else resolve()}requestAnimationFrame(frame)});recorder.stop();await done;stream.getTracks().forEach(t=>t.stop());urls.forEach(u=>URL.revokeObjectURL(u));const url=URL.createObjectURL(new Blob(chunks,{type:mime})),v=document.createElement('video'),a=document.createElement('a');v.src=url;v.controls=true;v.style.width='100%';a.href=url;a.download='nba-salary.'+(mime.includes('mp4')?'mp4':'webm');a.textContent='下载完整分幕视频（无配音）';out.replaceChildren(a,v)}catch(e){out.textContent='视频生成失败：'+e.message}finally{b.disabled=false;b.textContent='生成完整分幕视频（无配音）'}}async function save(b){const section=b.closest('section'),svg=section.querySelector('svg'),box=section.querySelector('.preview');b.disabled=true;try{const raw=new Blob([new XMLSerializer().serializeToString(svg)],{type:'image/svg+xml;charset=utf-8'}),url=URL.createObjectURL(raw),im=new Image();await new Promise((ok,no)=>{im.onload=ok;im.onerror=no;im.src=url});const c=document.createElement('canvas');c.width=svg.width.baseVal.value;c.height=svg.height.baseVal.value;c.getContext('2d').drawImage(im,0,0);URL.revokeObjectURL(url);const blob=await new Promise(ok=>c.toBlob(ok,'image/png'));if(!blob)throw Error('PNG生成失败');if(box.dataset.url)URL.revokeObjectURL(box.dataset.url);const out=URL.createObjectURL(blob);box.dataset.url=out;const img=new Image();img.src=out;img.alt='长按保存图片';const a=document.createElement('a');a.href=out;a.download=section.querySelector('h2').textContent+'.png';a.textContent='下载PNG（手机也可长按下图保存）';box.replaceChildren(a,img);box.scrollIntoView({behavior:'smooth'});}catch(e){box.textContent='图片生成失败，请重试：'+e.message}finally{b.disabled=false}}</script></html>'''
     pagepath=Path(str(dest)+'-studio.html');pagepath.write_text(page,encoding='utf-8')
     return {'breakdown':data,'report':str(report.resolve()),'studio':str(pagepath.resolve())}

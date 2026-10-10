@@ -166,6 +166,9 @@ def write_chart(payload, destination):
     if destination.suffix.lower() != '.html':
         raise ValueError('--chart must end in .html')
     source = deepcopy(payload)
+    if 'delivery' not in source:
+        from result_quality import metadata
+        source['delivery'] = metadata()
     source.pop('visualization', None)
     data = chart_data(source)
     encoded = json.dumps(data, ensure_ascii=False, separators=(',', ':'), allow_nan=False)
@@ -183,9 +186,24 @@ def write_chart(payload, destination):
     if difference:
         caption = '税后差距拆解（第一位减第二位）'
         rows = ''.join('<tr><td>'+html.escape(x['label'])+'</td><td>'+f"{x['amount']/10000:+,.2f}"+'</td></tr>' for x in difference['steps'] if x['amount'])
-        panel = '<section class="table-section"><h2>'+caption+'</h2><p>单位：万美元；正数增加第一位优势，负数减少优势。会计差额分解，不是换队模拟。</p><table><thead><tr><th>项目</th><th>差距贡献</th></tr></thead><tbody>'+rows+'<tr><th>税后差距</th><td>'+f"{difference['net_difference']/10000:+,.2f}"+'</td></tr></tbody></table></section>'
+        panel = '<section class="table-section"><h2>'+caption+'</h2><p>单位：万美元；正数增加第一位优势，负数减少优势。会计差额分解，不是换队模拟。</p><table class="difference-table"><thead><tr><th>项目</th><th>差距贡献</th></tr></thead><tbody>'+rows+'<tr><th>税后差距</th><td>'+f"{difference['net_difference']/10000:+,.2f}"+'</td></tr></tbody></table></section>'
         template = template.replace('</main>', panel+'</main>')
         difference_md = '\n\n## '+caption+'\n\n| 项目 | 差距贡献（万美元） |\n|---|---:|\n'+'\n'.join(f"| {x['label']} | {x['amount']/10000:+,.2f} |" for x in difference['steps'] if x['amount'])+'\n\n会计差额分解，不是换队因果模拟。\n'
+    template = template.replace('</style>', '.difference-table{min-width:0!important;width:100%;table-layout:fixed}.difference-table th,.difference-table td{min-width:0!important;white-space:normal;overflow-wrap:anywhere}.difference-table th:first-child,.difference-table td:first-child{width:65%}.difference-table td:last-child{text-align:right;font-variant-numeric:tabular-nums}</style>', 1)
+    if source.get('story_pack'):
+        studio = html.escape(Path(source['story_pack']['studio']).name, quote=True)
+        entry = '<section class="table-section"><h2>工资去向与视频素材</h2><p>16:9完整分幕素材；下方直接预览。无配音，口播稿单独提供。</p><details><summary>展开完整工资去向图与导出工具</summary><iframe title="工资去向与素材" loading="lazy" src="'+studio+'" style="width:100%;height:760px;border:1px solid #343c3e"></iframe></details><p><a href="'+studio+'">单独打开素材页</a></p></section>'
+        video=source['story_pack'].get('video')
+        if video and video.get('verification',{}).get('cfr_verified'):
+            import os
+            video_url=html.escape(os.path.relpath(video['path'],destination.parent),quote=True)
+            entry=entry.replace('</section>','<h3>完整视频 · 无配音</h3><video controls preload="metadata" style="width:100%;aspect-ratio:16/9" src="'+video_url+'"></video><p><a download href="'+video_url+'">下载已验证的MP4视频</a></p></section>')
+        else:
+            entry=entry.replace('</section>','<p>MP4尚未生成；当前提供图片素材与口播稿。</p></section>')
+        template = template.replace('<section class="table-section"', entry+'<section class="table-section"', 1)
+    info=source['delivery']
+    stamp='<p class="chart-caption">Skill '+html.escape(info['skill_version'])+' · 生成 '+html.escape(info['generated_at'])+' · 税则/模型 '+html.escape(str(source.get('model_version','未记录')))+' · 数据快照 '+html.escape(str(source.get('salary_captured_date',source.get('captured_date','未记录'))))+'</p>'
+    template=template.replace('</main>',stamp+'</main>')
     destination.parent.mkdir(parents=True, exist_ok=True)
     destination.write_text(template, encoding='utf-8')
     markdown = destination.with_suffix('.md')

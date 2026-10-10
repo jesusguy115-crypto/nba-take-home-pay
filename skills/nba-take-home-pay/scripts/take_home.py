@@ -516,6 +516,11 @@ def _main(argv=None):
                 result['team_correction'] = f"你提到{TEAMS[mentioned][0]}；{result['player']} 在本快照中对应{result['team_zh']}。"
         from player_context import enrich
         enrich(result)
+        from result_quality import check
+        try:
+            result['quality'] = check(result)
+        except ValueError as error:
+            fail('data_invalid', str(error))
         result.update(age_metadata(result['player_id'], birthdays, as_of))
         results.append(result)
     if batch:
@@ -554,10 +559,13 @@ def _main(argv=None):
                       matched_count=count, returned_count=len(results),
                       results=[brief_result(row) if args.brief else
                                {k: v for k, v in row.items() if k not in FULL_ONLY} for row in results])
+        from result_quality import metadata
+        output['delivery'] = metadata()
+        output['quality'] = [r['quality'] for r in results]
         if args.compare and len(results) == 2:
             from story_pack import breakdown
             output['salary_breakdown'] = breakdown(results)
-        if args.story:
+        if args.story or (args.compare and args.chart and 1 <= len(results) <= 3):
             if not 1 <= len(results) <= 3:
                 parser.error('视频素材每次支持1至3名球员，请缩小查询范围')
             from story_pack import write_pack
@@ -600,6 +608,8 @@ def _main(argv=None):
             result = add_roster_labels(add_state_label(recalculated))
             from player_context import enrich
             enrich(result)
+            from result_quality import check
+            result['quality'] = check(result)
             result.update(age_metadata(result['player_id'], birthdays, as_of))
             result['query_path'] = 'recomputed_detail_or_scenario'
         except (ValueError, TypeError, KeyError) as error:
@@ -617,15 +627,19 @@ def _main(argv=None):
                                           settlement=result['escrow_scenario']))
         else:
             output = result if args.explain else {k: v for k, v in result.items() if k not in FULL_ONLY}
+        from result_quality import metadata, check
+        output['delivery'] = metadata()
+        output['quality'] = check(result)
         if args.chart:
             output.update(shared_metadata(cache, result['team'], compact=True, residence=result['residence_scenario'],
                                           settlement=result['escrow_scenario']))
             try:
                 from render_chart import write_chart
-                output['visualization'] = write_chart(output, args.chart)
                 if args.story:
                     from story_pack import write_pack
+                    args.chart.parent.mkdir(parents=True, exist_ok=True)
                     output['story_pack'] = write_pack([result], args.chart, result['season'], result['captured_date'])
+                output['visualization'] = write_chart(output, args.chart)
             except (ValueError, KeyError, OSError) as error:
                 parser.exit(2, '图表生成失败：' + str(error) + '\n')
         if args.json or args.explain:

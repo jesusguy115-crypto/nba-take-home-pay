@@ -62,7 +62,7 @@ python3 -X utf8 scripts/take_home.py --compare '库里' '杜兰特' '杨瀚森' 
 
 ## 差距解释与视频素材
 
-两人 `--compare` 自动返回 `salary_breakdown`，用第一人减第二人的逐项贡献解释差距；这不是换队因果推断。用户要工资去向图、横竖屏素材或口播时，在查询中加 `--story --chart /可写目录/比较.html`（1至3人）。读取 `story_pack.report` 给出表格与约30秒口播，在浏览器渲染 `story_pack.studio`；可生成横屏、竖屏、封面PNG，手机长按保存。先给金额，口径放底部；素材来源与假设不得裁掉。
+两人 `--compare` 自动返回 `salary_breakdown`，用第一人减第二人的逐项贡献解释差距；这不是换队因果推断。用户要工资去向图、16:9横屏素材或口播时，在查询中加 `--story --chart /可写目录/比较.html`（1至3人）。1至3人比较附图时自动附带素材包。素材页可生成16:9完整分幕无配音视频（每幕4秒，保留逐项税款和抵免）（浏览器支持时），口播稿不是配音，不能声称已生成有声视频。读取 `story_pack.report` 给出表格与约30秒口播，在浏览器渲染 `story_pack.studio`；默认只生成1920×1080横屏PNG与16:9视频，手机长按保存。先给金额，口径放底部；素材来源与假设不得裁掉。
 
 ## 按需参考
 
@@ -72,3 +72,5 @@ python3 -X utf8 scripts/take_home.py --compare '库里' '杜兰特' '杨瀚森' 
 - 公式与税务证据：[methodology](references/methodology.md)、[tax-sources](references/tax-sources.md)、[escrow](references/escrow.md)、[CBA特殊情形](references/cba-and-special-cases.md)。
 
 跨季升级必须同时更新薪资、赛程、税年规则、申报情景和计算缓存并校验；`metadata.season`只声明适用范围，不意味着引擎已支持任意赛季。数据日期和覆盖以返回结果及 `--coverage` 为准。
+
+视频优先离线导出：用 `scripts/export_video_frames.cjs studio.html frames目录` 导出全部分幕PNG（需Playwright），再用 `scripts/encode_video.py frames目录 output.mp4 --ffmpeg 可执行路径` 生成1920×1080、30fps、H.264、0.4秒交叉淡化的MP4。浏览器实时录制仅作备用，可能掉帧；没有编码依赖时明确说明，不宣称已生成流畅视频。

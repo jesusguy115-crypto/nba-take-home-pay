@@ -31,8 +31,11 @@ def context(player_id, active=True):
     if original:
         current_text = ('原合同（已履行）：' + describe(original) + '；本季执行的追加续约：' + current_text)
     extension_text = ' / '.join(describe(c) for c in extensions) if extensions else ('页面未列未来续约' if record.get('status') == 'verified' else '续约情况尚未核实')
+    conflict = len(current) > 1
+    if conflict:
+        current_text = '当前合同记录冲突，规模暂不展示；请核对原始合同状态'
     return dict(record, current=current, extensions=extensions, current_summary=current_text,
-                extension_summary=extension_text, status=record.get('status', 'unverified'))
+                extension_summary=extension_text, status='conflict' if conflict else record.get('status', 'unverified'))
 
 def enrich(result):
     result['contract_context'] = context(result['player_id'], result.get('active_roster', True))

@@ -55,3 +55,12 @@ python3 -X utf8 scripts/take_home.py --birth-year-min 2000 --birth-year-max 2009
 ## 展示交付顺序
 
 先在回答正文给出金额结论和Markdown表格，再展示已渲染图表。脚本、JSON、HTML源码及base64仅用于内部处理，不作为用户答案。Codex 中打开HTML应使用 open_in_codex 的 browser 目标及可访问URL，不能使用 file 目标（会打开源码编辑器）。优先使用宿主可视化预览；不可用时展示PNG并附浏览器预览入口，不能把源码页称为图表。
+
+## 发布前验收与视频交付
+
+- `quality.money_reconciled`只表示算术一致，不代表源数据真实或私人税籍已知。合同状态`conflict`不得输出合并合同规模；独立薪资字段仍可用于估算，须标记合同冲突。若核查发现薪资或球队税区错误，应停止相关金额输出并修复输入，不能忽略。
+- 统一结果页内包含表格、差距、素材预览及视频状态。只有实际导出的MP4通过验证并绑定当前素材，才展示播放器和下载按钮。
+- 导出顺序：`node scripts/export_video_frames.cjs studio.html 空目录`；`python3 scripts/encode_video.py 空目录 output.mp4 --ffmpeg ffmpeg路径`；`python3 scripts/attach_video.py 查询.json output.mp4`。需Playwright Chromium和FFmpeg，缺失时说明所需依赖；不宣称已经生成视频。
+- 默认16:9、1920×1080、30fps H.264、每幕6秒，0.4秒交叉淡化。无配音要明确标注；零额项目保留文字明细。导出记录包含素材指纹，禁止把旧视频绑定到新结果。
+- 修改后至少运行查询、图表、对账测试；检查390px手机及1440px电脑，确认差距金额可见、播放器及下载入口可用。真实手机相册权限仍需设备验证。
+- 发布前更新根目录与技能EDITION.json、plugin.json版本并更新SHA256SUMS。发布后重新读取远端文件核对；本地修复不等于GitHub已更新。

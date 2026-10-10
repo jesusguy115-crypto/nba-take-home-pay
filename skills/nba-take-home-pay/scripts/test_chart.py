@@ -29,7 +29,9 @@ class ChartTests(unittest.TestCase):
             path = Path(tmp) / '薪水 图.html'
             result = json.loads(subprocess.check_output(self.command + self.args + ['--chart', str(path)], text=True))
             result.pop('visualization')
-            self.assertEqual(result, self.payload)
+            expected=deepcopy(self.payload)
+            expected['delivery']=result['delivery']  # generation timestamps may differ
+            self.assertEqual(result, expected)
             self.assertEqual(json.loads(path.with_suffix('.json').read_text()), result)
             self.assertEqual(path.with_suffix('.md').read_text(), render_chart.table_markdown(render_chart.chart_data(result)))
             text = path.read_text()
