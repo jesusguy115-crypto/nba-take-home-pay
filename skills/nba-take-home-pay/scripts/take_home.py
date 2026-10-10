@@ -7,7 +7,7 @@ import json
 from pathlib import Path
 import sys
 
-from player_names import resolve, mentioned_team, requires_clarification, name_index_coverage, TEAM_NAMES
+from player_names import resolve, mentioned_team, requires_clarification, name_index_coverage, TEAM_NAMES, name_registry, NAME_INDEX
 from duty_days import TEAMS, make_ledger
 from state_labels import add_state_label
 from player_ages import load_birthdates, age_metadata, filter_by_age, age_coverage
@@ -234,8 +234,23 @@ def match_error(players, query):
     matches = resolve(players, query)
     if len(matches) == 1 and not requires_clarification(players, query, matches):
         return matches[0], None
+    status = 'ambiguous' if matches else 'not_found'
+    if not matches:
+        if not NAME_INDEX.is_file():
+            return None, {'status': 'data_missing', 'query': query, 'message': '姓名索引缺失：' + str(NAME_INDEX), 'candidates': []}
+        identities = [{'player': r['english_name'], 'player_id': r['player_id'], 'team': ''}
+                      for r in name_registry().get('players', [])]
+        matches = resolve(identities, query)
+        if matches:
+            status = ('player_not_cached' if len(matches) == 1 and
+                      not requires_clarification(identities, query, matches) else 'ambiguous')
+    messages = {
+        'ambiguous': '这个名字可能对应多名球员，请补充全名或球队。',
+        'player_not_cached': '姓名已识别，但2026–27税后缓存未收录；请核查薪资输入并重建缓存。',
+        'not_found': '当前姓名索引未匹配，可能是译名或尚未收录，不能据此判断球员不存在；请补英文名、球队或链接。',
+    }
     return None, {
-        'status': 'ambiguous' if matches else 'not_found', 'query': query,
+        'status': status, 'query': query, 'message': messages[status],
         'candidates': [{'player': p['player'], 'team': p['team'], 'player_id': p['player_id']}
                        for p in matches],
     }
@@ -343,9 +358,10 @@ def print_batch(output):
         print('  薪资来源：' + row['sources']['salary'])
 
 
-def main(argv=None):
+def _main(argv=None):
     parser = argparse.ArgumentParser(description='2026–27 NBA 税后合同收入：离线情景估算')
     parser.add_argument('player', nargs='?', help='中文别名、英文姓名或 Spotrac ID')
+    parser.add_argument('--season', default='2026-27', help='仅支持2026-27；其他赛季明确拒绝')
     parser.add_argument('--json', action='store_true', help='返回结构化结果；与 --brief 合用精简字段')
     parser.add_argument('--brief', action='store_true', help='保留金额、身份情景、风险及来源的快答输出')
     parser.add_argument('--top', type=positive_int, metavar='N', help='按 --sort 返回前N人，默认税前薪资排序')
@@ -369,6 +385,14 @@ def main(argv=None):
     parser.add_argument('--birth-year-min', type=int, help='最早出生年份，包含该年')
     parser.add_argument('--birth-year-max', type=int, help='最晚出生年份，包含该年')
     args = parser.parse_args(argv)
+    def fail(status, message):
+        payload = {'status': status, 'message': message, 'season': '2026-27'}
+        if args.json or args.explain:
+            print(json.dumps(payload, ensure_ascii=False))
+            parser.exit(2)
+        parser.exit(2, message + '\n')
+    if args.season != '2026-27':
+        fail('unsupported_season', '本技能仅支持2026–27赛季，不能用本季缓存回答其他赛季。')
     age_filtered = any(v is not None for v in (args.min_age, args.max_age, args.under_age, args.birth_year_min, args.birth_year_max))
     as_of = args.age_date or date.today()
     if any(year is not None and not 1900 <= year <= 2200 for year in (args.birth_year_min, args.birth_year_max)):
@@ -408,18 +432,20 @@ def main(argv=None):
                     'schedule-2026-27.json', 'player-tax-profiles-2026-27.json']
         missing = [name for name in required if not (ROOT / 'assets' / name).is_file()]
         if missing:
-            parser.exit(2, '尚未导入数据，不能提供球员税后数字。缺少：' + ', '.join(missing) +
+            fail('data_missing', '尚未导入数据，不能提供球员税后数字。缺少：' + ', '.join(missing) +
                         '。请按发行包 DATA_FORMAT.md 使用 import_data.py 导入有权使用的数据；'
                         'build_estimates.py 只计算已有数据，不会获取薪资或赛程。\n')
-        parser.exit(2, '税后缓存缺失；请使用 Python 3 的 -X utf8 模式运行同目录 build_estimates.py。不要编造结果。\n')
+        fail('cache_missing', '税后缓存缺失；请使用 Python 3 的 -X utf8 模式运行同目录 build_estimates.py。不要编造结果。\n')
     cache = read(CACHE)
+    if not isinstance(cache, dict) or not isinstance(cache.get('estimates'), list) or not cache.get('model_fingerprint'):
+        fail('data_invalid', '税后缓存结构损坏：' + str(CACHE))
     from estimate import model_fingerprint
     if model_fingerprint() != cache['model_fingerprint']:
-        parser.exit(2, '输入数据或税则已改变，请运行 build_estimates.py 重建缓存后再查询。\n')
+        fail('cache_stale', '输入数据或税则已改变，请运行 build_estimates.py 重建缓存后再查询。\n')
     try:
         birthdays = load_birthdates()
     except (ValueError, KeyError, TypeError) as error:
-        parser.exit(2, '出生日期索引不可用：' + str(error) + '\n')
+        fail('data_invalid', '出生日期索引不可用：' + str(error) + '\n')
     if args.coverage:
         coverage = {k: v for k, v in cache.items() if k != 'estimates'}
         coverage['name_index'] = name_index_coverage(cache['estimates'])
@@ -447,7 +473,7 @@ def main(argv=None):
                 print(json.dumps(payload, ensure_ascii=False, indent=2))
             else:
                 for error in errors:
-                    print(f"{error['query']}：姓名有歧义或未匹配，请提供英文全名；不以相似姓名替代。")
+                    print(f"{error['query']}：{error['message']}")
                     for row in error['candidates']:
                         print(f"- {row['player']}（{row['team']}，ID {row['player_id']}）")
             return 2
@@ -594,6 +620,23 @@ def main(argv=None):
             print('交互图表：' + output['visualization']['html'])
     else:
         print_single(result, cache, args.brief)
+
+
+def main(argv=None):
+    try:
+        return _main(argv)
+    except (FileNotFoundError, PermissionError, json.JSONDecodeError) as error:
+        status = ('permission_denied' if isinstance(error, PermissionError) else
+                  'data_missing' if isinstance(error, FileNotFoundError) else 'data_invalid')
+        message = str(error)
+        if isinstance(error, json.JSONDecodeError):
+            message = 'JSON数据损坏：' + message
+        arguments = sys.argv[1:] if argv is None else argv
+        if '--json' in arguments or '--explain' in arguments:
+            print(json.dumps({'status': status, 'message': message}, ensure_ascii=False))
+        else:
+            print(message, file=sys.stderr)
+        return 2
 
 
 if __name__ == '__main__':

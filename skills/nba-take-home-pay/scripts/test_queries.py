@@ -108,8 +108,9 @@ class FastQueryTests(unittest.TestCase):
         self.assertGreater(result['contract_baseline']['estimated_net_usd'], result['estimated_net_usd'])
         _, text, _ = self.query('库里', '--brief')
         first_line = text.splitlines()[0]
-        self.assertIn('5.48%', first_line)
-        self.assertIn('历史', first_line)
+        self.assertNotIn('5.48%', first_line)
+        self.assertIn('5.48%', text)
+        self.assertIn('历史', text)
         self.assertIn('税前资金分解', text)
         self.assertIn('不是银行到账', text)
         self.assertIn('不预测释放日期', text)
@@ -245,6 +246,32 @@ class FastQueryTests(unittest.TestCase):
         with self.assertRaises(SystemExit) as error:
             self.query(toronto['player'], '--filing-status', 'mfj')
         self.assertEqual(error.exception.code, 2)
+
+    def test_known_player_missing_from_cache_is_not_unknown(self):
+        remaining = [p for p in self.players if p['player'] != 'Yang Hansen']
+        row, error = take_home.match_error(remaining, '杨瀚森')
+        self.assertIsNone(row)
+        self.assertEqual(error['status'], 'player_not_cached')
+        self.assertEqual(error['candidates'][0]['player'], 'Yang Hansen')
+        _, unknown = take_home.match_error(self.players, '不存在的测试姓名xyz')
+        self.assertEqual(unknown['status'], 'not_found')
+        self.assertEqual(unknown['candidates'], [])
+
+    def test_explicit_season_guard(self):
+        with redirect_stdout(StringIO()) as output:
+            with self.assertRaises(SystemExit) as error:
+                take_home.main(['杨瀚森', '--season', '2027-28', '--json'])
+        self.assertEqual(error.exception.code, 2)
+        self.assertEqual(json.loads(output.getvalue())['status'], 'unsupported_season')
+        self.assertEqual(self.json_query('杨瀚森', '--season', '2026-27', '--brief')['player'], 'Yang Hansen')
+
+    def test_file_errors_have_structured_status(self):
+        for error, status in [(FileNotFoundError('missing.json'), 'data_missing'),
+                              (PermissionError('restricted.json'), 'permission_denied'),
+                              (json.JSONDecodeError('bad JSON', '{', 1), 'data_invalid')]:
+            with patch.object(take_home, 'read', side_effect=error), redirect_stdout(StringIO()) as output:
+                self.assertEqual(take_home.main(['杨瀚森', '--json']), 2)
+            self.assertEqual(json.loads(output.getvalue())['status'], status)
 
     def test_fingerprint_gate_rejects_stale_cache(self):
         with patch.object(take_home, 'read', return_value=self.cache), \
