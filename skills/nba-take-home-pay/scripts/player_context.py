@@ -18,7 +18,7 @@ def amount(value):
 
 def describe(record):
     years = str(record['years']) + '年' if record.get('years') is not None else '年限未核实'
-    span = season(record.get('start_year')) + '至' + season(record.get('end_year'))
+    span = season(record.get('start_year')) + (('至' + season(record.get('end_year'))) if record.get('start_year') != record.get('end_year') else '')
     return (years + ' / ' + amount(record.get('total_usd')) + '；保障' + amount(record.get('guaranteed_usd'))
             + '；平均年薪' + amount(record.get('average_salary_usd')) + '；' + span)
 
@@ -27,6 +27,9 @@ def context(player_id, active=True):
     current = record.get('current', [])
     extensions = record.get('extensions', [])
     current_text = ' / '.join(describe(c) for c in current) if current else ('当前合同尚未核实' if active else '非现役保留付款；执行中合同未核实')
+    original = record.get('original_contract')
+    if original:
+        current_text = ('原合同（已履行）：' + describe(original) + '；本季执行的追加续约：' + current_text)
     extension_text = ' / '.join(describe(c) for c in extensions) if extensions else ('页面未列未来续约' if record.get('status') == 'verified' else '续约情况尚未核实')
     return dict(record, current=current, extensions=extensions, current_summary=current_text,
                 extension_summary=extension_text, status=record.get('status', 'unverified'))

@@ -25,7 +25,8 @@
           "type": "Veteran Extension",
           "signed_with": "Golden State Warriors",
           "free_agent": null,
-          "source_heading": "2026-2026 Veteran Extension (CURRENT)"
+          "source_heading": "2026-2026 Veteran Extension (CURRENT)",
+          "signed_year": 2024
         }
       ],
       "extensions": [
@@ -45,7 +46,20 @@
       ],
       "checked_date": "2026-10-10",
       "source": "https://www.spotrac.com/nba/player/_/id/6287/stephen-curry",
-      "note": "按Spotrac页面CURRENT与UPCOMING标签分类；合同总额和均薪不替代本季Cash Total。"
+      "note": "按Spotrac页面CURRENT与UPCOMING标签分类；合同总额和均薪不替代本季Cash Total。",
+      "original_contract": {
+        "years": 4,
+        "total_usd": 215353664,
+        "guaranteed_usd": 215353664,
+        "average_salary_usd": 53838416,
+        "start_year": 2022,
+        "end_year": 2025,
+        "signed_year": 2021,
+        "status": "completed",
+        "source": "https://www.spotrac.com/nba/player/_/id/6287/stephen-curry"
+      },
+      "lineage_note": "原合同4年已于2025–26结束；2026–27为2024年另外签下的一年续约，不是四年合同的最后一年。",
+      "lineage_source": "https://www.nba.com/news/stephen-curry-warriors-extension-2024"
     },
     "20208": {
       "player_id": "20208",

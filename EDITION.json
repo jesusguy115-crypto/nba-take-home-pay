@@ -1,6 +1,6 @@
 {
   "name": "nba-take-home-pay",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "edition": "full",
   "dataset_included": true,
   "publication_status": "release-ready",

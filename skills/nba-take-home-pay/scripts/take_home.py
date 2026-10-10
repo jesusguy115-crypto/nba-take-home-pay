@@ -273,7 +273,12 @@ def settlement_label(result):
 
 def print_single(result, cache, brief=False):
     chosen = result['filing_scenario']['status']
-    print(f"{result['player']}（{result['roster_status_label']}；{result['roster_team_display']}）2026–27 赛季税后合同收入估计约 {result['rounded_net_usd']/10000:,.0f} 万美元（{settlement_label(result)}；{LABELS[chosen]}）。")
+    print(f"{result['player']}（{result['roster_status_label']}；{result['roster_team_display']}）2026–27 赛季税后合同收入估计约 {result['rounded_net_usd']/10000:,.0f} 万美元。")
+    from player_context import context
+    contract = result.get('contract_context') or context(result['player_id'], result.get('active_roster', True))
+    print('当前合同：' + contract['current_summary'])
+    print('另列未来续约：' + contract['extension_summary'])
+    print('计算说明：' + settlement_label(result) + '；' + LABELS[chosen])
     print(f"本季扣减及补发均为零的税后基准：约{result['contract_baseline']['rounded_net_usd']/10000:,.0f}万美元；保留同一上季扣减假设，2026–27实际结算尚未知。")
     print(f"公开资料情景估算，非真实税单或银行到账。Spotrac税前薪资 ${result['spotrac_salary_usd']:,.0f}；估计税负 {result['effective_tax_rate']:.1%}；数据截至 {result['captured_date']}。")
     print(f"年龄：{result['age'] if result.get('age') is not None else '未知'}岁（截至{result['age_as_of']}）。")
@@ -287,10 +292,6 @@ def print_single(result, cache, brief=False):
         single = variants['single']['rounded_net_usd'] / 10000
         joint = variants['mfj']['rounded_net_usd'] / 10000
         print(f'身份对照：Single约{single:,.0f}万美元；MFJ约{joint:,.0f}万美元。此为身份情景比较，非误差区间。')
-    from player_context import context
-    contract = result.get('contract_context') or context(result['player_id'], result.get('active_roster', True))
-    print('当前合同：' + contract['current_summary'])
-    print('另列未来续约：' + contract['extension_summary'])
     print('主要不确定因素：')
     for line in common_uncertainties(cache, result['team'], result['residence_scenario'], result['escrow_scenario']) + result['specific_uncertainties']:
         print('- ' + line)
@@ -313,7 +314,6 @@ def print_batch(output):
     basis = {'gross': '税前合同现金薪资', 'net': '估计税后合同收入', 'input': '输入顺序'}[query['sort']]
     direction = '从低到高' if query.get('order') == 'asc' else '从高到低' if query.get('order') == 'desc' else '保持输入顺序'
     print(f"2026–27赛季，共{output['returned_count']}人；排序依据：{basis}，{direction}。")
-    print('联盟结算情景：' + query['settlement_note'] + '；2026–27实际结算尚未知。')
     print('年龄按周岁计算，截至 ' + query['age_as_of'] + '。')
     if query.get('age_filter'):
         print('年龄范围：' + query['age_filter']['description'])
@@ -322,6 +322,7 @@ def print_batch(output):
     for index, row in enumerate(output['results'], 1):
         rank = row.get('rank', index)
         print(f"| {rank} | {row['player']} | {row['age'] if row.get('age') is not None else '未知'} | {row['roster_status_label']} | {row['roster_team_display']} | {row['spotrac_salary_usd']/10000:,.2f} | {row['rounded_net_usd']/10000:,.0f} | {row['contract_baseline']['rounded_net_usd']/10000:,.0f} | {LABELS[row['filing_scenario']['status']]} | {row['contract_context']['current_summary']} | {row['contract_context']['extension_summary']} |")
+    print('联盟结算情景：' + query['settlement_note'] + '；2026–27实际结算尚未知。')
     print(output['estimate_notice'] + f" 数据截至 {output['salary_captured_date']}。")
     print('未调整基准：' + output['contract_baseline_note'])
     print('查询范围：' + query['scope_note'])

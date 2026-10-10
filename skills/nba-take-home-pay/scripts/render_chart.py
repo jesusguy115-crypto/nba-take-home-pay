@@ -129,14 +129,13 @@ def table_markdown(data):
         return str(value).replace('|', '\\|').replace('\n', ' ')
     lines = [f"# {data['heading']} · {data['subtitle']}", '',
              f"{data['season']}赛季；年龄截至{data['ageDate']}；薪资快照{data['salaryDate']}。单位：万美元。", '',
-             '结算口径：' + data['settlement'], '',
              '| 序号 | 球员 | 年龄 | 状态 | 球队或付款球队 | 合同税前 | 税后估值 | 零调整基准 | 申报情景 | 当前合同 | 未来续约 |',
              '|---:|---|---:|---|---|---:|---:|---:|---|---|---|']
     for i, row in enumerate(data['rows'], 1):
         values = [i, row['name'], row['age'] if row['age'] is not None else '未知', row['status'], row['team'] + (' · 免税州' if row['taxFree'] and '免税州' not in row['team'] else ''),
                   display(row['gross'], 2), display(row['netLabel']), display(row['baselineLabel']), row['filing'], row['contract']['current_summary'], row['contract']['extension_summary']]
         lines.append('| ' + ' | '.join(cell(x) for x in values) + ' |')
-    lines += ['', data['notice'], '', '范围：' + data['scope'], '',
+    lines += ['', '## 计算说明', '', '结算口径：' + data['settlement'], '', data['notice'], '', '范围：' + data['scope'], '',
               '排序基于未取整金额；零调整基准仅移除本季扣减与补发，其他假设保持一致。合同总额、保障及均薪是合同资料，不替代本季工资；未来续约单独列示。合同核对日期：2026-10-10；未核实项明确标记。', '']
     lines += ['- ' + x for x in data['uncertainties']]
     lines += ['', '薪资来源：'] + ['- [' + cell(r['name']) + '](' + r['source'] + ')' for r in data['rows'] if r['source']]
