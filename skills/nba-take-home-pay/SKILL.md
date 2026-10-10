@@ -74,3 +74,7 @@ python3 -X utf8 scripts/take_home.py --compare '库里' '杜兰特' '杨瀚森' 
 跨季升级必须同时更新薪资、赛程、税年规则、申报情景和计算缓存并校验；`metadata.season`只声明适用范围，不意味着引擎已支持任意赛季。数据日期和覆盖以返回结果及 `--coverage` 为准。
 
 视频优先离线导出：用 `scripts/export_video_frames.cjs studio.html frames目录` 导出全部分幕PNG（需Playwright），再用 `scripts/encode_video.py frames目录 output.mp4 --ffmpeg 可执行路径` 生成1920×1080、30fps、H.264、0.4秒交叉淡化的MP4。浏览器实时录制仅作备用，可能掉帧；没有编码依赖时明确说明，不宣称已生成流畅视频。
+
+## 排名变化与选秀届
+
+`--rank-disruption --top N` 在完整筛选名单内分别算税前/税后排名，再取上升与下降各最多N人；默认各10人。零变化不入榜，正数代表税后排名上升，不是换队因果分析。`--draft-year YYYY` 可组合年龄、球队及排名变化；当前选秀映射只有91人，未独立全量复核，必须说明结果是已收录子集，不能称完整某届名单。图表应显示税前排名、税后排名和升降；计算范围以rank_population为准。

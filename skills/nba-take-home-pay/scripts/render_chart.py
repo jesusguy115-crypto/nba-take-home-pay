@@ -48,6 +48,8 @@ def chart_data(payload):
         scope.append(f'{upper}岁以内')
     if under is not None:
         scope.append(f'未满{under}岁')
+    if query.get('draft_year'):
+        scope.append(str(query['draft_year'])+'届（已收录子集）')
     if query.get('team'):
         from duty_days import TEAMS
         scope.insert(0, TEAMS[query['team']][0])
@@ -73,6 +75,10 @@ def chart_data(payload):
     else:
         heading = f'{" · ".join(scope) or "NBA球员"} {season}赛季薪水一览'
     subtitle = '税前薪水与税后估算' if query.get('kind') == 'comparison' else f'本次展示{len(records)}名球员 · 合同收入估算'
+    if query.get('kind') == 'rank_disruption':
+        heading = f'{" · ".join(scope) or "NBA球员"} {season}赛季税前税后排名变化'
+        subtitle = f'在{query.get("rank_population",0)}人中比较 · 上升/下降各最多{query.get("movers_per_direction",10)}人'
+        order = 'input'
     from player_context import context
     media_path = ROOT / 'assets/player-media-2026-27.json'
     media = json.loads(media_path.read_text(encoding='utf-8')) if media_path.is_file() else {}
@@ -109,6 +115,7 @@ def chart_data(payload):
             'rate': money(esc['final_reduction_rate']), 'initial': index,
             'source': safe_url(r['sources']['salary']), 'notes': r.get('specific_uncertainties', []),
         }
+        row['rankChange'] = (f"税前第{r['gross_rank']} → 税后第{r['net_rank']}（{r['rank_delta']:+d}）" if r.get('rank_delta') is not None else '')
         row['contract'] = deepcopy(r.get('contract_context') or context(identifier, active))
         row['contract']['source'] = safe_url(row['contract'].get('source'))
         portrait = media.get('players', {}).get(identifier, {})
@@ -126,7 +133,7 @@ def chart_data(payload):
         'schema': 'nba-ledger/1', 'style': STYLE_VERSION, 'heading': heading, 'subtitle': subtitle,
         'season': payload.get('season', '2026-27'), 'salaryDate': payload.get('salary_captured_date', first.get('captured_date', '未知')),
         'ageDate': query.get('age_as_of', first.get('age_as_of', '未知')), 'metric': metric, 'order': order,
-        'scope': query.get('scope_note', first.get('roster_status_note', '按薪资快照分类。')),
+        'scope': query.get('scope_note', first.get('roster_status_note', '按薪资快照分类。')) + (' '+query['draft_coverage_note'] if query.get('draft_coverage_note') else ''),
         'settlement': query.get('settlement_note') or esc.get('label') or '请参阅查询中的结算情景',
         'notice': payload.get('estimate_notice', '公开资料的情景估算，非私人税单或银行到账。'),
         'uncertainties': payload.get('common_uncertainties', []), 'rows': rows,
@@ -144,6 +151,8 @@ def table_markdown(data):
         values = [i, row['name'], row['age'] if row['age'] is not None else '未知', row['status'], row['team'] + (' · 免税州' if row['taxFree'] and '免税州' not in row['team'] else ''),
                   display(row['gross'], 2), display(row['netLabel']), display(row['baselineLabel']), row['filing'], row['contract']['current_summary'], row['contract']['extension_summary']]
         lines.append('| ' + ' | '.join(cell(x) for x in values) + ' |')
+    if any(r.get('rankChange') for r in data['rows']):
+        lines += ['', '## 税前税后排名变化', '', '| 球员 | 排名变化 |', '|---|---|'] + ['| '+cell(r['name'])+' | '+cell(r['rankChange'])+' |' for r in data['rows']]
     lines += ['', '## 计算说明', '', '结算口径：' + data['settlement'], '', data['notice'], '', '范围：' + data['scope'], '',
               '排序基于未取整金额；零调整基准仅移除本季扣减与补发，其他假设保持一致。合同总额、保障及均薪是合同资料，不替代本季工资；未来续约单独列示。合同核对日期：2026-10-10；未核实项明确标记。', '']
     lines += ['- ' + x for x in data['uncertainties']]

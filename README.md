@@ -206,3 +206,7 @@ python3 skills/nba-take-home-pay/scripts/take_home.py --compare 申京 杰伦格
 ```
 
 在浏览器打开返回的 `story_pack.studio`，点击生成PNG；配套文字位于 `story_pack.report`。支持1至3人。差距拆解不是换队因果模拟，素材不代表真实税单；更新功能没有提高基础数据精度。
+
+## v0.9.3 排名变化与选秀届
+
+`--rank-disruption --top 3` 从完整筛选名单计算税前和税后名次，再列上升、下降各最多3人。`--draft-year 2022` 可组合使用。选秀映射仅91人、未独立全量复核，结果为已收录子集，不代表完整选秀届；图表与文字均标注范围。

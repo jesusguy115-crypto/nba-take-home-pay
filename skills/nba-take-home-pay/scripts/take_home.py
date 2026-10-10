@@ -189,7 +189,8 @@ def brief_result(result):
     output['sources'] = {'salary': result['sources']['salary']}
     for field in ('rank', 'position', 'team_correction', 'cashflow_scenario',
                   'age', 'birth_date', 'age_as_of', 'age_status', 'age_source', 'birth_date_checked',
-                  'roster_status_label', 'roster_team_display', 'roster_status_note', 'contract_context'):
+                  'roster_status_label', 'roster_team_display', 'roster_status_note', 'contract_context',
+                  'gross_rank', 'net_rank', 'rank_delta'):
         if field in result:
             output[field] = result[field]
     if 'cashflow_scenario' in output:
@@ -326,17 +327,33 @@ def print_single(result, cache, brief=False):
 
 def print_batch(output):
     query = output['query']
-    basis = {'gross': '税前合同现金薪资', 'net': '估计税后合同收入', 'input': '输入顺序'}[query['sort']]
+    basis_map = {'gross': '税前合同现金薪资', 'net': '估计税后合同收入',
+                 'input': '输入顺序', 'rank_disruption': '税前vs税后名次差'}
+    basis = basis_map.get(query['sort'], query['sort'])
     direction = '从低到高' if query.get('order') == 'asc' else '从高到低' if query.get('order') == 'desc' else '保持输入顺序'
-    print(f"2026–27赛季，共{output['returned_count']}人；排序依据：{basis}，{direction}。")
+    header = f"2026–27赛季，共{output['matched_count']}人；排序依据：{basis}"
+    if query['sort'] != 'rank_disruption':
+        header += f'，{direction}'
+    print(header + '。')
     print('年龄按周岁计算，截至 ' + query['age_as_of'] + '。')
     if query.get('age_filter'):
         print('年龄范围：' + query['age_filter']['description'])
-    print('| 序号 | 球员 | 年龄 | 阵容状态 | 球队或付款球队/州 | 合同税前（万美元） | 本情景税后约（万美元） | 未调整基准税后约（万美元） | 申报情景 | 当前合同 | 未来续约 |')
-    print('|---:|---|---:|---|---|---:|---:|---:|---:|---|---|')
-    for index, row in enumerate(output['results'], 1):
-        rank = row.get('rank', index)
-        print(f"| {rank} | {row['player']} | {row['age'] if row.get('age') is not None else '未知'} | {row['roster_status_label']} | {row['roster_team_display']} | {row['spotrac_salary_usd']/10000:,.2f} | {row['rounded_net_usd']/10000:,.0f} | {row['contract_baseline']['rounded_net_usd']/10000:,.0f} | {LABELS[row['filing_scenario']['status']]} | {row['contract_context']['current_summary']} | {row['contract_context']['extension_summary']} |")
+    if query.get('draft_year'):
+        print(f'选秀届筛选：{query["draft_year"]}年（curated映射，未覆盖球员不在本表）')
+    if query['sort'] == 'rank_disruption':
+        print('描述性对比，不是换队因果推断。正数为税后名次上升，负数为税后名次下降。')
+        print('| 序号 | 变化 | 税前名次 | 税后名次 | 球员 | 年龄 | 阵容状态 | 球队或付款球队/州 | 合同税前（万美元） | 本情景税后约（万美元） | 有效税率 |')
+        print('|---:|---:|---:|---:|---|---:|---|---|---:|---:|---:|')
+        for index, row in enumerate(output['results'], 1):
+            delta = row.get('rank_delta')
+            delta_str = f'↑{delta}' if delta and delta > 0 else f'↓{-delta}' if delta and delta < 0 else '='
+            print(f"| {index} | {delta_str} | #{row.get('gross_rank','?')} | #{row.get('net_rank','?')} | {row['player']} | {row['age'] if row.get('age') is not None else '未知'} | {row['roster_status_label']} | {row['roster_team_display']} | {row['spotrac_salary_usd']/10000:,.2f} | {row['rounded_net_usd']/10000:,.0f} | {row['effective_tax_rate']:.1%} |")
+    else:
+        print('| 序号 | 球员 | 年龄 | 阵容状态 | 球队或付款球队/州 | 合同税前（万美元） | 本情景税后约（万美元） | 未调整基准税后约（万美元） | 申报情景 | 当前合同 | 未来续约 |')
+        print('|---:|---|---:|---|---|---:|---:|---:|---:|---|---|')
+        for index, row in enumerate(output['results'], 1):
+            rank = row.get('rank', index)
+            print(f"| {rank} | {row['player']} | {row['age'] if row.get('age') is not None else '未知'} | {row['roster_status_label']} | {row['roster_team_display']} | {row['spotrac_salary_usd']/10000:,.2f} | {row['rounded_net_usd']/10000:,.0f} | {row['contract_baseline']['rounded_net_usd']/10000:,.0f} | {LABELS[row['filing_scenario']['status']]} | {row['contract_context']['current_summary']} | {row['contract_context']['extension_summary']} |")
     print('联盟结算情景：' + query['settlement_note'] + '；2026–27实际结算尚未知。')
     print(output['estimate_notice'] + f" 数据截至 {output['salary_captured_date']}。")
     print('未调整基准：' + output['contract_baseline_note'])
@@ -385,6 +402,8 @@ def _main(argv=None):
     parser.add_argument('--age-date', type=age_date, help='年龄基准日YYYY-MM-DD，默认运行机器当地日期')
     parser.add_argument('--birth-year-min', type=int, help='最早出生年份，包含该年')
     parser.add_argument('--birth-year-max', type=int, help='最晚出生年份，包含该年')
+    parser.add_argument('--draft-year', type=int, metavar='YYYY', help='按选秀届筛选；使用 curated 映射，不推断')
+    parser.add_argument('--rank-disruption', action='store_true', help='税前vs税后排名颠覆榜；全量跑两次排序计算名次变化；与--top合用取前N名颠覆者')
     args = parser.parse_args(argv)
     def fail(status, message):
         payload = {'status': status, 'message': message, 'season': '2026-27'}
@@ -407,7 +426,7 @@ def _main(argv=None):
     if args.min_age is not None and ((args.max_age is not None and args.min_age > args.max_age) or
                                      (args.under_age is not None and args.min_age >= args.under_age)):
         parser.error('年龄上下界没有交集')
-    batch = args.top is not None or args.team is not None or args.compare is not None or age_filtered
+    batch = args.top is not None or args.team is not None or args.compare is not None or age_filtered or args.rank_disruption or args.draft_year is not None
     if args.coverage and (args.player or batch or args.scenario or args.explain or args.ledger or args.filing_status or args.settlement or args.scope or args.sort or args.order or args.chart):
         parser.error('--coverage 不能与球员查询、排名、身份或计算情景混用')
     if args.explain and args.ledger:
@@ -416,6 +435,10 @@ def _main(argv=None):
         parser.error('--chart 展示收入查询，不与逐日账 --ledger 混用')
     if args.chart and args.chart.suffix.lower() != '.html':
         parser.error('--chart 输出路径必须以 .html 结尾')
+    if args.draft_year is not None and args.player:
+        parser.error('--draft-year 用于联盟或球队名单筛选；单人查询不按选秀届筛选')
+    if args.rank_disruption and args.player:
+        parser.error('--rank-disruption 跑全量两次排序，不与单人姓名合用')
     if args.player and batch:
         parser.error('单人姓名与 --top/--team/--compare 不能同时使用')
     if args.compare and (args.top or args.team):
@@ -430,6 +453,16 @@ def _main(argv=None):
         parser.error('--compare 使用 --order 时请同时选择 --sort gross 或 net')
     if args.compare and args.scope:
         parser.error('--compare 按明确姓名查询，不接受 --scope 筛选')
+    if args.rank_disruption and (args.player or args.compare):
+        parser.error('--rank-disruption 不能与单人姓名或 --compare 合用；它跑全量两次排序')
+    if args.rank_disruption and args.sort:
+        parser.error('--rank-disruption 固定跑税前和税后两次排序，不需要 --sort')
+    if args.rank_disruption and args.order:
+        parser.error('--rank-disruption 固定输出升名/降名两个方向的颠覆者，不需要 --order')
+    if args.draft_year is not None and not 1947 <= args.draft_year <= 2030:
+        parser.error('选秀年份须为 1947 至 2030 的整数')
+    if args.draft_year is not None and (args.player or args.compare):
+        parser.error('--draft-year 用于联盟或球队名单筛选；单人及 --compare 不按选秀届筛选')
     if not CACHE.exists():
         required = ['salaries-2026-27.json', 'salaries-2025-26.json',
                     'schedule-2026-27.json', 'player-tax-profiles-2026-27.json']
@@ -493,12 +526,30 @@ def _main(argv=None):
                                      args.birth_year_min, args.birth_year_max)
         except ValueError as error:
             parser.exit(2, str(error) + '\n')
+    draft_year_filter = None
+    if args.draft_year is not None:
+        draft_path = ROOT / 'assets' / 'draft-classes-2026-27.json'
+        if not draft_path.exists():
+            parser.exit(2, f'选秀届 curated 映射缺失：{draft_path}\n')
+        draft_data = read(draft_path)
+        # Accept either {player_id: year} or {year: [player_ids]} shapes
+        if 'player_id_to_draft_year' in draft_data:
+            pid_map = draft_data['player_id_to_draft_year']
+        elif draft_data and all(isinstance(v, int) for v in draft_data.values()):
+            pid_map = draft_data
+        else:
+            parser.exit(2, f'draft-classes 格式不可识别：{draft_path}\n')
+        match_pids = {pid for pid, yr in pid_map.items() if yr == args.draft_year}
+        if not match_pids:
+            parser.exit(2, f'curated 映射中没有 {args.draft_year} 届球员；请确认年份或补充数据\n')
+        selected = [(row, q) for row, q in selected if str(row['player_id']) in match_pids]
+        draft_year_filter = args.draft_year
     selected_count = len(selected)
     basis = args.sort or (None if args.compare else 'gross')
     # Gross rank does not depend on filing status. Select first so an unused
     # Canadian player cannot block a US-only Top N comparison. Net rank needs
     # every eligible player's chosen estimate and therefore validates all of them.
-    if batch and args.top is not None and basis == 'gross':
+    if batch and args.top is not None and basis == 'gross' and not args.rank_disruption:
         direction = 1 if args.order == 'asc' else -1
         selected.sort(key=lambda pair: (direction * pair[0]['spotrac_salary_usd'], pair[0]['player'].casefold(), str(pair[0]['player_id'])))
         selected = selected[:args.top]
@@ -524,11 +575,36 @@ def _main(argv=None):
         result.update(age_metadata(result['player_id'], birthdays, as_of))
         results.append(result)
     if batch:
-        basis = args.sort or (None if args.compare else 'gross')
-        results = sorted_results(results, basis, args.order or 'desc')
         count = selected_count
-        if args.top is not None:
-            results = results[:args.top]
+        if args.rank_disruption:
+            # Full two-pass sort: compute gross_rank and net_rank for every result,
+            # then pick the top movers (largest positive and negative rank deltas).
+            gross_sorted = sorted_results([dict(r) for r in results], 'gross')
+            net_sorted = sorted_results([dict(r) for r in results], 'net')
+            gross_map = {r['player_id']: r['rank'] for r in gross_sorted}
+            net_map = {r['player_id']: r['rank'] for r in net_sorted}
+            for row in results:
+                row['gross_rank'] = gross_map.get(row['player_id'])
+                row['net_rank'] = net_map.get(row['player_id'])
+                row['rank_delta'] = (row['gross_rank'] - row['net_rank']) if row['gross_rank'] and row['net_rank'] else None
+            top_n = args.top or 10
+            disrupted = sorted(results, key=lambda r: (r['rank_delta'] is None, -r['rank_delta'] or 0))
+            up = [r for r in disrupted if r['rank_delta'] > 0][:top_n]
+            down = sorted([r for r in results if r['rank_delta'] < 0], key=lambda r: (r['rank_delta'], r['player'].casefold(), str(r['player_id'])))[:top_n]
+            # Merge: up movers first, then down movers (dedup by player_id)
+            seen_pids = set()
+            merged = []
+            for r in up + down:
+                if r['player_id'] not in seen_pids:
+                    merged.append(r)
+                    seen_pids.add(r['player_id'])
+            results = merged
+            basis = 'rank_disruption'
+        else:
+            basis = args.sort or (None if args.compare else 'gross')
+            results = sorted_results(results, basis, args.order or 'desc')
+            if args.top is not None:
+                results = results[:args.top]
         scope = 'named_players' if args.compare else args.scope or ('active' if args.team else 'all')
         scope_note = ('仅列指定姓名，重复球员合并一次。' if args.compare else
                       '按当前快照的Active Roster球员列示。' if scope == 'active' else
@@ -539,9 +615,9 @@ def _main(argv=None):
             scope_note += '薪资为每名球员全部付款球队的CashTotal合计。'
         settlement = results[0]['escrow_scenario'] if results else {'final_reduction_rate': 0 if args.settlement == 'baseline' else 0.0548}
         output = shared_metadata(cache, args.team, compact=args.brief, settlement=settlement)
-        output.update(query={'kind': 'comparison' if args.compare else 'team' if args.team else 'ranking',
+        output.update(query={'kind': 'rank_disruption' if args.rank_disruption else 'comparison' if args.compare else 'team' if args.team else 'ranking',
                              'team': args.team, 'scope': scope, 'scope_note': scope_note,
-                             'sort': basis or 'input', 'top': args.top,
+                             'sort': basis or 'input', 'top': args.top, 'movers_per_direction': (args.top or 10) if args.rank_disruption else None,
                              'order': args.order or ('desc' if basis else 'input'),
                              'age_as_of': as_of.isoformat(),
                              'age_filter': {'min_inclusive': args.min_age, 'max_inclusive': args.max_age,
@@ -553,9 +629,13 @@ def _main(argv=None):
                                                 f'未满{args.under_age}岁' if args.under_age is not None else '',
                                                 f'{args.birth_year_min}年及以后出生' if args.birth_year_min is not None else '',
                                                 f'{args.birth_year_max}年及以前出生' if args.birth_year_max is not None else '') if text)} if age_filtered else None,
+                             'draft_year': draft_year_filter,
+                             'draft_coverage_note': '选秀映射仅覆盖91人，未经本次独立全量复核；结果是已收录子集，不是完整该届名单。' if draft_year_filter else None,
+                             'rank_population': count if args.rank_disruption else None,
                              'settlement': args.settlement or 'historical',
                              'settlement_note': settlement_label(results[0]) if results else ('本季扣减及补发均为零的税后基准' if args.settlement == 'baseline' else '按5.48%历史扣减比例参照'),
-                             'ranking_note': '按指定方向排序未取整金额；同金额并列名次，再按英文姓名与ID排序；最多返回指定人数。'},
+                             'ranking_note': ('税前vs税后排名颠覆榜：同一份名单分别按未取整税前和税后估值排序，计算名次差；正数为税后名次上升，负数为税后名次下降。描述性对比，不是换队因果推断。' if args.rank_disruption else
+                                              '按指定方向排序未取整金额；同金额并列名次，再按英文姓名与ID排序；最多返回指定人数。')},
                       matched_count=count, returned_count=len(results),
                       results=[brief_result(row) if args.brief else
                                {k: v for k, v in row.items() if k not in FULL_ONLY} for row in results])
