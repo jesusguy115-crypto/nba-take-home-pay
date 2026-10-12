@@ -23,6 +23,7 @@ def safe_url(value):
 
 
 def display(value, decimals=0):
+    if value is None: return "暂无估值"
     return format(value / 10000, ',.' + str(decimals) + 'f')
 
 
@@ -92,6 +93,8 @@ def chart_data(payload):
         if identifier in ids:
             raise ValueError('Duplicate player ID in chart query')
         ids.add(identifier)
+        from darko_value import value_for
+        valuation = r.get('darko_value') or value_for(identifier)
         esc = r['escrow_scenario']
         baseline = r['contract_baseline']
         active = bool(r['active_roster'])
@@ -108,6 +111,7 @@ def chart_data(payload):
             'gross': money(r['spotrac_salary_usd']), 'settledGross': money(r['gross_usd']),
             'tax': money(r['estimated_tax_usd']), 'baseline': money(baseline['estimated_net_usd']),
             'baselineLabel': money(baseline['rounded_net_usd']),
+            'value': valuation['value_usd'], 'valueMeta': valuation,
             'reduction': money(r['settlement_impact']['gross_reduction_usd']),
             'supplement': money(r.get('extra_settlement_bonus_usd', 0)),
             'cup': money(r.get('extra_cup_bonus_usd', 0)),
@@ -136,6 +140,7 @@ def chart_data(payload):
         'scope': query.get('scope_note', first.get('roster_status_note', '按薪资快照分类。')) + (' '+query['draft_coverage_note'] if query.get('draft_coverage_note') else ''),
         'settlement': query.get('settlement_note') or esc.get('label') or '请参阅查询中的结算情景',
         'notice': payload.get('estimate_notice', '公开资料的情景估算，非私人税单或银行到账。'),
+        'valueNote': 'DARKO价值估算：评级截至'+str(rows[0]['valueMeta'].get('ratings_through') if rows else '未知')+'；抓取于'+str(rows[0]['valueMeta'].get('captured_at','')[:10] if rows else '未知')+'。年化球场价值，非收入或合同报价；与2026–27工资不属同一时间口径。',
         'uncertainties': payload.get('common_uncertainties', []), 'rows': rows,
     }
 
@@ -145,16 +150,17 @@ def table_markdown(data):
         return str(value).replace('|', '\\|').replace('\n', ' ')
     lines = [f"# {data['heading']} · {data['subtitle']}", '',
              f"{data['season']}赛季；年龄截至{data['ageDate']}；薪资快照{data['salaryDate']}。单位：万美元。", '',
-             '| 序号 | 球员 | 年龄 | 状态 | 球队或付款球队 | 合同税前 | 税后估值 | 零调整基准 | 申报情景 | 当前合同 | 未来续约 |',
+             '| 序号 | 球员 | 年龄 | 状态 | 球队或付款球队 | 合同税前 | 税后估值 | DARKO价值估算 | 申报情景 | 当前合同 | 未来续约 |',
              '|---:|---|---:|---|---|---:|---:|---:|---|---|---|']
     for i, row in enumerate(data['rows'], 1):
         values = [i, row['name'], row['age'] if row['age'] is not None else '未知', row['status'], row['team'] + (' · 免税州' if row['taxFree'] and '免税州' not in row['team'] else ''),
-                  display(row['gross'], 2), display(row['netLabel']), display(row['baselineLabel']), row['filing'], row['contract']['current_summary'], row['contract']['extension_summary']]
+                  display(row['gross'], 2), display(row['netLabel']), display(row['value']), row['filing'], row['contract']['current_summary'], row['contract']['extension_summary']]
         lines.append('| ' + ' | '.join(cell(x) for x in values) + ' |')
     if any(r.get('rankChange') for r in data['rows']):
         lines += ['', '## 税前税后排名变化', '', '| 球员 | 排名变化 |', '|---|---|'] + ['| '+cell(r['name'])+' | '+cell(r['rankChange'])+' |' for r in data['rows']]
     lines += ['', '## 计算说明', '', '结算口径：' + data['settlement'], '', data['notice'], '', '范围：' + data['scope'], '',
               '排序基于未取整金额；零调整基准仅移除本季扣减与补发，其他假设保持一致。合同总额、保障及均薪是合同资料，不替代本季工资；未来续约单独列示。合同核对日期：2026-10-10；未核实项明确标记。', '']
+    lines += ['', data['valueNote'], '[DARKO估值方法](https://beta.darko.app/about/fair-salary)', '']
     lines += ['- ' + x for x in data['uncertainties']]
     lines += ['', '薪资来源：'] + ['- [' + cell(r['name']) + '](' + r['source'] + ')' for r in data['rows'] if r['source']]
     return '\n'.join(lines) + '\n'
@@ -165,7 +171,7 @@ def static_table(data):
     cells = []
     for i, row in enumerate(data['rows'], 1):
         values = [str(i), row['name'], str(row['age']) if row['age'] is not None else '未知', row['status'], row['team'] + (' · 免税州' if row['taxFree'] and '免税州' not in row['team'] else ''),
-                  display(row['gross'], 2), display(row['netLabel']), display(row['baselineLabel']), row['filing'], row['contract']['current_summary'], row['contract']['extension_summary']]
+                  display(row['gross'], 2), display(row['netLabel']), display(row['value']), row['filing'], row['contract']['current_summary'], row['contract']['extension_summary']]
         cells.append('<tr>' + ''.join('<td>' + e(v) + '</td>' for v in values) + '</tr>')
     return ''.join(cells)
 

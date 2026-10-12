@@ -19,3 +19,8 @@ Noto Sans SC 中文子集与 Barlow Semi Condensed 拉丁字体按 SIL Open Font
 ## 球员头像及球队标志
 
 媒体来源为 ESPN 与 NBA.com，逐图来源及哈希保存在 player-media-2026-27.json。头像、队徽及商标不适用项目 MIT 再许可，权利属于相应权利人；本项目不声称来源方授权或背书。部分头像来自大学或早期赛季，队徽独立按薪资快照匹配。合同缓存只保留结构化事实，不复制整段网页合同说明。
+
+
+## DARKO
+
+当前公开榜单快照来源 https://beta.darko.app/ ，方法 https://beta.darko.app/about/fair-salary 。数据及DARKO名称不属于本项目MIT许可范围；原始字段、来源和抓取日期见assets/darko-current.json。仅存当前快照，不收集历史。

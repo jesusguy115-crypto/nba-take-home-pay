@@ -210,3 +210,8 @@ python3 skills/nba-take-home-pay/scripts/take_home.py --compare 申京 杰伦格
 ## v0.9.3 排名变化与选秀届
 
 `--rank-disruption --top 3` 从完整筛选名单计算税前和税后名次，再列上升、下降各最多3人。`--draft-year 2022` 可组合使用。选秀映射仅91人、未独立全量复核，结果为已收录子集，不代表完整选秀届；图表与文字均标注范围。
+
+
+### v0.9.4：税后、税前、DARKO价值
+
+图表的三个主选项是税后估算、Spotrac税前薪水、DARKO价值估算。随包提供当前530人榜单，与薪资姓名对应433人；评级截至2026-06-03，抓取于2026-10-12。估值是年化球场贡献，不是合同报价；与2026–27工资时间口径不同。更新方法见技能references/darko-value.md。小范围比较附图时会自动导出并验证16:9 MP4，需Node.js、Playwright Chromium、FFmpeg；缺依赖会明确报告视频未完成，同时保留表图。

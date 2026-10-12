@@ -42,6 +42,12 @@ def write_pack(rows, destination, season, salary_date):
         md += [f"| 最终税后差距 | {data['difference']['net_difference']/10000:+,.2f} |",'',data['note'],'']
     for p in data['players']:
         md+=['## '+p['name'],'','| 项目 | 金额 |','|---|---:|']+[f"| {s['label']} | {s['amount']/10000:+,.2f} |" for s in p['steps'] if s['amount']]+[f"| 税后估值 | {p['net']/10000:,.2f} |",'']
+    from darko_value import value_for
+    md += ['## DARKO价值估算（非收入）','', '| 球员 | 年化估值（万美元） | 评级截至 |','|---|---:|---|']
+    for row in rows:
+        value=value_for(row['player_id']);amount=value['value_usd']
+        md.append('| '+row['player']+' | '+(f'{amount/10000:,.0f}' if amount is not None else '暂无估值')+' | '+str(value['ratings_through'])+' |')
+    md += ['', '与2026–27工资日期/工资帽口径不同，不自动计算超值差额。来源 https://beta.darko.app/about/fair-salary','']
     first=data['players'][0]
     spoken=f"{season}赛季，{first['name']}的税后合同收入估计约{first['net']/10000:,.0f}万美元。"
     if len(rows)==2:
@@ -57,6 +63,8 @@ def write_pack(rows, destination, season, salary_date):
     for p,r,v in zip(data['players'],rows,visual):
         all_steps=[(x['label'],x['amount']) for x in p['steps']]
         scenes=[('合同收入与最终结果', [('合同税前薪水',r['spotrac_salary_usd']),('最终税后估值',p['net'])])]
+        if v.get('value') is not None:
+            scenes.append(('DARKO球场价值估算（非收入）', [('DARKO年化价值',v['value'])]))
         nonzero=[x for x in all_steps[1:] if x[1] != 0]
         for offset in range(0,len(nonzero),5):
             scenes.append(('工资扣减与抵免明细',nonzero[offset:offset+5]))
@@ -75,10 +83,13 @@ def write_pack(rows, destination, season, salary_date):
             text(92,875,v['team'],28,'#abb3b4')
             text(800,237,scene_title,30,'#abb3b4')
             text(790,370,f'{p["net"]/10000:,.0f}',112,'#d8bc79');text(1190,365,'万美元',30,'#d8bc79')
-            maximum=r['spotrac_salary_usd']
+            maximum=max(r['spotrac_salary_usd'],*[abs(value) for _,value in values],1)
             for i,(label,value) in enumerate(values):
                 y=455+i*85;text(800,y,label,27,'#abb3b4');text(1530,y,f'{value/10000:+,.2f}',32)
                 parts.append(f'<rect x="800" y="{y+25}" width="980" height="12" rx="6" fill="#293134"/><rect x="800" y="{y+25}" width="{max(3,abs(value)/maximum*980)}" height="12" rx="6" fill="{"#d8bc79" if value>0 else "#9a7770"}"/>')
+            if 'DARKO' in scene_title:
+                text(800,840,'评级截至 '+str(v['valueMeta']['ratings_through'])+' · 与薪资时间口径不同',25,'#abb3b4')
+                text(800,880,'来源 beta.darko.app · 年化模型估值，不代表合同报价',25,'#abb3b4')
             text(800,925,f'单位：万美元 · 第{scene_index+1}/{len(scenes)}幕 · 零额项目见配套明细',24,'#abb3b4')
             parts.append('<path d="M64 970H1856" stroke="#343c3e"/>')
             text(64,1020,f'薪资快照 {salary_date} · Spotrac / 头像 ESPN',23,'#abb3b4')

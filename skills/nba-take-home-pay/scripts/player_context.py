@@ -38,5 +38,7 @@ def context(player_id, active=True):
                 extension_summary=extension_text, status='conflict' if conflict else record.get('status', 'unverified'))
 
 def enrich(result):
+    from darko_value import value_for
+    result["darko_value"] = value_for(result["player_id"])
     result['contract_context'] = context(result['player_id'], result.get('active_roster', True))
     return result

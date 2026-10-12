@@ -190,7 +190,7 @@ def brief_result(result):
     for field in ('rank', 'position', 'team_correction', 'cashflow_scenario',
                   'age', 'birth_date', 'age_as_of', 'age_status', 'age_source', 'birth_date_checked',
                   'roster_status_label', 'roster_team_display', 'roster_status_note', 'contract_context',
-                  'gross_rank', 'net_rank', 'rank_delta'):
+                  'gross_rank', 'net_rank', 'rank_delta', 'darko_value'):
         if field in result:
             output[field] = result[field]
     if 'cashflow_scenario' in output:
@@ -292,6 +292,8 @@ def print_single(result, cache, brief=False):
     print(f"{result['player']}（{result['roster_status_label']}；{result['roster_team_display']}）2026–27 赛季税后合同收入估计约 {result['rounded_net_usd']/10000:,.0f} 万美元。")
     from player_context import context
     contract = result.get('contract_context') or context(result['player_id'], result.get('active_roster', True))
+    from render_chart import display
+    print('税前薪水：'+display(result['spotrac_salary_usd'])+'万美元；DARKO价值估算：'+display(result.get('darko_value',{}).get('value_usd'))+'万美元。')
     print('当前合同：' + contract['current_summary'])
     print('另列未来续约：' + contract['extension_summary'])
     print('计算说明：' + settlement_label(result) + '；' + LABELS[chosen])
@@ -320,12 +322,14 @@ def print_single(result, cache, brief=False):
             print(f"另有指定补发工资假设${cash['supplemental_settlement_payment_before_tax_usd']:,.0f}（税前），已纳入应税收入重算；不代表已确定补发。")
         if 'net_after_assumed_agent_fee_usd' in cash:
             print(f"另减指定经纪费后的情景金额：${cash['net_after_assumed_agent_fee_usd']:,.0f}；未再次扣除发薪暂扣。")
+    print('DARKO评级截至 '+str(result.get('darko_value',{}).get('ratings_through'))+'；年化球场价值估算，不是实际收入；与本季薪资时间口径不同。来源 https://beta.darko.app/about/fair-salary')
     print('薪资来源：' + result['sources']['salary'])
     if not brief:
         print('逐项计算：同一命令加 --explain；逐日假设账：加 --ledger。')
 
 
 def print_batch(output):
+    from render_chart import display
     query = output['query']
     basis_map = {'gross': '税前合同现金薪资', 'net': '估计税后合同收入',
                  'input': '输入顺序', 'rank_disruption': '税前vs税后名次差'}
@@ -349,13 +353,14 @@ def print_batch(output):
             delta_str = f'↑{delta}' if delta and delta > 0 else f'↓{-delta}' if delta and delta < 0 else '='
             print(f"| {index} | {delta_str} | #{row.get('gross_rank','?')} | #{row.get('net_rank','?')} | {row['player']} | {row['age'] if row.get('age') is not None else '未知'} | {row['roster_status_label']} | {row['roster_team_display']} | {row['spotrac_salary_usd']/10000:,.2f} | {row['rounded_net_usd']/10000:,.0f} | {row['effective_tax_rate']:.1%} |")
     else:
-        print('| 序号 | 球员 | 年龄 | 阵容状态 | 球队或付款球队/州 | 合同税前（万美元） | 本情景税后约（万美元） | 未调整基准税后约（万美元） | 申报情景 | 当前合同 | 未来续约 |')
+        print('| 序号 | 球员 | 年龄 | 阵容状态 | 球队或付款球队/州 | 合同税前（万美元） | 本情景税后约（万美元） | DARKO价值估算（万美元） | 申报情景 | 当前合同 | 未来续约 |')
         print('|---:|---|---:|---|---|---:|---:|---:|---:|---|---|')
         for index, row in enumerate(output['results'], 1):
             rank = row.get('rank', index)
-            print(f"| {rank} | {row['player']} | {row['age'] if row.get('age') is not None else '未知'} | {row['roster_status_label']} | {row['roster_team_display']} | {row['spotrac_salary_usd']/10000:,.2f} | {row['rounded_net_usd']/10000:,.0f} | {row['contract_baseline']['rounded_net_usd']/10000:,.0f} | {LABELS[row['filing_scenario']['status']]} | {row['contract_context']['current_summary']} | {row['contract_context']['extension_summary']} |")
+            print(f"| {rank} | {row['player']} | {row['age'] if row.get('age') is not None else '未知'} | {row['roster_status_label']} | {row['roster_team_display']} | {row['spotrac_salary_usd']/10000:,.2f} | {row['rounded_net_usd']/10000:,.0f} | {display(row.get('darko_value',{}).get('value_usd'))} | {LABELS[row['filing_scenario']['status']]} | {row['contract_context']['current_summary']} | {row['contract_context']['extension_summary']} |")
     print('联盟结算情景：' + query['settlement_note'] + '；2026–27实际结算尚未知。')
     print(output['estimate_notice'] + f" 数据截至 {output['salary_captured_date']}。")
+    print('DARKO评级截至 '+str(output['results'][0].get('darko_value',{}).get('ratings_through') if output['results'] else '未知')+'；年化球场价值估算，与本季工资时间口径不同。来源 https://beta.darko.app/about/fair-salary')
     print('未调整基准：' + output['contract_baseline_note'])
     print('查询范围：' + query['scope_note'])
     print('同金额并列名次，按英文姓名和ID稳定排序；截取指定人数。')
@@ -655,6 +660,8 @@ def _main(argv=None):
             try:
                 from render_chart import write_chart
                 output['visualization'] = write_chart(output, args.chart)
+                from video_pipeline import complete_video
+                video_ok = complete_video(output, args.chart)
             except (ValueError, KeyError, OSError) as error:
                 parser.exit(2, '图表生成失败：' + str(error) + '\n')
         if args.json:
@@ -663,7 +670,7 @@ def _main(argv=None):
             print_batch(output)
             if args.chart:
                 print('交互图表：' + output['visualization']['html'])
-        return
+        return 3 if args.chart and not video_ok else 0
     result = results[0]
     if args.scenario or args.explain or args.ledger:
         from estimate import estimate_player, load
@@ -720,6 +727,8 @@ def _main(argv=None):
                     args.chart.parent.mkdir(parents=True, exist_ok=True)
                     output['story_pack'] = write_pack([result], args.chart, result['season'], result['captured_date'])
                 output['visualization'] = write_chart(output, args.chart)
+                from video_pipeline import complete_video
+                video_ok = complete_video(output, args.chart)
             except (ValueError, KeyError, OSError) as error:
                 parser.exit(2, '图表生成失败：' + str(error) + '\n')
         if args.json or args.explain:
@@ -729,6 +738,7 @@ def _main(argv=None):
             print('交互图表：' + output['visualization']['html'])
     else:
         print_single(result, cache, args.brief)
+    return 3 if args.chart and not video_ok else 0
 
 
 def main(argv=None):

@@ -5,6 +5,7 @@ from render_chart import write_chart
 p=argparse.ArgumentParser(description=__doc__);p.add_argument('query',type=Path);p.add_argument('video',type=Path);a=p.parse_args()
 v=a.video.resolve();meta=json.loads(v.with_suffix('.verification.json').read_text())
 if not meta.get('cfr_verified') or not v.is_file():raise ValueError('缺少通过验证的视频')
+if meta.get('video_sha256') != hashlib.sha256(v.read_bytes()).hexdigest():raise ValueError('视频文件校验不匹配，必须重新导出')
 # Require the operator to encode this query's studio; do not discover similarly named files.
 data=json.loads(a.query.read_text())
 studio=Path(data['story_pack']['studio']);manifest=meta.get('frame_manifest') or {}

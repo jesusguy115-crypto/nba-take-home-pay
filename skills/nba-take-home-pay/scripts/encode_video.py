@@ -8,6 +8,7 @@ import shutil
 import subprocess
 import json
 import re
+import hashlib
 
 def main():
     p=argparse.ArgumentParser(description=__doc__)
@@ -31,6 +32,6 @@ def main():
     verification=subprocess.run([args.ffmpeg,'-hide_banner','-i',str(args.output),'-vf','vfrdet','-f','null','-'],capture_output=True,text=True,check=True)
     if 'VFR:0.000000' not in verification.stderr:
         raise ValueError('视频固定帧率验证未通过')
-    args.output.with_suffix('.verification.json').write_text(json.dumps({'status':'verified','resolution':'1920x1080','fps':30,'codec':'H.264','audio':False,'scenes':len(frames),'seconds_per_scene':args.seconds,'cfr_verified':True,'frame_manifest':json.loads((args.frames/'manifest.json').read_text()) if (args.frames/'manifest.json').exists() else None},indent=2))
+    args.output.with_suffix('.verification.json').write_text(json.dumps({'video_sha256':hashlib.sha256(args.output.read_bytes()).hexdigest(),'status':'verified','resolution':'1920x1080','fps':30,'codec':'H.264','audio':False,'scenes':len(frames),'seconds_per_scene':args.seconds,'cfr_verified':True,'frame_manifest':json.loads((args.frames/'manifest.json').read_text()) if (args.frames/'manifest.json').exists() else None},indent=2))
     print(f'{args.output}: 1920x1080, 30 fps CFR, {args.seconds+(len(frames)-1)*(args.seconds-.4):.1f}s, silent H.264')
 if __name__=='__main__':main()
