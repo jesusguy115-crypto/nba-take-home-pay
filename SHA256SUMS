@@ -89,7 +89,7 @@ b11c3a76cbb5bbdc80b297e4fd0a8d743d1388e1eab66197a2de8c72976ea26d  skills/nba-tak
 342a20004b386d721a6ec6f87fe10b79bb7ee5b020b1b0deb21bab271a8160cf  skills/nba-take-home-pay/scripts/render_chart.py
 aff6c35f1f70ff54b708a5dc7cb2876de019156167742384ebd99fe958f62786  skills/nba-take-home-pay/scripts/result_quality.py
 edc44954dc39ce2fe309d28c65a4c829e5bcb338b9ecfd66abeace7f2e2f8a8a  skills/nba-take-home-pay/scripts/state_labels.py
-bda5c6eed8d990eb49c96b26657a46d061155032bd4679cca69b2c47dfaca7cc  skills/nba-take-home-pay/scripts/story_pack.py
+da725dbc2108683bfa00267f33348c5a28813ce14c42de6599241a7c508098e6  skills/nba-take-home-pay/scripts/story_pack.py
 4b5d7a16a9238d0ce1790336848e0ce7d1e0d4b95eb37e7dab39c6683e5953d0  skills/nba-take-home-pay/scripts/take_home.py
 cae47daa7bb12967369a195abc18b90749367dbd9fdad4c767e17753c4e1a350  skills/nba-take-home-pay/scripts/tax-east.json
 f01b74ff1ee01893df92d66c0358ba0640413fa2e60d18bbfb7f85e8901621f6  skills/nba-take-home-pay/scripts/tax-federal-crossborder.json

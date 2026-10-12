@@ -82,7 +82,7 @@ def write_pack(rows, destination, season, salary_date):
             text(90,215,p['name'],54)
             text(92,875,v['team'],28,'#abb3b4')
             text(800,237,scene_title,30,'#abb3b4')
-            text(790,370,f'{p["net"]/10000:,.0f}',112,'#d8bc79');text(1190,365,'万美元',30,'#d8bc79')
+            text(790,370,f'{(v["value"] if "DARKO" in scene_title else p["net"])/10000:,.0f}',112,'#d8bc79');text(1190,365,'万美元',30,'#d8bc79')
             maximum=max(r['spotrac_salary_usd'],*[abs(value) for _,value in values],1)
             for i,(label,value) in enumerate(values):
                 y=455+i*85;text(800,y,label,27,'#abb3b4');text(1530,y,f'{value/10000:+,.2f}',32)
