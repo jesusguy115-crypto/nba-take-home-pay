@@ -57,8 +57,8 @@ def chart_data(payload):
     season = payload.get('season', '2026-27')
     basis = query.get('sort', 'net')
     order = query.get('order', 'desc' if basis != 'input' else 'input')
-    metric = 'gross' if basis == 'gross' else 'baseline' if query.get('settlement') == 'baseline' else 'net'
-    initial_label = '税前薪水' if metric == 'gross' else '零调整税后薪水' if metric == 'baseline' else '税后薪水'
+    metric = 'gross' if basis == 'gross' else 'net'
+    initial_label = '税前薪水' if metric == 'gross' else '税后薪水'
     player_labels = [names.get(r['player_id'], r['player']) for r in records]
     if query.get('kind') == 'comparison':
         subject = '、'.join(player_labels[:3])
@@ -93,10 +93,6 @@ def chart_data(payload):
         if identifier in ids:
             raise ValueError('Duplicate player ID in chart query')
         ids.add(identifier)
-        from darko_value import value_for
-        valuation = r.get('darko_value') or value_for(identifier)
-        esc = r['escrow_scenario']
-        baseline = r['contract_baseline']
         active = bool(r['active_roster'])
         label = r.get('roster_status_label') or ('现役' if active else '非现役·保留付款')
         team = r['team_tax_context']
@@ -109,14 +105,9 @@ def chart_data(payload):
             'filingNote': r['filing_scenario'].get('note', '采用公开资料工资情景，不确认个人真实申报身份。'),
             'net': money(r['estimated_net_usd']), 'netLabel': money(r['rounded_net_usd']),
             'gross': money(r['spotrac_salary_usd']), 'settledGross': money(r['gross_usd']),
-            'tax': money(r['estimated_tax_usd']), 'baseline': money(baseline['estimated_net_usd']),
-            'baselineLabel': money(baseline['rounded_net_usd']),
-            'value': valuation['value_usd'], 'valueMeta': valuation,
-            'reduction': money(r['settlement_impact']['gross_reduction_usd']),
-            'supplement': money(r.get('extra_settlement_bonus_usd', 0)),
+            'tax': money(r['estimated_tax_usd']),
             'cup': money(r.get('extra_cup_bonus_usd', 0)),
-            'withheld': money(r['cashflow_scenario']['temporary_escrow_usd']),
-            'rate': money(esc['final_reduction_rate']), 'initial': index,
+            'initial': index,
             'source': safe_url(r['sources']['salary']), 'notes': r.get('specific_uncertainties', []),
         }
         row['rankChange'] = (f"税前第{r['gross_rank']} → 税后第{r['net_rank']}（{r['rank_delta']:+d}）" if r.get('rank_delta') is not None else '')
@@ -132,15 +123,13 @@ def chart_data(payload):
         row['portraitStatus'] = portrait.get('status', 'unavailable')
         rows.append(row)
     first = records[0] if records else {}
-    esc = first.get('escrow_scenario', {})
     return {
         'schema': 'nba-ledger/1', 'style': STYLE_VERSION, 'heading': heading, 'subtitle': subtitle,
         'season': payload.get('season', '2026-27'), 'salaryDate': payload.get('salary_captured_date', first.get('captured_date', '未知')),
         'ageDate': query.get('age_as_of', first.get('age_as_of', '未知')), 'metric': metric, 'order': order,
         'scope': query.get('scope_note', first.get('roster_status_note', '按薪资快照分类。')) + (' '+query['draft_coverage_note'] if query.get('draft_coverage_note') else ''),
-        'settlement': query.get('settlement_note') or esc.get('label') or '请参阅查询中的结算情景',
+        'calculationNote': '完整合同薪水减估算税款；未计联盟托管及结算、经纪费和个人扣款。',
         'notice': payload.get('estimate_notice', '公开资料的情景估算，非私人税单或银行到账。'),
-        'valueNote': 'DARKO价值估算：评级截至'+str(rows[0]['valueMeta'].get('ratings_through') if rows else '未知')+'；抓取于'+str(rows[0]['valueMeta'].get('captured_at','')[:10] if rows else '未知')+'。年化球场价值，非收入或合同报价；与2026–27工资不属同一时间口径。',
         'uncertainties': payload.get('common_uncertainties', []), 'rows': rows,
     }
 
@@ -150,17 +139,16 @@ def table_markdown(data):
         return str(value).replace('|', '\\|').replace('\n', ' ')
     lines = [f"# {data['heading']} · {data['subtitle']}", '',
              f"{data['season']}赛季；年龄截至{data['ageDate']}；薪资快照{data['salaryDate']}。单位：万美元。", '',
-             '| 序号 | 球员 | 年龄 | 状态 | 球队或付款球队 | 合同税前 | 税后估值 | DARKO价值估算 | 申报情景 | 当前合同 | 未来续约 |',
-             '|---:|---|---:|---|---|---:|---:|---:|---|---|---|']
+             '| 序号 | 球员 | 年龄 | 状态 | 球队或付款球队 | 合同税前 | 税后估值 | 申报情景 | 当前合同 | 未来续约 |',
+             '|---:|---|---:|---|---|---:|---:|---|---|---|']
     for i, row in enumerate(data['rows'], 1):
         values = [i, row['name'], row['age'] if row['age'] is not None else '未知', row['status'], row['team'] + (' · 免税州' if row['taxFree'] and '免税州' not in row['team'] else ''),
-                  display(row['gross'], 2), display(row['netLabel']), display(row['value']), row['filing'], row['contract']['current_summary'], row['contract']['extension_summary']]
+                  display(row['gross'], 2), display(row['netLabel']), row['filing'], row['contract']['current_summary'], row['contract']['extension_summary']]
         lines.append('| ' + ' | '.join(cell(x) for x in values) + ' |')
     if any(r.get('rankChange') for r in data['rows']):
         lines += ['', '## 税前税后排名变化', '', '| 球员 | 排名变化 |', '|---|---|'] + ['| '+cell(r['name'])+' | '+cell(r['rankChange'])+' |' for r in data['rows']]
-    lines += ['', '## 计算说明', '', '结算口径：' + data['settlement'], '', data['notice'], '', '范围：' + data['scope'], '',
-              '排序基于未取整金额；零调整基准仅移除本季扣减与补发，其他假设保持一致。合同总额、保障及均薪是合同资料，不替代本季工资；未来续约单独列示。合同核对日期：2026-10-10；未核实项明确标记。', '']
-    lines += ['', data['valueNote'], '[DARKO估值方法](https://beta.darko.app/about/fair-salary)', '']
+    lines += ['', '## 计算说明', '', '计算范围：' + data['calculationNote'], '', data['notice'], '', '范围：' + data['scope'], '',
+              '排序基于未取整金额；税后金额为完整合同薪水减估算税款。合同总额、保障及均薪是合同资料，不替代本季工资；未来续约单独列示。合同核对日期：2026-10-10；未核实项明确标记。', '']
     lines += ['- ' + x for x in data['uncertainties']]
     lines += ['', '薪资来源：'] + ['- [' + cell(r['name']) + '](' + r['source'] + ')' for r in data['rows'] if r['source']]
     return '\n'.join(lines) + '\n'
@@ -171,7 +159,7 @@ def static_table(data):
     cells = []
     for i, row in enumerate(data['rows'], 1):
         values = [str(i), row['name'], str(row['age']) if row['age'] is not None else '未知', row['status'], row['team'] + (' · 免税州' if row['taxFree'] and '免税州' not in row['team'] else ''),
-                  display(row['gross'], 2), display(row['netLabel']), display(row['value']), row['filing'], row['contract']['current_summary'], row['contract']['extension_summary']]
+                  display(row['gross'], 2), display(row['netLabel']), row['filing'], row['contract']['current_summary'], row['contract']['extension_summary']]
         cells.append('<tr>' + ''.join('<td>' + e(v) + '</td>' for v in values) + '</tr>')
     return ''.join(cells)
 

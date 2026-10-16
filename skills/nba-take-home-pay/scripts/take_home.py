@@ -20,9 +20,7 @@ AMOUNT_FIELDS = ('estimated_net_usd', 'rounded_net_usd', 'estimated_tax_usd',
                  'effective_tax_rate', 'components_usd')
 SCENARIO_FIELDS = (*AMOUNT_FIELDS, 'filing_scenario', 'specific_uncertainties',
                    'assumptions', 'gross_usd', 'contract_gross_usd',
-                   'escrow_scenario', 'contract_baseline', 'settlement_impact',
-                   'cashflow_scenario', 'previous_season_adjusted_gross_usd',
-                   'calculation_type', 'extra_settlement_bonus_usd')
+                   'calculation_type')
 FULL_ONLY = {'years', 'source_distribution', 'duty_summary', 'assumptions'}
 
 
@@ -87,21 +85,6 @@ def cached_scenario(row, status=None, settlement=None):
         if status != row['filing_scenario']['status']:
             for field in ('years', 'source_distribution', 'duty_summary', 'assumptions'):
                 result.pop(field, None)
-    if not all(field in result for field in ('escrow_scenario', 'contract_baseline', 'settlement_impact', 'cashflow_scenario')):
-        raise ValueError('缓存缺少联盟结算层，请运行 build_estimates.py 重建；不能把旧税后数字当成结算后收入。')
-    if settlement == 'baseline':
-        baseline = result['contract_baseline']
-        if not all(field in baseline for field in (*AMOUNT_FIELDS, 'escrow_scenario', 'cashflow_scenario')):
-            raise ValueError('缓存缺少完整合同基准，请运行 build_estimates.py 重建。')
-        for field in SCENARIO_FIELDS:
-            if field in baseline and field != 'contract_baseline':
-                result[field] = deepcopy(baseline[field])
-        result['filing_scenarios'] = {
-            name: deepcopy(variant['contract_baseline'])
-            for name, variant in row.get('filing_scenarios', {}).items()
-        }
-        for field in FULL_ONLY:
-            result.pop(field, None)
     if status and status != 'individual_canada':
         result['filing_scenario']['selection_reason'] = 'user_requested_counterfactual'
     result['query_path'] = 'precomputed_cache'
@@ -123,19 +106,13 @@ def schedule_note(cache, team=None):
 
 def common_uncertainties(cache, team=None, residence=None, settlement=None):
     location = '球队城市' if residence is None else ' '.join(str(residence.get(k) or '') for k in ('country', 'state', 'city')).strip()
-    rate = (settlement or {}).get('final_reduction_rate', 0.0548)
-    withholding = (settlement or {}).get('withholding_rate', 0.10)
-    supplemental = (settlement or {}).get('settlement_bonus_usd', 0)
-    settlement_caveat = (f'联盟结算：2026–27最终扣减率尚未确定；本结果采用{rate:.2%}扣减情景，税款已按该工资情景计算。'
-                         if rate or supplemental else '联盟结算：本结果是本季扣减及补发均为零的税后基准，不代表已知全额返还；2026–27最终扣减率尚未确定。')
     return [
         f'居民地与申报：采用{location}居民情景；真实税籍、申报方式、配偶收入和个人扣除未知。',
         schedule_note(cache, team),
         '伤病与下放：默认随队；异地康复或G联赛服务会改变税源分摊。',
         '跨税年：按24期发薪分配；2027未发布税则参数沿用2026代理，已立法变化另计。',
         '额外收入和行程：默认不加杯赛/季后赛奖金、季后赛和异地季前赛工作日。',
-        settlement_caveat,
-        f'现金时点：{withholding:.2%}发薪暂扣与最终工资扣减不可重复相减；本结果不预测工资预扣或返还日期。',
+        '计算范围：完整合同薪水减估算税款；未计联盟托管及最终结算。',
         '实际到账：协定、汇率、抵免、经纪费、NBPA会费和个人扣款仍会影响结果。',
     ]
 
@@ -161,14 +138,8 @@ def brief_result(result):
               'estimated_tax_usd', 'effective_tax_rate', 'team_tax_context',
               'captured_date', 'model_version', 'tax_checked_date', 'query_path',
               'residence_scenario', 'gross_usd', 'contract_gross_usd', 'extra_cup_bonus_usd',
-              'escrow_scenario', 'settlement_impact', 'extra_settlement_bonus_usd', 'calculation_type')
+              'calculation_type')
     output = {field: result[field] for field in fields}
-    output['escrow_scenario'] = {field: result['escrow_scenario'][field] for field in (
-        'withholding_rate', 'final_reduction_rate', 'prior_season_final_reduction_rate',
-        'settlement_bonus_usd', 'label', 'selection_reason', 'supplemental_payment_status',
-        'current_season_rate_status', 'actual_2026_27_rate_known', 'historical_reference_season',
-        'prior_season_rate_status', 'legacy_escrow_rate_used')}
-    output['escrow_scenario']['timing_note'] = '按24期比例归属税年；实际预扣、返还日期及税务处理未知。'
     output['filing_scenario'] = {
         'status': result['filing_scenario']['status'],
         'selection_reason': result['filing_scenario']['selection_reason'],
@@ -184,20 +155,13 @@ def brief_result(result):
         for key, value in result.get('filing_scenarios', {}).items()
     }
     output['specific_uncertainties'] = result['specific_uncertainties']
-    output['contract_baseline'] = {field: result['contract_baseline'][field]
-        for field in ('estimated_net_usd', 'rounded_net_usd', 'estimated_tax_usd', 'gross_usd')}
     output['sources'] = {'salary': result['sources']['salary']}
-    for field in ('rank', 'position', 'team_correction', 'cashflow_scenario',
+    for field in ('rank', 'position', 'team_correction', 'agent_fee_scenario',
                   'age', 'birth_date', 'age_as_of', 'age_status', 'age_source', 'birth_date_checked',
                   'roster_status_label', 'roster_team_display', 'roster_status_note', 'contract_context',
-                  'gross_rank', 'net_rank', 'rank_delta', 'darko_value'):
+                  'gross_rank', 'net_rank', 'rank_delta'):
         if field in result:
             output[field] = result[field]
-    if 'cashflow_scenario' in output:
-        # Money and unknown actual-payroll fields remain local to each player;
-        # the common explanation and source documents appear once per response.
-        output['cashflow_scenario'] = {key: value for key, value in output['cashflow_scenario'].items()
-                                       if key != 'note'}
     return output
 
 
@@ -206,18 +170,12 @@ def shared_metadata(cache, team=None, compact=False, residence=None, settlement=
         'season': cache['season'], 'model_version': cache['model_version'],
         'salary_captured_date': cache['salary_captured_date'],
         'estimate_notice': '公开资料的情景点估计，非真实税单或银行到账；无经真实税单验证的固定误差率。',
-        'contract_baseline_note': '本季扣减及补发均为零、保留同一上季扣减假设的税后基准。',
         'common_uncertainties': common_uncertainties(cache, team, residence, settlement),
     }
     for key in ('data_versions', 'schedule_coverage'):
         if key in cache:
             output[key] = cache[key]
     if compact:
-        if settlement:
-            output['settlement_rules'] = {key: settlement[key] for key in (
-                'historical_reference_status', 'tax_timing_policy', 'supplemental_allocation_policy',
-                'withholding_scope', 'sources') if key in settlement}
-            output['settlement_rules']['cashflow_note'] = '暂扣、返还和补扣均为税前分解，最终扣减只计算一次；未估算实际工资预扣或银行到账。返还时点及税务处理未知。'
         if 'data_versions' in output:
             output['data_versions'] = {category: {key: version[key] for key in ('version', 'as_of') if key in version}
                                        for category, version in output['data_versions'].items()}
@@ -274,30 +232,16 @@ def sorted_results(rows, basis, order='desc'):
     return ordered
 
 
-def settlement_label(result):
-    settlement = result['escrow_scenario']
-    if settlement['final_reduction_rate'] == 0 and not settlement.get('settlement_bonus_usd'):
-        return '本季扣减及补发均为零的税后基准'
-    if 'historical' in settlement['selection_reason']:
-        label = f"按{settlement['final_reduction_rate']:.2%}历史扣减比例参照（非本赛季已知结算）"
-    else:
-        label = settlement.get('label') or f"本赛季最终扣减率假设{settlement['final_reduction_rate']:.2%}，实际比例未知"
-    if settlement.get('settlement_bonus_usd'):
-        label += f"，另含指定税前补发${settlement['settlement_bonus_usd']:,.0f}假设"
-    return label
-
-
 def print_single(result, cache, brief=False):
     chosen = result['filing_scenario']['status']
     print(f"{result['player']}（{result['roster_status_label']}；{result['roster_team_display']}）2026–27 赛季税后合同收入估计约 {result['rounded_net_usd']/10000:,.0f} 万美元。")
     from player_context import context
     contract = result.get('contract_context') or context(result['player_id'], result.get('active_roster', True))
     from render_chart import display
-    print('税前薪水：'+display(result['spotrac_salary_usd'])+'万美元；DARKO价值估算：'+display(result.get('darko_value',{}).get('value_usd'))+'万美元。')
+    print('税前薪水：'+display(result['spotrac_salary_usd'])+'万美元。')
     print('当前合同：' + contract['current_summary'])
     print('另列未来续约：' + contract['extension_summary'])
-    print('计算说明：' + settlement_label(result) + '；' + LABELS[chosen])
-    print(f"本季扣减及补发均为零的税后基准：约{result['contract_baseline']['rounded_net_usd']/10000:,.0f}万美元；保留同一上季扣减假设，2026–27实际结算尚未知。")
+    print('申报情景：' + LABELS[chosen])
     print(f"公开资料情景估算，非真实税单或银行到账。Spotrac税前薪资 ${result['spotrac_salary_usd']:,.0f}；估计税负 {result['effective_tax_rate']:.1%}；数据截至 {result['captured_date']}。")
     print(f"年龄：{result['age'] if result.get('age') is not None else '未知'}岁（截至{result['age_as_of']}）。")
     print(filing_note(result))
@@ -311,18 +255,8 @@ def print_single(result, cache, brief=False):
         joint = variants['mfj']['rounded_net_usd'] / 10000
         print(f'身份对照：Single约{single:,.0f}万美元；MFJ约{joint:,.0f}万美元。此为身份情景比较，非误差区间。')
     print('主要不确定因素：')
-    for line in common_uncertainties(cache, result['team'], result['residence_scenario'], result['escrow_scenario']) + result['specific_uncertainties']:
+    for line in common_uncertainties(cache, result['team'], result['residence_scenario']) + result['specific_uncertainties']:
         print('- ' + line)
-    if result.get('cashflow_scenario'):
-        cash = result['cashflow_scenario']
-        print(f"税前资金分解：发薪暂扣${cash['temporary_escrow_usd']:,.0f}；本情景最终扣减${cash['modeled_final_reduction_usd']:,.0f}；预计可释放${cash['modeled_refund_before_tax_usd']:,.0f}。均为税前情景金额，不是银行到账；不预测释放日期。")
-        if cash.get('modeled_additional_collection_before_tax_usd'):
-            print(f"假设最终扣减超过暂扣部分，另列待结算${cash['modeled_additional_collection_before_tax_usd']:,.0f}；具体执行机制需核定。")
-        if cash.get('supplemental_settlement_payment_before_tax_usd'):
-            print(f"另有指定补发工资假设${cash['supplemental_settlement_payment_before_tax_usd']:,.0f}（税前），已纳入应税收入重算；不代表已确定补发。")
-        if 'net_after_assumed_agent_fee_usd' in cash:
-            print(f"另减指定经纪费后的情景金额：${cash['net_after_assumed_agent_fee_usd']:,.0f}；未再次扣除发薪暂扣。")
-    print('DARKO评级截至 '+str(result.get('darko_value',{}).get('ratings_through'))+'；年化球场价值估算，不是实际收入；与本季薪资时间口径不同。来源 https://beta.darko.app/about/fair-salary')
     print('薪资来源：' + result['sources']['salary'])
     if not brief:
         print('逐项计算：同一命令加 --explain；逐日假设账：加 --ledger。')
@@ -353,15 +287,12 @@ def print_batch(output):
             delta_str = f'↑{delta}' if delta and delta > 0 else f'↓{-delta}' if delta and delta < 0 else '='
             print(f"| {index} | {delta_str} | #{row.get('gross_rank','?')} | #{row.get('net_rank','?')} | {row['player']} | {row['age'] if row.get('age') is not None else '未知'} | {row['roster_status_label']} | {row['roster_team_display']} | {row['spotrac_salary_usd']/10000:,.2f} | {row['rounded_net_usd']/10000:,.0f} | {row['effective_tax_rate']:.1%} |")
     else:
-        print('| 序号 | 球员 | 年龄 | 阵容状态 | 球队或付款球队/州 | 合同税前（万美元） | 本情景税后约（万美元） | DARKO价值估算（万美元） | 申报情景 | 当前合同 | 未来续约 |')
+        print('| 序号 | 球员 | 年龄 | 阵容状态 | 球队或付款球队/州 | 合同税前（万美元） | 本情景税后约（万美元） | 申报情景 | 当前合同 | 未来续约 |')
         print('|---:|---|---:|---|---|---:|---:|---:|---:|---|---|')
         for index, row in enumerate(output['results'], 1):
             rank = row.get('rank', index)
-            print(f"| {rank} | {row['player']} | {row['age'] if row.get('age') is not None else '未知'} | {row['roster_status_label']} | {row['roster_team_display']} | {row['spotrac_salary_usd']/10000:,.2f} | {row['rounded_net_usd']/10000:,.0f} | {display(row.get('darko_value',{}).get('value_usd'))} | {LABELS[row['filing_scenario']['status']]} | {row['contract_context']['current_summary']} | {row['contract_context']['extension_summary']} |")
-    print('联盟结算情景：' + query['settlement_note'] + '；2026–27实际结算尚未知。')
+            print(f"| {rank} | {row['player']} | {row['age'] if row.get('age') is not None else '未知'} | {row['roster_status_label']} | {row['roster_team_display']} | {row['spotrac_salary_usd']/10000:,.2f} | {row['rounded_net_usd']/10000:,.0f} | {LABELS[row['filing_scenario']['status']]} | {row['contract_context']['current_summary']} | {row['contract_context']['extension_summary']} |")
     print(output['estimate_notice'] + f" 数据截至 {output['salary_captured_date']}。")
-    print('DARKO评级截至 '+str(output['results'][0].get('darko_value',{}).get('ratings_through') if output['results'] else '未知')+'；年化球场价值估算，与本季工资时间口径不同。来源 https://beta.darko.app/about/fair-salary')
-    print('未调整基准：' + output['contract_baseline_note'])
     print('查询范围：' + query['scope_note'])
     print('同金额并列名次，按英文姓名和ID稳定排序；截取指定人数。')
     print('免税州仅免州个人所得税，联邦、工资及适用的客场税仍计入。')
@@ -398,7 +329,7 @@ def _main(argv=None):
     parser.add_argument('--ledger', action='store_true', help='返回逐日假设地点和依据 JSON')
     parser.add_argument('--scenario', type=Path, help='个人情景 JSON 文件；触发重算')
     parser.add_argument('--filing-status', choices=['single', 'mfj', 'individual_canada'], help='从缓存选择身份情景；不声明真实报税身份')
-    parser.add_argument('--settlement', choices=['baseline', 'historical'], help='baseline为未作联盟结算调整的基准；historical按5.48%%历史扣减比例估算（默认），非2026–27已知结果。与--scenario合用时覆盖扣减率，baseline同时将本季补发设为0')
+    parser.add_argument('--settlement', choices=['baseline'], help=argparse.SUPPRESS)
     parser.add_argument('--coverage', action='store_true', help='查看缓存覆盖情况')
     parser.add_argument('--min-age', type=age_bound, help='最低周岁，包含边界')
     upper = parser.add_mutually_exclusive_group()
@@ -480,6 +411,8 @@ def _main(argv=None):
     cache = read(CACHE)
     if not isinstance(cache, dict) or not isinstance(cache.get('estimates'), list) or not cache.get('model_fingerprint'):
         fail('data_invalid', '税后缓存结构损坏：' + str(CACHE))
+    if cache.get('cache_schema_version') != 4:
+        fail('cache_stale', '此缓存仍使用旧收入口径，请运行 build_estimates.py 重建完整工资税后缓存。')
     from estimate import model_fingerprint
     if model_fingerprint() != cache['model_fingerprint']:
         fail('cache_stale', '输入数据或税则已改变，请运行 build_estimates.py 重建缓存后再查询。\n')
@@ -618,8 +551,7 @@ def _main(argv=None):
             scope_note += '按该队付款记录筛选；显示每名球员全部付款球队的总薪资，不是该队单独付款额。'
         else:
             scope_note += '薪资为每名球员全部付款球队的CashTotal合计。'
-        settlement = results[0]['escrow_scenario'] if results else {'final_reduction_rate': 0 if args.settlement == 'baseline' else 0.0548}
-        output = shared_metadata(cache, args.team, compact=args.brief, settlement=settlement)
+        output = shared_metadata(cache, args.team, compact=args.brief, settlement=None)
         output.update(query={'kind': 'rank_disruption' if args.rank_disruption else 'comparison' if args.compare else 'team' if args.team else 'ranking',
                              'team': args.team, 'scope': scope, 'scope_note': scope_note,
                              'sort': basis or 'input', 'top': args.top, 'movers_per_direction': (args.top or 10) if args.rank_disruption else None,
@@ -637,8 +569,6 @@ def _main(argv=None):
                              'draft_year': draft_year_filter,
                              'draft_coverage_note': '选秀映射仅覆盖91人，未经本次独立全量复核；结果是已收录子集，不是完整该届名单。' if draft_year_filter else None,
                              'rank_population': count if args.rank_disruption else None,
-                             'settlement': args.settlement or 'historical',
-                             'settlement_note': settlement_label(results[0]) if results else ('本季扣减及补发均为零的税后基准' if args.settlement == 'baseline' else '按5.48%历史扣减比例参照'),
                              'ranking_note': ('税前vs税后排名颠覆榜：同一份名单分别按未取整税前和税后估值排序，计算名次差；正数为税后名次上升，负数为税后名次下降。描述性对比，不是换队因果推断。' if args.rank_disruption else
                                               '按指定方向排序未取整金额；同金额并列名次，再按英文姓名与ID排序；最多返回指定人数。')},
                       matched_count=count, returned_count=len(results),
@@ -656,9 +586,13 @@ def _main(argv=None):
             from story_pack import write_pack
             args.chart.parent.mkdir(parents=True, exist_ok=True)
             output['story_pack'] = write_pack(results, args.chart, cache['season'], cache.get('salary_captured_date', cache.get('captured_date', '2026-10-09')))
+        from tax_only_output import clean
+        output = clean(output)
         if args.chart:
             try:
                 from render_chart import write_chart
+                from tax_only_output import clean
+                output = clean(output)
                 output['visualization'] = write_chart(output, args.chart)
                 from video_pipeline import complete_video
                 video_ok = complete_video(output, args.chart)
@@ -679,15 +613,9 @@ def _main(argv=None):
         scenario = read(args.scenario) if args.scenario else {}
         if args.filing_status:
             scenario['filing_status'] = args.filing_status
-        if args.settlement:
-            scenario['final_reduction_rate'] = 0 if args.settlement == 'baseline' else 0.0548
-            if args.settlement == 'baseline':
-                scenario['settlement_bonus_usd'] = 0
         try:
             recalculated = estimate_player(player, salaries, load('salaries-2025-26.json'),
                                            load('schedule-2026-27.json'), scenario, full=True)
-            if args.settlement == 'historical':
-                recalculated['escrow_scenario']['selection_reason'] = 'user_requested_historical_reference_preset'
             if not args.scenario:
                 recalculated['filing_scenarios'] = result['filing_scenarios']
             if result.get('team_correction'):
@@ -711,7 +639,7 @@ def _main(argv=None):
         if args.brief:
             output = brief_result(result)
             output.update(shared_metadata(cache, result['team'], compact=True, residence=result['residence_scenario'],
-                                          settlement=result['escrow_scenario']))
+                                          settlement=None))
         else:
             output = result if args.explain else {k: v for k, v in result.items() if k not in FULL_ONLY}
         from result_quality import metadata, check
@@ -719,18 +647,22 @@ def _main(argv=None):
         output['quality'] = check(result)
         if args.chart:
             output.update(shared_metadata(cache, result['team'], compact=True, residence=result['residence_scenario'],
-                                          settlement=result['escrow_scenario']))
+                                          settlement=None))
             try:
                 from render_chart import write_chart
                 if args.story:
                     from story_pack import write_pack
                     args.chart.parent.mkdir(parents=True, exist_ok=True)
                     output['story_pack'] = write_pack([result], args.chart, result['season'], result['captured_date'])
+                from tax_only_output import clean
+                output = clean(output)
                 output['visualization'] = write_chart(output, args.chart)
                 from video_pipeline import complete_video
                 video_ok = complete_video(output, args.chart)
             except (ValueError, KeyError, OSError) as error:
                 parser.exit(2, '图表生成失败：' + str(error) + '\n')
+        from tax_only_output import clean
+        output = clean(output)
         if args.json or args.explain:
             print(json.dumps(output, ensure_ascii=False, indent=None if args.brief else 2))
         else:

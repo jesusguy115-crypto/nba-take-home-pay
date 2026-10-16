@@ -68,7 +68,7 @@ class AgeTests(unittest.TestCase):
         for row in data['results']:
             self.assertTrue(25 <= row['age'] <= 30)
             self.assertEqual(row['team'], 'MIN')
-            self.assertEqual(row['estimated_net_usd'], row['contract_baseline']['estimated_net_usd'])
+            self.assertAlmostEqual(row['gross_usd'], row['spotrac_salary_usd'])
         empty = self.query('--top', '10', '--max-age', '10', '--age-date', '2026-10-10')
         self.assertEqual(empty['returned_count'], 0)
 

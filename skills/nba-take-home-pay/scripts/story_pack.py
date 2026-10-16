@@ -7,9 +7,7 @@ LABELS = {'federal_income_tax':'联邦所得税','national_employee_payroll':'�
 
 def bridge(row):
     steps=[{'label':'合同税前薪水','amount':row['spotrac_salary_usd']}]
-    steps += [{'label':'联盟最终扣减（假设）','amount':-row['cashflow_scenario']['modeled_final_reduction_usd']},
-              {'label':'联盟补发（假设）','amount':row.get('extra_settlement_bonus_usd',0)},
-              {'label':'杯赛奖金（已纳入）','amount':row.get('extra_cup_bonus_usd',0)}]
+    steps += [{'label':'杯赛奖金（已纳入）','amount':row.get('extra_cup_bonus_usd',0)}]
     for key,value in row['components_usd'].items():
         steps.append({'label':LABELS.get(key,key),'amount':-value})
     residual=round(row['estimated_net_usd']-sum(x['amount'] for x in steps),2)
@@ -20,7 +18,7 @@ def bridge(row):
 
 def breakdown(rows):
     ledgers=[{'player':r['player'],'steps':bridge(r),'net':r['estimated_net_usd']} for r in rows]
-    result={'players':ledgers,'note':'会计差额分解，不是换队因果模拟；税款已反映结算工资情景，10%暂扣不重复扣。'}
+    result={'players':ledgers,'note':'会计差额分解，不是换队因果模拟；完整合同薪水减估算税款，未计联盟托管及结算。'}
     if len(rows)==2:
         a,b=ledgers
         labels=list(dict.fromkeys(x['label'] for p in ledgers for x in p['steps']))
@@ -42,18 +40,12 @@ def write_pack(rows, destination, season, salary_date):
         md += [f"| 最终税后差距 | {data['difference']['net_difference']/10000:+,.2f} |",'',data['note'],'']
     for p in data['players']:
         md+=['## '+p['name'],'','| 项目 | 金额 |','|---|---:|']+[f"| {s['label']} | {s['amount']/10000:+,.2f} |" for s in p['steps'] if s['amount']]+[f"| 税后估值 | {p['net']/10000:,.2f} |",'']
-    from darko_value import value_for
-    md += ['## DARKO价值估算（非收入）','', '| 球员 | 年化估值（万美元） | 评级截至 |','|---|---:|---|']
-    for row in rows:
-        value=value_for(row['player_id']);amount=value['value_usd']
-        md.append('| '+row['player']+' | '+(f'{amount/10000:,.0f}' if amount is not None else '暂无估值')+' | '+str(value['ratings_through'])+' |')
-    md += ['', '与2026–27工资日期/工资帽口径不同，不自动计算超值差额。来源 https://beta.darko.app/about/fair-salary','']
     first=data['players'][0]
     spoken=f"{season}赛季，{first['name']}的税后合同收入估计约{first['net']/10000:,.0f}万美元。"
     if len(rows)==2:
         second=data['players'][1]; gap=data['difference']['net_difference'];spoken+=f"{second['name']}约{second['net']/10000:,.0f}万美元，前者{'多' if gap>=0 else '少'}约{abs(gap)/10000:,.0f}万美元。"
-    spoken+='合同工资要经过联盟结算，再扣联邦税、工资税和适用的州及地方税，抵免会减少重复税负。这是基于公开数据的估算，实际申报和结算可能不同，也不包含代言收入。'
-    notes=f'薪资快照 {salary_date}；联盟最终扣减按查询假设；非实际到账；不含经纪费等个人扣款。'
+    spoken+='合同工资扣除联邦税、工资税和适用的州及地方税，抵免会减少重复税负。这是基于公开数据的估算，实际申报及联盟结算可能改变到账金额，也不包含代言收入。'
+    notes=f'薪资快照 {salary_date}；按完整合同薪水减估算税款，未计联盟托管及结算；非实际到账；不含经纪费等个人扣款。'
     md+=['## 约30秒口播（时长随语速变化）','',spoken,'','## 素材说明','',notes,'','各人申报情景：'+'；'.join(r['player']+' '+r['filing_scenario']['status'] for r in rows),'','来源：'+'；'.join(r['sources']['salary'] for r in rows)]
     report=Path(str(dest)+'-story.md');report.write_text('\n'.join(md),encoding='utf-8')
     # SVG text is escaped; all assets are local. Waterfalls preserve the cumulative balance.
@@ -63,8 +55,6 @@ def write_pack(rows, destination, season, salary_date):
     for p,r,v in zip(data['players'],rows,visual):
         all_steps=[(x['label'],x['amount']) for x in p['steps']]
         scenes=[('合同收入与最终结果', [('合同税前薪水',r['spotrac_salary_usd']),('最终税后估值',p['net'])])]
-        if v.get('value') is not None:
-            scenes.append(('DARKO球场价值估算（非收入）', [('DARKO年化价值',v['value'])]))
         nonzero=[x for x in all_steps[1:] if x[1] != 0]
         for offset in range(0,len(nonzero),5):
             scenes.append(('工资扣减与抵免明细',nonzero[offset:offset+5]))
@@ -82,18 +72,15 @@ def write_pack(rows, destination, season, salary_date):
             text(90,215,p['name'],54)
             text(92,875,v['team'],28,'#abb3b4')
             text(800,237,scene_title,30,'#abb3b4')
-            text(790,370,f'{(v["value"] if "DARKO" in scene_title else p["net"])/10000:,.0f}',112,'#d8bc79');text(1190,365,'万美元',30,'#d8bc79')
+            text(790,370,f'{p["net"]/10000:,.0f}',112,'#d8bc79');text(1190,365,'万美元',30,'#d8bc79')
             maximum=max(r['spotrac_salary_usd'],*[abs(value) for _,value in values],1)
             for i,(label,value) in enumerate(values):
                 y=455+i*85;text(800,y,label,27,'#abb3b4');text(1530,y,f'{value/10000:+,.2f}',32)
                 parts.append(f'<rect x="800" y="{y+25}" width="980" height="12" rx="6" fill="#293134"/><rect x="800" y="{y+25}" width="{max(3,abs(value)/maximum*980)}" height="12" rx="6" fill="{"#d8bc79" if value>0 else "#9a7770"}"/>')
-            if 'DARKO' in scene_title:
-                text(800,840,'评级截至 '+str(v['valueMeta']['ratings_through'])+' · 与薪资时间口径不同',25,'#abb3b4')
-                text(800,880,'来源 beta.darko.app · 年化模型估值，不代表合同报价',25,'#abb3b4')
             text(800,925,f'单位：万美元 · 第{scene_index+1}/{len(scenes)}幕 · 零额项目见配套明细',24,'#abb3b4')
             parts.append('<path d="M64 970H1856" stroke="#343c3e"/>')
             text(64,1020,f'薪资快照 {salary_date} · Spotrac / 头像 ESPN',23,'#abb3b4')
-            text(880,1020,f'结算扣减假设 {r["escrow_scenario"]["final_reduction_rate"]:.2%} · 非实际到账 · 不含个人费用',23,'#abb3b4')
+            text(880,1020,'完整合同薪水减估算税款 · 未计联盟结算及个人费用',23,'#abb3b4')
             svg='<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080" font-family="PingFang SC, Microsoft YaHei, Arial, sans-serif">'+''.join(parts)+'</svg>'
             cards.append((p['name']+' · '+scene_title,svg))
     sections=''.join('<section><h2>'+html.escape(label)+'</h2><button onclick="save(this)">生成PNG图片 / 保存</button><button onclick="video(this)">生成完整分幕视频（无配音）</button><div class="art">'+svg+'</div><div class="preview"></div></section>' for label,svg in cards)

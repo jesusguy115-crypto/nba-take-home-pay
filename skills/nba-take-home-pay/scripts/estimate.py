@@ -16,11 +16,10 @@ from data_status import input_file_paths, schedule_uncertainty
 import tax_east as east
 import tax_west as west
 import tax_federal as federal
-import escrow
 
 ROOT=Path(__file__).resolve().parents[1]
 ASSETS=ROOT/'assets'
-VERSION='2026-27.3.0'
+VERSION='2026-27.4.0'
 SEASON='2026-27'
 CHECKED='2026-10-09'
 STATES=set(east.STATES)|set(west.STATES)
@@ -315,13 +314,12 @@ def annual(gross,year,residence,base_state,distribution,ledger,*,toronto_mode=Fa
 
 def _estimate_player_core(player,salaries,previous,schedule,scenario=None,full=True):
     scenario=scenario or {}
-    allowed={'residence_state','residence_city','duty_day_overrides','cup_bonus_usd','agent_fee_rate','escrow_rate','annual_income_2026','annual_income_2027','filing_status','spouse_wages_2026','spouse_wages_2027'} | escrow.SCENARIO_KEYS
+    allowed={'residence_state','residence_city','duty_day_overrides','cup_bonus_usd','agent_fee_rate','annual_income_2026','annual_income_2027','filing_status','spouse_wages_2026','spouse_wages_2027'}
     unsupported=set(scenario)-allowed
     if unsupported:raise ValueError('Unknown scenario keys: '+','.join(sorted(unsupported)))
-    if any(not math.isfinite(float(scenario[k])) or float(scenario[k])<0 for k in ('cup_bonus_usd','agent_fee_rate','escrow_rate','annual_income_2026','annual_income_2027','spouse_wages_2026','spouse_wages_2027') if k in scenario):
+    if any(not math.isfinite(float(scenario[k])) or float(scenario[k])<0 for k in ('cup_bonus_usd','agent_fee_rate','annual_income_2026','annual_income_2027','spouse_wages_2026','spouse_wages_2027') if k in scenario):
         raise ValueError('Scenario amounts must be finite and nonnegative')
     if float(scenario.get('agent_fee_rate',0))>1:raise ValueError('Agent fee rate must be 0..1')
-    settlement=escrow.selection(scenario)
     records_by_id={r['record_id']:r for r in salaries['payment_records']}
     records=[records_by_id[i] for i in player['payment_record_ids']]
     active=[r for r in records if r['source_section']=='Active Roster']
@@ -339,7 +337,7 @@ def _estimate_player_core(player,salaries,previous,schedule,scenario=None,full=T
     if rc and (rc not in city_state or city_state[rc]!=rs):raise ValueError('Residence city must be a supported NBA city in the selected state; omit for no city-tax assumption')
     residence={'country':'CA' if rs=='ON' else 'US','state':rs,'city':rc}
     contract_salary=float(player['cash_total_usd']);bonus=float(scenario.get('cup_bonus_usd',0))
-    salary=contract_salary*(1-settlement['final_reduction_rate'])+settlement['settlement_bonus_usd']
+    salary=contract_salary
     gross=salary+bonus
     ledger=make_ledger(payer,schedule['games'],scenario.get('duty_day_overrides'))
     duty=summarize(ledger)
@@ -350,7 +348,7 @@ def _estimate_player_core(player,salaries,previous,schedule,scenario=None,full=T
     locations=[{**x,'income_share':x['income_share']*active_fraction} for x in duty['locations']]
     prior=next((x for x in previous['players'] if x['player_id']==player['player_id']),None)
     prior_gross=float(prior['cash_total_usd']) if prior else contract_salary
-    adjusted_prior_gross=prior_gross*(1-settlement['prior_season_final_reduction_rate'])
+    adjusted_prior_gross=prior_gross
     annual_gross={2026:float(scenario.get('annual_income_2026',adjusted_prior_gross*5/6+salary/6+bonus)),
                   2027:float(scenario.get('annual_income_2027',salary))}
     parts={2026:salary/6+bonus,2027:salary*5/6}
@@ -387,17 +385,9 @@ def _estimate_player_core(player,salaries,previous,schedule,scenario=None,full=T
         '2027尚未核定的税档、扣除和社保上限使用2026代理；已核实的已立法变化单独应用。',
         '工资覆盖地默认球队所在地；部分雇员保险按法定最大雇员份额，球队代付或私人计划会改变扣款。',
         '跨州分摊和抵免按公开规则简化；州级境外抵免、税表个别调整和历史结转未全面模拟。',
-        f'本赛季最终工资扣减按{settlement["final_reduction_rate"]:.2%}情景重算所有税项，2026–27实际结算未知；默认5.48%仅参考2025–26报道，非预测。',
-        f'上赛季工资按{settlement["prior_season_final_reduction_rate"]:.2%}最终扣减代理2026年度收入；未核实个人上季结算或付款税年。',
-        '暂扣与最终扣减分别记录，不重复扣钱；本赛季结算后工资按24期比例归属税年，不认定返还时才计税或具体到账日期。',
-        '税后估值不扣未知经纪费和个人自愿扣款；暂扣明细仅报告税前现金流，不等于银行到账。',
+        '税后收入按完整合同薪资减估算税款计算；联盟托管、结算、经纪费和个人扣款不纳入。',
     ]
-    flags=[f'联盟结算：2026–27实际扣减率未知，本次用{settlement["final_reduction_rate"]:.2%}假设；默认5.48%来自上季汇总报道，不能视为本季或个人已定结果。',
-           f'跨年托管税务：暂按调整后的工资比例归属2026/2027税年，上季扣减假设{settlement["prior_season_final_reduction_rate"]:.2%}；实际付款、退款与税表处理可能不同。']
-    if settlement['settlement_bonus_usd']:
-        flags.append('联盟补发采用用户指定金额，并按合同服务地比例及24期税年归属代理征税；这不是已确认的补发或发薪日期。')
-    if 'annual_income_2026' in scenario or 'annual_income_2027' in scenario:
-        flags.append('用户年度收入覆盖值视为联盟结算调整后的全年工资；模型不再对覆盖值扣减，基准比较同步撤销本季归属该年的结算调整，保持指定的其他年度收入不变。')
+    flags=['本结果未计联盟托管及结算，实际银行到账可能不同。']
     if payer!='TOR':
         if filing_status=='mfj' and not any(spouse_by_year.values()):
             flags.append('夫妻合报情景只纳入球员工资，配偶收入未纳入模型，不代表配偶实际没有收入；实际申报方式与家庭税负归属仍未知。')
@@ -432,13 +422,11 @@ def _estimate_player_core(player,salaries,previous,schedule,scenario=None,full=T
             'spouse_income_status':'user_supplied_wages' if any(spouse_by_year.values()) else 'not_included_in_wage_only_scenario_not_verified_zero',
             'family_tax_allocation':'proportional_income_tax;individual_payroll;player_road_taxes_and_credits_to_player'},
         'spotrac_salary_usd':contract_salary,'extra_cup_bonus_usd':bonus,'gross_usd':gross,
-        'contract_gross_usd':contract_salary+bonus,'extra_settlement_bonus_usd':settlement['settlement_bonus_usd'],
-        'escrow_scenario':settlement,'cashflow_scenario':escrow.cashflow(contract_salary,bonus,settlement),
+        'contract_gross_usd':contract_salary+bonus,
         'estimated_net_usd':round(gross-round(tax,2),2),'rounded_net_usd':int(round(net/10000))*10000,
         'estimated_tax_usd':round(tax,2),'effective_tax_rate':tax/gross if gross else 0,
         'components_usd':{k:round(v,2) for k,v in components.items()},
         'residence_scenario':residence,'previous_season_gross_usd':prior_gross,
-        'previous_season_adjusted_gross_usd':adjusted_prior_gross,
         'crossborder_scenario':({'tax_residence':'Canada_Ontario','us_citizen':False,
             'treaty_eligible':True,'US_visitor_wage_exemption_conditions_satisfied':True,
             'social_security_coverage':'Canada_CPP_EI',
@@ -450,48 +438,17 @@ def _estimate_player_core(player,salaries,previous,schedule,scenario=None,full=T
         'assumptions':assumptions,'specific_uncertainties':flags,
         'sources':{'salary':player['player_url'],'salary_team_tables':sorted({r['source_url'] for r in records}),
                    'schedule':schedule['source_url'],'rules':'references/tax-sources.md'},
-        'calculation_type':'modeled_settlement_adjusted_after_tax_income_not_bank_deposit',
+        'calculation_type':'contract_wages_less_estimated_taxes_excludes_league_reconciliation',
         'years':years if full else [{k:y[k] for k in ('year','annualized_gross','household_gross','spouse_wages','player_share_of_household_wages','season_payment','season_attribution_fraction','season_attributed_components','season_attributed_tax')} for y in years],
     }
     if scenario.get('agent_fee_rate'):
         fees=(contract_salary+bonus)*float(scenario['agent_fee_rate'])
-        result['cashflow_scenario'].update(agent_fee_usd=round(fees,2),
+        result['agent_fee_scenario']=dict(agent_fee_usd=round(fees,2),
             agent_fee_base='original_contract_cash_plus_Cup_bonus;user_supplied_rate',
             net_after_assumed_agent_fee_usd=round(net-fees,2))
     return result
 
 
 def estimate_player(player,salaries,previous,schedule,scenario=None,full=True):
-    """Selected settlement and tax scenario plus its comparable contract baseline.
-
-    Baseline holds prior-season adjustments, residence, filing and itinerary fixed,
-    and removes only this season's final reduction and supplemental reconciliation.
-    Neither estimate is an assertion of actual W-2 timing or bank deposits.
-    """
-    scenario=dict(scenario or {})
-    result=_estimate_player_core(player,salaries,previous,schedule,scenario,full)
-    selected=result['escrow_scenario']
-    if selected['final_reduction_rate'] or selected['settlement_bonus_usd']:
-        baseline_scenario={**scenario,'final_reduction_rate':0,'settlement_bonus_usd':0}
-        undo_adjustment=result['spotrac_salary_usd']*selected['final_reduction_rate']-selected['settlement_bonus_usd']
-        for year, fraction in ((2026,1/6),(2027,5/6)):
-            key=f'annual_income_{year}'
-            if key in scenario:
-                baseline_scenario[key]=float(scenario[key])+undo_adjustment*fraction
-        baseline=_estimate_player_core(player,salaries,previous,schedule,baseline_scenario,False)
-    else:
-        baseline=result
-    baseline_impact={'gross_reduction_usd':0.0,'supplemental_payment_usd':0.0,
-                     'net_gross_adjustment_usd':0.0,'tax_reduction_usd':0.0,'net_reduction_usd':0.0}
-    baseline['settlement_impact']=baseline_impact
-    baseline_snapshot={key:baseline[key] for key in escrow.SNAPSHOT_FIELDS}
-    baseline_snapshot['comparison_basis']='same_prior_season_adjustment;current_final_reduction_and_supplemental_payment_zero'
-    result['contract_baseline']=baseline_snapshot
-    result['settlement_impact']={
-        'gross_reduction_usd':round(result['spotrac_salary_usd']*selected['final_reduction_rate'],2),
-        'supplemental_payment_usd':selected['settlement_bonus_usd'],
-        'net_gross_adjustment_usd':round(result['gross_usd']-baseline['gross_usd'],2),
-        'tax_reduction_usd':round(baseline['estimated_tax_usd']-result['estimated_tax_usd'],2),
-        'net_reduction_usd':round(baseline['estimated_net_usd']-result['estimated_net_usd'],2),
-    }
-    return result
+    """Estimate taxes on complete contract wages, excluding league reconciliation."""
+    return _estimate_player_core(player,salaries,previous,schedule,scenario,full)

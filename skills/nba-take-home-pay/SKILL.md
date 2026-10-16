@@ -10,9 +10,9 @@ metadata:
 
 ## Hard Rules（核心规则）
 
-1. 先给赛季、对象和“约”的金额，再给表格与图（税后、税前、DARKO价值估算三项）；税务口径、来源日期及不确定因素放在底部。
+1. 先给赛季、对象和“约”的金额，再给表格与图（税后估算与税前薪水）；税务口径、来源日期及不确定因素放在底部。
 2. 仅覆盖2026–27；其他赛季不套用本季缓存。“下赛季”按提问日期判断，不符本季时说明范围；快照不得称实时数据。
-3. 税后金额采用脚本结果；最终结算只是情景，10%暂扣不再重复扣；Single不证明单身，婚姻未知需给MFJ对照。
+3. 税后金额采用完整Spotrac薪水减估算税款，不扣联盟托管金、不估算联盟结算；Single不证明单身，婚姻未知需给MFJ对照。
 4. 表图使用同次查询；逐人标现役/非现役·保留付款及免税州；当前完整合同与未来续约分列，不用剩余年数冒充签约年数。
 5. 查不到不等于人不存在；不猜替代、不填零、不静默漏人；错误按下方回退，不编造数字、图片或来源。
 
@@ -27,7 +27,7 @@ python3 -X utf8 scripts/take_home.py '杨瀚森' --season 2026-27 --brief --json
 - 首句使用 `rounded_net_usd`，例如“某球员2026–27赛季税后约××万美元”。用户问算式时可直接展开。
 - 读取 `visualization.table_markdown` 所指文件作表格，在浏览器/可视化预览中渲染 `visualization.html`，禁止用源码编辑器打开HTML或向用户输出代码/JSON；源数据为 `visualization.data_json`。用户不需要图时不加 `--chart`。
 - 每行使用 `roster_status_label`、`roster_team_display`、`team_tax_context`；“非现役”不等于已退役，免税州不证明真实居民地。
-- 底部给 `escrow_scenario`、`contract_baseline`、申报情景、Spotrac快照日期，以及居民地、配偶收入、伤病/下放、工作日、海外/跨税年、结算、奖金与经纪费等不确定因素。
+- 底部给申报情景、Spotrac快照日期、未计联盟托管及结算的范围说明，以及居民地、配偶收入、伤病/下放、工作日、海外/跨税年、结算、奖金与经纪费等不确定因素。
 - 图表固定用随包模板；手机先生成图片供长按保存，支持时提供系统分享。分享或下载成功不等于已入相册。详情见 [回答与图片规范](references/response-guide.md)。
 
 ## 常用查询
@@ -69,7 +69,7 @@ python3 -X utf8 scripts/take_home.py --compare '库里' '杜兰特' '杨瀚森' 
 - 复杂筛选、别名与批量参数：[查询指南](references/query-guide.md)。
 - 婚姻默认情景、完整合同、图片与宿主展示：[回答规范](references/response-guide.md)。
 - `--explain` 逐税项、`--ledger` 工作日、`--scenario` 自定义和缓存维护：[计算指南](references/calculation-guide.md)。
-- 公式与税务证据：[methodology](references/methodology.md)、[tax-sources](references/tax-sources.md)、[escrow](references/escrow.md)、[CBA特殊情形](references/cba-and-special-cases.md)。
+- 公式与税务证据：[methodology](references/methodology.md)、[tax-sources](references/tax-sources.md)、[CBA特殊情形](references/cba-and-special-cases.md)。
 
 跨季升级必须同时更新薪资、赛程、税年规则、申报情景和计算缓存并校验；`metadata.season`只声明适用范围，不意味着引擎已支持任意赛季。数据日期和覆盖以返回结果及 `--coverage` 为准。
 
@@ -81,6 +81,3 @@ python3 -X utf8 scripts/take_home.py --compare '库里' '杜兰特' '杨瀚森' 
 
 `--rank-disruption --top N` 在完整筛选名单内分别算税前/税后排名，再取上升与下降各最多N人；默认各10人。零变化不入榜，正数代表税后排名上升，不是换队因果分析。`--draft-year YYYY` 可组合年龄、球队及排名变化；当前选秀映射只有91人，未独立全量复核，必须说明结果是已收录子集，不能称完整某届名单。图表应显示税前排名、税后排名和升降；计算范围以rank_population为准。
 
-## DARKO价值估算
-
-查询自动附 `darko_value`，文字表格和图表均显示税后、税前、DARKO价值估算。Value 是年化球场价值模型估值，不称确定的“真实价格”；缺失显示暂无估值，负值保留。底部同时标注评级截至日期与抓取日期。与2026–27薪水可能不同期，不自动计算超值差额；不使用DARKO Salary替代Spotrac工资。公式、更新时间及维护见 [DARKO说明](references/darko-value.md)。

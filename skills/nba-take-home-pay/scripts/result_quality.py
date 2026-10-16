@@ -19,7 +19,7 @@ def check(row):
         raise ValueError('data_invalid: 税项合计与总税额不符，停止发布数字')
     if abs(row['gross_usd']-row['estimated_tax_usd']-row['estimated_net_usd'])>.25:
         raise ValueError('data_invalid: 税前调整、总税额与税后金额不符')
-    gross=row['spotrac_salary_usd']-row['cashflow_scenario']['modeled_final_reduction_usd']+row.get('extra_settlement_bonus_usd',0)+row.get('extra_cup_bonus_usd',0)
+    gross=row['spotrac_salary_usd']+row.get('extra_cup_bonus_usd',0)
     if abs(gross-row['gross_usd'])>.25:
         raise ValueError('data_invalid: 收入调整不符，停止发布数字')
     tax_state=row.get('team_tax_context',{}).get('team_state')

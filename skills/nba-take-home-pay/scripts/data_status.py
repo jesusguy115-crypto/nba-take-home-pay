@@ -12,9 +12,8 @@ CATEGORY_FILES = {
     'profiles': ('assets/player-tax-profiles-2026-27.json',),
     'tax_rules': ('scripts/tax_east.py', 'scripts/tax_west.py', 'scripts/tax_federal.py',
                   'scripts/tax-east.json', 'scripts/tax-west.json', 'scripts/tax-federal-crossborder.json'),
-    'settlement_rules': ('scripts/escrow-rules.json',),
     'model': ('scripts/estimate.py', 'scripts/duty_days.py', 'scripts/state_labels.py',
-              'scripts/data_status.py', 'scripts/build_estimates.py', 'scripts/escrow.py'),
+              'scripts/data_status.py', 'scripts/build_estimates.py', 'scripts/tax_only_output.py'),
 }
 
 
