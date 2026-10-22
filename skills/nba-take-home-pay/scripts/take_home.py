@@ -159,7 +159,7 @@ def brief_result(result):
     for field in ('rank', 'position', 'team_correction', 'agent_fee_scenario',
                   'age', 'birth_date', 'age_as_of', 'age_status', 'age_source', 'birth_date_checked',
                   'roster_status_label', 'roster_team_display', 'roster_status_note', 'contract_context',
-                  'gross_rank', 'net_rank', 'rank_delta'):
+                  'gross_rank', 'net_rank', 'rank_delta', 'fair_salary', 'league_ranks'):
         if field in result:
             output[field] = result[field]
     return output
@@ -215,10 +215,25 @@ def match_error(players, query):
     }
 
 
+def league_rank_metadata(row, population):
+    """Global ranks use the complete salary snapshot, never a filtered query."""
+    same = next((p for p in population if str(p['player_id']) == str(row['player_id'])), None)
+    compatible = same is not None and abs(same['estimated_net_usd']-row['estimated_net_usd']) < .01 and same['filing_scenario']['status'] == row['filing_scenario']['status']
+    row['league_ranks'] = {
+        'gross': 1+sum(p['spotrac_salary_usd'] > row['spotrac_salary_usd'] for p in population),
+        'net': 1+sum(p['estimated_net_usd'] > row['estimated_net_usd'] for p in population) if compatible else None,
+        'population':len(population), 'scope':'全联盟薪资快照接收者（含非现役保留付款）',
+        'net_basis':'各人默认申报情景；自定义情景不继承默认联盟名次',
+    }
+    return row
+
+
 def sorted_results(rows, basis, order='desc'):
     if not basis:
         return rows
-    field = 'spotrac_salary_usd' if basis == 'gross' else 'estimated_net_usd'
+    if basis == 'fair':
+        rows = [dict(r, _fair_sort=r['fair_salary']['value_usd']) for r in rows if r.get('fair_salary', {}).get('value_usd') is not None]
+    field = '_fair_sort' if basis == 'fair' else 'spotrac_salary_usd' if basis == 'gross' else 'estimated_net_usd'
     direction = 1 if order == 'asc' else -1
     ordered = sorted(rows, key=lambda row: (direction * row[field], row['player'].casefold(), str(row['player_id'])))
     previous = None
@@ -239,6 +254,7 @@ def print_single(result, cache, brief=False):
     contract = result.get('contract_context') or context(result['player_id'], result.get('active_roster', True))
     from render_chart import display
     print('税前薪水：'+display(result['spotrac_salary_usd'])+'万美元。')
+    print('合理薪资：'+display(result.get('fair_salary', {}).get('rounded_value_usd'))+'万美元。')
     print('当前合同：' + contract['current_summary'])
     print('另列未来续约：' + contract['extension_summary'])
     print('申报情景：' + LABELS[chosen])
@@ -258,6 +274,8 @@ def print_single(result, cache, brief=False):
     for line in common_uncertainties(cache, result['team'], result['residence_scenario']) + result['specific_uncertainties']:
         print('- ' + line)
     print('薪资来源：' + result['sources']['salary'])
+    from fair_salary import footer
+    print(footer([result.get('fair_salary', {})]))
     if not brief:
         print('逐项计算：同一命令加 --explain；逐日假设账：加 --ledger。')
 
@@ -265,7 +283,7 @@ def print_single(result, cache, brief=False):
 def print_batch(output):
     from render_chart import display
     query = output['query']
-    basis_map = {'gross': '税前合同现金薪资', 'net': '估计税后合同收入',
+    basis_map = {'gross': '税前合同现金薪资', 'net': '估计税后合同收入', 'fair': '合理薪资（仅有估值者）',
                  'input': '输入顺序', 'rank_disruption': '税前vs税后名次差'}
     basis = basis_map.get(query['sort'], query['sort'])
     direction = '从低到高' if query.get('order') == 'asc' else '从高到低' if query.get('order') == 'desc' else '保持输入顺序'
@@ -287,11 +305,13 @@ def print_batch(output):
             delta_str = f'↑{delta}' if delta and delta > 0 else f'↓{-delta}' if delta and delta < 0 else '='
             print(f"| {index} | {delta_str} | #{row.get('gross_rank','?')} | #{row.get('net_rank','?')} | {row['player']} | {row['age'] if row.get('age') is not None else '未知'} | {row['roster_status_label']} | {row['roster_team_display']} | {row['spotrac_salary_usd']/10000:,.2f} | {row['rounded_net_usd']/10000:,.0f} | {row['effective_tax_rate']:.1%} |")
     else:
-        print('| 序号 | 球员 | 年龄 | 阵容状态 | 球队或付款球队/州 | 合同税前（万美元） | 本情景税后约（万美元） | 申报情景 | 当前合同 | 未来续约 |')
+        print('| 序号 | 球员 | 年龄 | 阵容状态 | 球队或付款球队/州 | 合同税前（万美元） | 本情景税后约（万美元） | 合理薪资（万美元） | 申报情景 | 当前合同 | 未来续约 |')
         print('|---:|---|---:|---|---|---:|---:|---:|---:|---|---|')
         for index, row in enumerate(output['results'], 1):
             rank = row.get('rank', index)
-            print(f"| {rank} | {row['player']} | {row['age'] if row.get('age') is not None else '未知'} | {row['roster_status_label']} | {row['roster_team_display']} | {row['spotrac_salary_usd']/10000:,.2f} | {row['rounded_net_usd']/10000:,.0f} | {LABELS[row['filing_scenario']['status']]} | {row['contract_context']['current_summary']} | {row['contract_context']['extension_summary']} |")
+            print(f"| {rank} | {row['player']} | {row['age'] if row.get('age') is not None else '未知'} | {row['roster_status_label']} | {row['roster_team_display']} | {row['spotrac_salary_usd']/10000:,.2f} | {row['rounded_net_usd']/10000:,.0f} | {display(row.get('fair_salary', {}).get('rounded_value_usd'))} | {LABELS[row['filing_scenario']['status']]} | {row['contract_context']['current_summary']} | {row['contract_context']['extension_summary']} |")
+    from fair_salary import footer
+    print(footer([r.get('fair_salary', {}) for r in output['results']]))
     print(output['estimate_notice'] + f" 数据截至 {output['salary_captured_date']}。")
     print('查询范围：' + query['scope_note'])
     print('同金额并列名次，按英文姓名和ID稳定排序；截取指定人数。')
@@ -318,7 +338,7 @@ def _main(argv=None):
     parser.add_argument('--json', action='store_true', help='返回结构化结果；与 --brief 合用精简字段')
     parser.add_argument('--brief', action='store_true', help='保留金额、身份情景、风险及来源的快答输出')
     parser.add_argument('--top', type=positive_int, metavar='N', help='按 --sort 返回前N人，默认税前薪资排序')
-    parser.add_argument('--sort', choices=['gross', 'net'], help='按未取整税前薪资gross或税后估值net排序')
+    parser.add_argument('--sort', choices=['gross', 'net', 'fair'], help='按未取整税前gross、税后net或合理薪资fair排序（fair仅含有估值者）')
     parser.add_argument('--order', choices=['asc', 'desc'], help='asc从低到高；desc从高到低（默认）')
     parser.add_argument('--story', action='store_true', help='配合--chart生成工资去向图、横竖屏封面及口播稿；最多三人')
     parser.add_argument('--chart', type=Path, help='生成固定风格的离线交互HTML及同名Markdown表格、JSON数据')
@@ -505,12 +525,15 @@ def _main(argv=None):
                 result['team_correction'] = f"你提到{TEAMS[mentioned][0]}；{result['player']} 在本快照中对应{result['team_zh']}。"
         from player_context import enrich
         enrich(result)
+        from fair_salary import enrich as enrich_fair
+        enrich_fair(result)
         from result_quality import check
         try:
             result['quality'] = check(result)
         except ValueError as error:
             fail('data_invalid', str(error))
         result.update(age_metadata(result['player_id'], birthdays, as_of))
+        league_rank_metadata(result, cache['estimates'])
         results.append(result)
     if batch:
         count = selected_count
@@ -540,6 +563,7 @@ def _main(argv=None):
             basis = 'rank_disruption'
         else:
             basis = args.sort or (None if args.compare else 'gross')
+            fair_count = sum(r.get('fair_salary',{}).get('value_usd') is not None for r in results)
             results = sorted_results(results, basis, args.order or 'desc')
             if args.top is not None:
                 results = results[:args.top]
@@ -551,6 +575,8 @@ def _main(argv=None):
             scope_note += '按该队付款记录筛选；显示每名球员全部付款球队的总薪资，不是该队单独付款额。'
         else:
             scope_note += '薪资为每名球员全部付款球队的CashTotal合计。'
+        if basis == 'fair':
+            scope_note += f' 合理薪资排名限已匹配DARKO估值的{fair_count}名接收者；筛选薪资名单共{count}人，缺估值者未入榜。'
         output = shared_metadata(cache, args.team, compact=args.brief, settlement=None)
         output.update(query={'kind': 'rank_disruption' if args.rank_disruption else 'comparison' if args.compare else 'team' if args.team else 'ranking',
                              'team': args.team, 'scope': scope, 'scope_note': scope_note,
@@ -568,7 +594,7 @@ def _main(argv=None):
                                                 f'{args.birth_year_max}年及以前出生' if args.birth_year_max is not None else '') if text)} if age_filtered else None,
                              'draft_year': draft_year_filter,
                              'draft_coverage_note': '选秀映射仅覆盖91人，未经本次独立全量复核；结果是已收录子集，不是完整该届名单。' if draft_year_filter else None,
-                             'rank_population': count if args.rank_disruption else None,
+                             'rank_population': fair_count if basis == 'fair' else count if args.rank_disruption else None,
                              'ranking_note': ('税前vs税后排名颠覆榜：同一份名单分别按未取整税前和税后估值排序，计算名次差；正数为税后名次上升，负数为税后名次下降。描述性对比，不是换队因果推断。' if args.rank_disruption else
                                               '按指定方向排序未取整金额；同金额并列名次，再按英文姓名与ID排序；最多返回指定人数。')},
                       matched_count=count, returned_count=len(results),
@@ -635,6 +661,9 @@ def _main(argv=None):
             return
     from player_context import enrich
     enrich(result)
+    from fair_salary import enrich as enrich_fair
+    enrich_fair(result)
+    league_rank_metadata(result, cache['estimates'])
     if args.json or args.explain or args.chart:
         if args.brief:
             output = brief_result(result)

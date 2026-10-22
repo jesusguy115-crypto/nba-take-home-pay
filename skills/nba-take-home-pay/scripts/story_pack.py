@@ -40,6 +40,10 @@ def write_pack(rows, destination, season, salary_date):
         md += [f"| 最终税后差距 | {data['difference']['net_difference']/10000:+,.2f} |",'',data['note'],'']
     for p in data['players']:
         md+=['## '+p['name'],'','| 项目 | 金额 |','|---|---:|']+[f"| {s['label']} | {s['amount']/10000:+,.2f} |" for s in p['steps'] if s['amount']]+[f"| 税后估值 | {p['net']/10000:,.2f} |",'']
+    from fair_salary import footer
+    from render_chart import display
+    md += ['## 合理薪资（独立估值）', '', '| 球员 | 合理薪资（万美元） |', '|---|---:|'] + ['| '+p['name']+' | '+display(r.get('fair_salary',{}).get('rounded_value_usd'))+' |' for p,r in zip(data['players'],rows)]
+    md += ['', footer([r.get('fair_salary',{}) for r in rows]), 'https://beta.darko.app/', '']
     first=data['players'][0]
     spoken=f"{season}赛季，{first['name']}的税后合同收入估计约{first['net']/10000:,.0f}万美元。"
     if len(rows)==2:
@@ -55,6 +59,8 @@ def write_pack(rows, destination, season, salary_date):
     for p,r,v in zip(data['players'],rows,visual):
         all_steps=[(x['label'],x['amount']) for x in p['steps']]
         scenes=[('合同收入与最终结果', [('合同税前薪水',r['spotrac_salary_usd']),('最终税后估值',p['net'])])]
+        fair = r.get('fair_salary',{}).get('value_usd')
+        if fair is not None: scenes[0][1].append(('合理薪资',fair))
         nonzero=[x for x in all_steps[1:] if x[1] != 0]
         for offset in range(0,len(nonzero),5):
             scenes.append(('工资扣减与抵免明细',nonzero[offset:offset+5]))
@@ -81,6 +87,8 @@ def write_pack(rows, destination, season, salary_date):
             parts.append('<path d="M64 970H1856" stroke="#343c3e"/>')
             text(64,1020,f'薪资快照 {salary_date} · Spotrac / 头像 ESPN',23,'#abb3b4')
             text(880,1020,'完整合同薪水减估算税款 · 未计联盟结算及个人费用',23,'#abb3b4')
+            if fair is not None:
+                text(64,1056,'合理薪资来源 DARKO Fair Salary · 数据截至'+str(r['fair_salary'].get('ratings_through','未知'))+' · '+str(r['fair_salary'].get('valuation_currency_basis','原生口径'))+' · 场上贡献估值，非合同报价',18,'#abb3b4')
             svg='<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080" font-family="PingFang SC, Microsoft YaHei, Arial, sans-serif">'+''.join(parts)+'</svg>'
             cards.append((p['name']+' · '+scene_title,svg))
     sections=''.join('<section><h2>'+html.escape(label)+'</h2><button onclick="save(this)">生成PNG图片 / 保存</button><button onclick="video(this)">生成完整分幕视频（无配音）</button><div class="art">'+svg+'</div><div class="preview"></div></section>' for label,svg in cards)

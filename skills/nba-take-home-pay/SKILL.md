@@ -1,6 +1,6 @@
 ---
 name: nba-take-home-pay
-description: 查询固定2026–27赛季NBA球员税后合同收入；支持中文姓名、年龄筛选、排名、多人比较、逐项税额和可保存图片的交互图表。根据Spotrac及本地快照给出情景估算，不代表真实税单，不自动覆盖后续赛季。
+description: 查询固定2026–27赛季NBA球员税后合同收入；支持中文姓名、年龄筛选、排名、多人比较、DARKO合理薪资、逐项税额和可保存图片的交互图表。根据Spotrac及本地快照给出情景估算，不代表真实税单，不自动覆盖后续赛季。
 license: MIT for project-authored code and documentation; see LICENSE and THIRD_PARTY.md.
 metadata:
   season: "2026-27"
@@ -10,7 +10,7 @@ metadata:
 
 ## Hard Rules（核心规则）
 
-1. 先给赛季、对象和“约”的金额，再给表格与图（税后估算与税前薪水）；税务口径、来源日期及不确定因素放在底部。
+1. 先给赛季、对象和“约”的金额，再给表格与图（税后估算、税前薪水、合理薪资）；税务口径、来源日期及不确定因素放在底部。
 2. 仅覆盖2026–27；其他赛季不套用本季缓存。“下赛季”按提问日期判断，不符本季时说明范围；快照不得称实时数据。
 3. 税后金额采用完整Spotrac薪水减估算税款，不扣联盟托管金、不估算联盟结算；Single不证明单身，婚姻未知需给MFJ对照。
 4. 表图使用同次查询；逐人标现役/非现役·保留付款及免税州；当前完整合同与未来续约分列，不用剩余年数冒充签约年数。
@@ -18,7 +18,7 @@ metadata:
 
 ## 快答流程
 
-需要 Python 3.9+、技能目录读取权及脚本执行能力。命令相对技能目录；其他目录用脚本绝对路径。Windows 可把 `python3` 换为 `py -3`。数据随包提供，普通查询不抓网、不读全部参考资料、不重算全联盟。
+需要 Python 3.9+、技能目录读取权及脚本执行能力。命令相对技能目录；其他目录用脚本绝对路径。Windows 可把 `python3` 换为 `py -3`。薪资与税后数据随包提供；合理薪资优先用本机缓存，首次缺失时限时读取DARKO公开页面，失败不影响税后查询。普通查询不读全部参考资料、不重算全联盟。
 
 ```sh
 python3 -X utf8 scripts/take_home.py '杨瀚森' --season 2026-27 --brief --json --chart /absolute/writable/output/nba-pay.html
@@ -28,7 +28,7 @@ python3 -X utf8 scripts/take_home.py '杨瀚森' --season 2026-27 --brief --json
 - 读取 `visualization.table_markdown` 所指文件作表格，在浏览器/可视化预览中渲染 `visualization.html`，禁止用源码编辑器打开HTML或向用户输出代码/JSON；源数据为 `visualization.data_json`。用户不需要图时不加 `--chart`。
 - 每行使用 `roster_status_label`、`roster_team_display`、`team_tax_context`；“非现役”不等于已退役，免税州不证明真实居民地。
 - 底部给申报情景、Spotrac快照日期、未计联盟托管及结算的范围说明，以及居民地、配偶收入、伤病/下放、工作日、海外/跨税年、结算、奖金与经纪费等不确定因素。
-- 图表固定用随包模板；手机先生成图片供长按保存，支持时提供系统分享。分享或下载成功不等于已入相册。详情见 [回答与图片规范](references/response-guide.md)。
+- 图表固定用随包模板；页首只留查询主题主标题，不展示金色说明副标题和右侧日期块，日期放底部；手机先生成图片供长按保存，支持时提供系统分享。分享或下载成功不等于已入相册。详情见 [回答与图片规范](references/response-guide.md)。
 
 ## 常用查询
 
@@ -45,6 +45,12 @@ python3 -X utf8 scripts/take_home.py --compare '库里' '杜兰特' '杨瀚森' 
 ```
 
 成功查询默认补 `--chart`。先筛选再排名，最低用 `--order asc`；联盟默认包含全部现金付款接收者，球队默认现役，用户只看现役用 `--scope active`。30岁以内含30用 `--max-age 30`，未满30用 `--under-age 30`。不同年龄日期传 `--age-date YYYY-MM-DD`。更多边界、姓名消歧、跨国申报比较见 [查询指南](references/query-guide.md)。
+
+## 合理薪资
+
+展示名固定为“合理薪资”，使用独立字段 `fair_salary`，与税前、税后并列；不参与扣税、不算实际合同收入。文字表格、图表金额切换、PNG和视频首幕均保留该项。名次使用 `league_ranks` 的税前/税后联盟名次与 `fair_salary.global_rank` 的DARKO全库名次，禁止把查询名单内顺序当联盟名次；金额切换只重排当前名单。底部小字注明DARKO Fair Salary、比赛截止日期与原生计价口径；不得把抓取日期说成比赛更新日期。缺值写“暂无估值”，保留负值。
+
+`--sort fair --top 10` 查询已匹配估值者排名；结果仅覆盖薪资缓存和DARKO交集，不能声称DARKO全库排名。`python3 scripts/fair_salary.py --refresh` 显式刷新本机缓存。完整估值缓存不随发行包分发。详见[合理薪资口径](references/fair-salary.md)。
 
 ## 异常时回退
 

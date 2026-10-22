@@ -57,8 +57,8 @@ def chart_data(payload):
     season = payload.get('season', '2026-27')
     basis = query.get('sort', 'net')
     order = query.get('order', 'desc' if basis != 'input' else 'input')
-    metric = 'gross' if basis == 'gross' else 'net'
-    initial_label = '税前薪水' if metric == 'gross' else '税后薪水'
+    metric = basis if basis in ('gross', 'net', 'fair') else 'net'
+    initial_label = {'gross':'税前薪水','net':'税后薪水','fair':'合理薪资'}[metric]
     player_labels = [names.get(r['player_id'], r['player']) for r in records]
     if query.get('kind') == 'comparison':
         subject = '、'.join(player_labels[:3])
@@ -75,7 +75,7 @@ def chart_data(payload):
         heading = f'{player_labels[0]} {season}赛季税后薪水'
     else:
         heading = f'{" · ".join(scope) or "NBA球员"} {season}赛季薪水一览'
-    subtitle = '税前薪水与税后估算' if query.get('kind') == 'comparison' else f'本次展示{len(records)}名球员 · 合同收入估算'
+    subtitle = '税前薪水 · 税后估算 · 合理薪资' if query.get('kind') == 'comparison' else f'本次展示{len(records)}名球员 · 合同收入估算'
     if query.get('kind') == 'rank_disruption':
         heading = f'{" · ".join(scope) or "NBA球员"} {season}赛季税前税后排名变化'
         subtitle = f'在{query.get("rank_population",0)}人中比较 · 上升/下降各最多{query.get("movers_per_direction",10)}人'
@@ -106,6 +106,12 @@ def chart_data(payload):
             'net': money(r['estimated_net_usd']), 'netLabel': money(r['rounded_net_usd']),
             'gross': money(r['spotrac_salary_usd']), 'settledGross': money(r['gross_usd']),
             'tax': money(r['estimated_tax_usd']),
+            'fair': r.get('fair_salary', {}).get('value_usd'),
+            'fairLabel': r.get('fair_salary', {}).get('rounded_value_usd'),
+            'fairInfo': deepcopy(r.get('fair_salary', {})),
+            'fairRank': r.get('fair_salary', {}).get('global_rank'),
+            'netRank': r.get('league_ranks', {}).get('net'),
+            'grossRank': r.get('league_ranks', {}).get('gross'),
             'cup': money(r.get('extra_cup_bonus_usd', 0)),
             'initial': index,
             'source': safe_url(r['sources']['salary']), 'notes': r.get('specific_uncertainties', []),
@@ -122,6 +128,8 @@ def chart_data(payload):
         row['mediaNote'] = portrait.get('image_note', '头像可能为早期照片，球衣不用于判断当前球队。')
         row['portraitStatus'] = portrait.get('status', 'unavailable')
         rows.append(row)
+    from fair_salary import footer
+    fair_note = footer([r.get('fair_salary', {}) for r in records])
     first = records[0] if records else {}
     return {
         'schema': 'nba-ledger/1', 'style': STYLE_VERSION, 'heading': heading, 'subtitle': subtitle,
@@ -130,6 +138,8 @@ def chart_data(payload):
         'scope': query.get('scope_note', first.get('roster_status_note', '按薪资快照分类。')) + (' '+query['draft_coverage_note'] if query.get('draft_coverage_note') else ''),
         'calculationNote': '完整合同薪水减估算税款；未计联盟托管及结算、经纪费和个人扣款。',
         'notice': payload.get('estimate_notice', '公开资料的情景估算，非私人税单或银行到账。'),
+        'fairNote': fair_note,
+        'rankNote': '行首名次：税前和税后为全联盟薪资快照名次；合理薪资为DARKO全库名次。切换只重排本次名单，不将名单内顺序冒充全联盟排名。',
         'uncertainties': payload.get('common_uncertainties', []), 'rows': rows,
     }
 
@@ -139,18 +149,18 @@ def table_markdown(data):
         return str(value).replace('|', '\\|').replace('\n', ' ')
     lines = [f"# {data['heading']} · {data['subtitle']}", '',
              f"{data['season']}赛季；年龄截至{data['ageDate']}；薪资快照{data['salaryDate']}。单位：万美元。", '',
-             '| 序号 | 球员 | 年龄 | 状态 | 球队或付款球队 | 合同税前 | 税后估值 | 申报情景 | 当前合同 | 未来续约 |',
-             '|---:|---|---:|---|---|---:|---:|---|---|---|']
+             '| 序号 | 球员 | 年龄 | 状态 | 球队或付款球队 | 合同税前 | 税后估值 | 合理薪资 | 申报情景 | 当前合同 | 未来续约 |',
+             '|---:|---|---:|---|---|---:|---:|---:|---|---|---|']
     for i, row in enumerate(data['rows'], 1):
         values = [i, row['name'], row['age'] if row['age'] is not None else '未知', row['status'], row['team'] + (' · 免税州' if row['taxFree'] and '免税州' not in row['team'] else ''),
-                  display(row['gross'], 2), display(row['netLabel']), row['filing'], row['contract']['current_summary'], row['contract']['extension_summary']]
+                  display(row['gross'], 2), display(row['netLabel']), display(row['fairLabel']) + ('（DARKO第'+str(row['fairRank'])+'）' if row['fairRank'] else ''), row['filing'], row['contract']['current_summary'], row['contract']['extension_summary']]
         lines.append('| ' + ' | '.join(cell(x) for x in values) + ' |')
     if any(r.get('rankChange') for r in data['rows']):
         lines += ['', '## 税前税后排名变化', '', '| 球员 | 排名变化 |', '|---|---|'] + ['| '+cell(r['name'])+' | '+cell(r['rankChange'])+' |' for r in data['rows']]
     lines += ['', '## 计算说明', '', '计算范围：' + data['calculationNote'], '', data['notice'], '', '范围：' + data['scope'], '',
               '排序基于未取整金额；税后金额为完整合同薪水减估算税款。合同总额、保障及均薪是合同资料，不替代本季工资；未来续约单独列示。合同核对日期：2026-10-10；未核实项明确标记。', '']
     lines += ['- ' + x for x in data['uncertainties']]
-    lines += ['', '薪资来源：'] + ['- [' + cell(r['name']) + '](' + r['source'] + ')' for r in data['rows'] if r['source']]
+    lines += ['', data['fairNote'], 'DARKO来源：https://beta.darko.app/；方法：https://beta.darko.app/about/fair-salary', '', '薪资来源：'] + ['- [' + cell(r['name']) + '](' + r['source'] + ')' for r in data['rows'] if r['source']]
     return '\n'.join(lines) + '\n'
 
 
@@ -159,7 +169,7 @@ def static_table(data):
     cells = []
     for i, row in enumerate(data['rows'], 1):
         values = [str(i), row['name'], str(row['age']) if row['age'] is not None else '未知', row['status'], row['team'] + (' · 免税州' if row['taxFree'] and '免税州' not in row['team'] else ''),
-                  display(row['gross'], 2), display(row['netLabel']), row['filing'], row['contract']['current_summary'], row['contract']['extension_summary']]
+                  display(row['gross'], 2), display(row['netLabel']), display(row['fairLabel']), row['filing'], row['contract']['current_summary'], row['contract']['extension_summary']]
         cells.append('<tr>' + ''.join('<td>' + e(v) + '</td>' for v in values) + '</tr>')
     return ''.join(cells)
 

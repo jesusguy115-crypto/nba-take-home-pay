@@ -58,7 +58,7 @@ class ChartTests(unittest.TestCase):
         self.assertIn('非现役·保留付款', markdown)
         self.assertIn('免税州', markdown)
         self.assertNotIn('5.48%', markdown)
-        self.assertNotIn('DARKO', markdown)
+        self.assertIn('DARKO', markdown)
         self.assertIn('完整合同薪水减估算税款', markdown)
 
     def test_single_and_empty_are_supported(self):

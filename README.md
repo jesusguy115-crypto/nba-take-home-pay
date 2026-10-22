@@ -211,3 +211,7 @@ python3 skills/nba-take-home-pay/scripts/take_home.py --compare 申京 杰伦格
 ### v0.9.5：专注合同税后薪水
 
 全部520人及申报情景已按完整Spotrac工资重算；上季收入代理也恢复为原始工资。表格、图表、PNG和视频只展示税前薪水与税后估算，移除联盟托管及结算模型和DARKO数据。保留逐税项、客场工作日与抵免解释，结果不是银行到账预测。
+
+### v0.9.6：合理薪资
+
+默认表格及图表提供税前、税后、合理薪资三项；合理薪资来自DARKO并在底部列明数据截止日及原生计价口径，不参与税额计算。首次缺缓存限时在线获取，后续快速读取本机缓存；运行 `python3 skills/nba-take-home-pay/scripts/fair_salary.py --refresh` 更新。排名用 `--sort fair --top 10`，范围限薪资与估值交集。完整估值快照不随包发行，详见 references/fair-salary.md 与第三方条款。

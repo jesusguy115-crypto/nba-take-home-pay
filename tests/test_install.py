@@ -67,6 +67,16 @@ class InstallTests(unittest.TestCase):
         self.assertEqual(before, snapshot(self.source))
         self.assertIsNone(result.backup)
 
+    def test_local_fair_cache_not_bundled_and_upgrade_preserves_destination(self):
+        (self.source / ".cache").mkdir()
+        (self.source / ".cache/fair-salary.json").write_text("source cache")
+        installer.install(self.source, self.destination)
+        self.assertFalse((self.destination / ".cache").exists())
+        (self.destination / ".cache").mkdir()
+        (self.destination / ".cache/fair-salary.json").write_text("local cache")
+        installer.install(self.source, self.destination, force=True)
+        self.assertEqual((self.destination / ".cache/fair-salary.json").read_text(), "local cache")
+
     def test_refuses_overwrite_and_keeps_original(self):
         before = self.old_installation()
         with self.assertRaises(installer.InstallError):

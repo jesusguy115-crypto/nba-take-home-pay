@@ -24,7 +24,7 @@ AGENT_DIRECTORIES = {
     "github-copilot": (".github/skills", ".copilot/skills"),
 }
 REQUIRED_SCRIPTS = (
-    "take_home.py", "player_context.py", "build_estimates.py", "estimate.py", "duty_days.py",
+    "take_home.py", "fair_salary.py", "player_context.py", "build_estimates.py", "estimate.py", "duty_days.py",
     "state_labels.py", "player_names.py", "player_ages.py", "data_status.py", "tax_only_output.py", "tax_east.py", "tax_west.py",
     "tax_federal.py", "query_cache.py", "lookup_2026_27.py", "render_chart.py",
     "tax-east.json", "tax-west.json", "tax-federal-crossborder.json",
@@ -164,7 +164,12 @@ def install(source: Path, destination: Path, *, force: bool = False,
     staged = staging_root / "payload"
     backup = None
     try:
-        shutil.copytree(source, staged)
+        shutil.copytree(source, staged, ignore=shutil.ignore_patterns(".cache", "__pycache__", "*.pyc"))
+        # Preserve only the local valuation data file on upgrades, never bundle caches.
+        previous_cache = destination / ".cache" / "fair-salary.json"
+        if previous_cache.is_file() and not previous_cache.is_symlink():
+            (staged / ".cache").mkdir(exist_ok=True)
+            shutil.copy2(previous_cache, staged / ".cache" / "fair-salary.json")
         for metadata_path in metadata_files:
             shutil.copy2(metadata_path, staged / metadata_path.name)
         validate_source(staged, code_only=code_only)
